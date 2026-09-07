@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+  <meta name="referrer" content="no-referrer">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>المصروفات - نوشي بيكري</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@600;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    /* أساسيات */
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;font-family:'-apple-system','BlinkMacSystemFont','Cairo',sans-serif;background:#fff8f0;color:#333}
+    body{ -webkit-font-smoothing:antialiased; -webkit-text-size-adjust:100%; -webkit-tap-highlight-color:transparent }
+
+    /* هيدر وتبويبات */
+    .header{display:flex;flex-direction:column;align-items:center;padding:10px 10px 0}
+    .header img{height:86px}
+	
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(2, 140px); /* عمودين بعرض ثابت */
+  gap: 10px 20px; /* مسافة صف وعمود */
+  justify-content: center; /* توسيط الشبكة */
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e67e22; /* خط أسفل التبويبات */
+}
+
+.tabs button {
+  background-color: #00bcd4; /* لون زر واضح */
+  color: #fff; /* نص أبيض */
+  border: none;
+  border-radius: 8px;
+  padding: 10px 15px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s;
+  text-align: center;
+}
+
+.tabs button:hover {
+  background-color: #0097a7; /* لون عند المرور */
+}
+
+/* مودال إضافة بند */
+.show-add-item #newItemBg,
+.show-add-item #newItemModal {
+  opacity:1 !important;
+  visibility:visible !important;
+  transform:translateY(0) !important;
+}
+
+/* مودال حذف بند */
+.show-delete-item #deleteItemBg,
+.show-delete-item #deleteItemModal {
+  opacity:1 !important;
+  visibility:visible !important;
+  transform:translateY(0) !important;
+}
+
+
+    h1{font-family:'Tajawal',sans-serif;text-align:center;color:#d35400;margin:8px 0 4px;font-size:1.4rem}
+    .wrap{width:100%;max-width:1120px;margin:0 auto;padding:10px}
+
+    /* بطاقات */
+    .card{background:#fff;border-radius:18px;box-shadow:0 6px 18px rgba(0,0,0,.08);padding:14px;margin-bottom:12px}
+    .card h3{margin:0 0 10px;color:#d35400;font-size:1.1rem;text-align:start}
+
+    /* نموذج */
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .row>*.field{flex:1 1 220px;min-width:0}
+    .field{display:flex;flex-direction:column;gap:6px}
+    label{font-size:.95rem;color:#444}
+    input,select,textarea{width:100%;padding:12px 14px;border:1.5px solid #eee;border-radius:12px;background:#fffdf9;font-size:16px}
+    input:focus,select:focus{outline:none;border-color:#e67e22;box-shadow:0 0 0 4px rgba(230,126,34,.15)}
+    .actions-line{display:flex;gap:10px;position:sticky;bottom:0;background:linear-gradient(180deg,rgba(255,248,240,0),#fff8f0 40%);padding:8px;border-radius:12px}
+    .btn{background:#e67e22;color:#fff;border:none;border-radius:12px;padding:12px 14px;cursor:pointer;font-weight:700}
+    .btn.ghost{background:#fff;color:#e67e22;border:2px solid #e67e22}
+
+    /* شريط الشهور */
+    .monthbar{display:flex;align-items:center;justify-content:space-between;margin:10px 0}
+    .monthbar .title{color:#d35400;font-weight:800}
+
+    /* ملخص مالي */
+    .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+    .summary-item{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.06);padding:12px}
+    .summary-item .label{color:#777;font-size:.9rem;margin-bottom:4px}
+    .summary-item .value{font-weight:800;font-size:1.2rem}
+
+    .orange-line{border-top:4px solid #e67e22;width:100%;margin:12px 0}
+
+    /* جدول المصروفات */
+table{width:100%;border-collapse:collapse;font-size:0.7rem}
+th,td{padding:4px 6px;border-bottom:1px solid #f0e0d6;text-align:center}
+th{background:#ffe1c7;color:#7a3a00;font-size:0.7rem}
+    .actions{position:relative;z-index:1}
+    .actions .btn{position:relative;padding:4px 8px;font-size:.8rem;border-radius:8px;line-height:1.2;min-width:auto}
+    .actions .btn::after{content:"";position:absolute;inset:-8px}
+
+    /* Bottom Sheet (iOS-style) */
+    .sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.25);opacity:0;visibility:hidden;transition:.25s ease}
+    .sheet{position:fixed;left:0;right:0;bottom:0;transform:translateY(100%);background:#f8f8f8;border-top-left-radius:18px;border-top-right-radius:18px;box-shadow:0 -10px 30px rgba(0,0,0,.25);padding:12px;transition:.3s ease;z-index:9998}
+    .sheet .handle{width:44px;height:5px;background:#d0d0d0;border-radius:3px;margin:6px auto 10px}
+    .sheet .group{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06);margin-bottom:10px}
+    .sheet .cell{padding:14px;text-align:center;font-weight:800}
+    .sheet .cell+ .cell{border-top:1px solid #eee}
+    .sheet .cell.danger{color:#d32f2f}
+    .sheet .cell.cancel{color:#333;background:#fff}
+    .sheet-open .sheet{transform:translateY(0)}
+    .sheet-open .sheet-backdrop{opacity:1;visibility:visible}
+
+    /* Edit Modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;visibility:hidden;transition:.25s}
+    .modal{position:fixed;left:12px;right:12px;top:12%;background:#fff;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.25);padding:14px;transform:translateY(-8px);opacity:0;visibility:hidden;transition:.25s;z-index:9999}
+    .modal header{font-weight:900;color:#d35400;text-align:center;margin-bottom:10px}
+    .modal .row{display:flex;flex-direction:column;gap:8px}
+    .modal .foot{display:flex;gap:10px;margin-top:12px}
+    .modal .foot .btn{flex:1;padding:12px 14px;border-radius:12px}
+    .show-modal .modal-backdrop{opacity:1;visibility:visible}
+    .show-modal .modal{opacity:1;visibility:visible;transform:translateY(0)}
+
+    /* مخططات */
+    .flex-cols{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:900px){.flex-cols{grid-template-columns:repeat(3,1fr)}}
+	
+	/* CSS خاص بمودال إضافة البند */
+.show-add-item-modal #newItemBg,
+.show-add-item-modal #newItemModal {
+  opacity:1 !important;
+  visibility:visible !important;
+  transform:translateY(0) !important;
+}
+
+/* CSS خاص بمودال حذف البند */
+.show-delete-item-modal #deleteItemBg,
+.show-delete-item-modal #deleteItemModal {
+  opacity:1 !important;
+  visibility:visible !important;
+  transform:translateY(0) !important;
+}
+/* CSS خاص بمودال حذف سجل المصروف */
+.show-delete-expense-modal #deleteExpenseBg,
+.show-delete-expense-modal #deleteExpenseModal {
+  opacity:1 !important;
+  visibility:visible !important;
+  transform:translateY(0) !important;
+}
+/* CSS خاص بمودال تعديل المصروف */
+.show-edit-expense-modal #editBg,
+.show-edit-expense-modal #editModal {
+  opacity:1 !important;
+  visibility:visible !important;
+  transform:translateY(0) !important;
+}
+  </style>
+  <style id="noshi-auth-cloak">body{visibility:hidden!important}</style>
+</head>
+<body>
+  <div class="header">
+    <img src="Noshi.png" alt="نوشي بيكري" />
+  </div>
+
+  <div style="display:flex; flex-direction:column; align-items:center; gap:8px; width:100%; padding:10px;">
+    <div style="display:flex; justify-content:center; gap:8px; width:100%; flex-wrap:wrap;">
+      <button onclick="window.location.href='index.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+        🛍️ المنتجات
+      </button>
+      <button onclick="window.location.href=\'dashboard.html\'" class="nav-btn">🌐 طلبات الموقع</button>
+      <button onclick="window.location.href='order.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+        📦 الطلبيات
+      </button>
+    </div>
+    
+    <div style="display:flex; justify-content:center; gap:8px; width:100%; flex-wrap:wrap;">
+      <button onclick="window.location.href='client.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+        👥 العملاء
+      </button>
+      <button onclick="window.location.href='mandoubs.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+        🚚 المناديب
+      </button>
+	      <button 
+		        <button onclick="window.location.href='sales.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+      📊 الاحصائيات
+    </button>
+		      <button 
+		        <button onclick="window.location.href='expenses.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+💳 المصروفات
+    </button>
+      <button onclick="window.location.href='client-products.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+⏰ تسليم الطلبات
+      </button>					
+    </div>
+  </div>
+
+  <h1>المصروفات</h1>
+  <div class="wrap">
+    <!-- شريط تغيير الشهور -->
+    <div class="monthbar card">
+      <button class="btn" id="prevMonth">▶ الشهر السابق</button>
+      <div class="title" id="monthTitle"></div>
+      <button class="btn" id="nextMonth">الشهر التالي ◀ </button>
+    </div>
+
+    <div class="card">
+      <h3>➕ إضافة مصروف جديد</h3>
+      <div class="row">
+        <div class="field">
+          <label for="itemSelect">البند</label>
+          <div class="row">
+            <select id="itemSelect" aria-label="اختيار البند"></select>
+			<button type="button" id="openNewItemModal" class="btn">➕ إضافة بند جديد</button>
+			<button type="button" id="openDeleteItemModal" class="btn ghost">🗑 حذف بند</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="categorySelect">التصنيف</label>
+          <select id="categorySelect" aria-label="تصنيف المصروف">
+            <option value="مواد خام">مواد خام</option>
+            <option value="تغليف">تغليف</option>
+            <option value="بلاستيكات">بلاستيكات</option>
+            <option value="أخرى">أخرى</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="amountInput">المبلغ (ريال)</label>
+<input
+  id="amountInput"
+  type="text"
+  inputmode="decimal"
+  data-numeric
+  placeholder="0.00"
+  aria-label="قيمة المبلغ"
+/>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="dateInput">التاريخ</label>
+          <input id="dateInput" type="date" />
+        </div>
+        <div class="field">
+          <label for="noteInput">ملاحظة</label>
+          <input id="noteInput" placeholder="اختياري" autocomplete="off" />
+        </div>
+      </div>
+      <div class="actions-line">
+        <button class="btn" id="addExpenseBtn">➕ إضافة</button>
+        <button class="btn ghost" id="clearFormBtn">إعادة</button>
+      </div>
+    </div>
+
+    <!-- الملخص المالي وصافي الربح من IndexedDB.salesData -->
+    <div class="card">
+      <h3>💼 الملخص المالي للشهر</h3>
+      <div class="summary-grid">
+        <div class="summary-item"><div class="label">💰 صافي المبيعات</div><div class="value" id="salesSum">0</div></div>
+        <div class="summary-item"><div class="label">📉 إجمالي المصروفات</div><div class="value" id="expensesSum">0</div></div>
+        <div class="summary-item"><div class="label">✅ صافي الربح</div><div class="value" id="netProfit">0</div></div>
+      </div>
+    </div>
+
+    <div class="orange-line"></div>
+
+    <!-- جدول المصروفات -->
+    <div class="card">
+      <h3>📅 المصروفات الشهرية</h3>
+      <div style="overflow-x:auto">
+        <table id="expensesTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>التاريخ 📅</th>
+              <th>البند 📌</th>
+              <th>التصنيف</th>
+              <th>المبلغ 💵</th>
+              <th>الملاحظة ✏️</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div class="summary-item" style="flex:1"><div class="label">إجمالي المصروفات لهذا الشهر</div><div class="value" id="monthTotal">0</div></div>
+      </div>
+    </div>
+
+    <div class="orange-line"></div>
+
+    <!-- الرسوم البيانية -->
+    <div class="flex-cols">
+      <div class="card">
+        <h3>📊 نسبة كل بند (Pie)</h3>
+        <canvas id="pieCanvas" height="180"></canvas>
+      </div>
+      <div class="card">
+        <h3>📊 مجموع كل فئة (Bar)</h3>
+        <canvas id="barCanvas" height="180"></canvas>
+      </div>
+      <div class="card">
+        <h3>📈 مقارنة المصروفات بين الشهور (Line)</h3>
+        <canvas id="lineCanvas" height="180"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- iOS-style Action Sheet -->
+  <div class="sheet-backdrop" id="sheetBg"></div>
+  <div class="sheet" id="actionSheet" role="dialog" aria-modal="true">
+    <div class="handle"></div>
+    <div class="group">
+      <div class="cell" id="sheetEdit">✏️ تعديل</div>
+      <div class="cell danger" id="sheetDelete">❌ حذف</div>
+    </div>
+    <div class="group">
+      <div class="cell cancel" id="sheetCancel">إلغاء</div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal-backdrop" id="editBg"></div>
+  <div class="modal" id="editModal" role="dialog" aria-modal="true">
+    <header>تعديل المصروف</header>
+    <div class="row">
+      <label>البند</label>
+      <input id="editItem" />
+      <label>التصنيف</label>
+      <select id="editCat">
+        <option value="مواد خام">مواد خام</option>
+        <option value="تغليف">تغليف</option>
+        <option value="تشغيل">تشغيل</option>
+        <option value="أخرى">أخرى</option>
+      </select>
+      <label>المبلغ (ريال)</label>
+<input
+  id="editAmount"
+  type="text"
+  inputmode="decimal"
+  data-numeric
+  placeholder="0.00"
+/>
+      <label>التاريخ</label>
+      <input id="editDate" type="date" />
+      <label>ملاحظة</label>
+      <input id="editNote" />
+    </div>
+    <div class="foot">
+      <button class="btn" id="editSave">حفظ</button>
+      <button class="btn ghost" id="editClose">إلغاء</button>
+    </div>
+  </div>
+<!-- Delete Item Modal -->
+<div class="modal-backdrop" id="deleteItemBg"></div>
+<div class="modal" id="deleteItemModal" role="dialog" aria-modal="true">
+  <header>حذف بند</header>
+  <div class="row">
+    <label>اختر البند المراد حذفه</label>
+    <select id="deleteItemSelect"></select>
+  </div>
+  <div class="foot">
+    <button class="btn" id="confirmDeleteItem">حذف</button>
+    <button class="btn ghost" id="cancelDeleteItem">إلغاء</button>
+  </div>
+</div>
+
+<!-- Delete Expense Modal -->
+<div class="modal-backdrop" id="deleteExpenseBg"></div>
+
+<div
+  class="modal"
+  id="deleteExpenseModal"
+  role="dialog"
+  aria-modal="true"
+>
+  <header>حذف المصروف</header>
+
+  <div class="row">
+    <label id="deleteExpenseText">
+      هل تريد حذف هذا المصروف؟
+    </label>
+  </div>
+
+  <div class="foot">
+    <button class="btn" id="confirmDeleteExpense">
+      حذف
+    </button>
+
+    <button class="btn ghost" id="cancelDeleteExpense">
+      إلغاء
+    </button>
+  </div>
+</div>
+
+<!-- Add New Item Modal -->
+<div class="modal-backdrop" id="newItemBg"></div>
+<div class="modal" id="newItemModal" role="dialog" aria-modal="true">
+  <header>إضافة بند جديد</header>
+  <div class="row">
+    <label>اسم البند</label>
+    <input id="newItemName" />
+    <label>التصنيف</label>
+    <select id="newItemCat">
+      <option value="مواد خام">مواد خام</option>
+      <option value="تغليف">تغليف</option>
+      <option value="بلاستيكات">بلاستيكات</option>
+      <option value="أخرى">أخرى</option>
+    </select>
+  </div>
+  <div class="foot">
+    <button class="btn" id="saveNewItem">حفظ</button>
+    <button class="btn ghost" id="cancelNewItem">إلغاء</button>
+  </div>
+</div>
+
+<script src="ui-modal.js"></script>
+<script src="./db.js"></script>
+
+<script>
+  
+    // ====== بيانات أساسية ======
+    const DEFAULT_ITEMS = [
+      {name:'زيت', category:'مواد خام'},
+      {name:'زيت زيتون', category:'مواد خام'},
+      {name:'بخاخ الزيت', category:'مواد خام'},	  	  
+      {name:'دقيق', category:'مواد خام'},
+      {name:'حليب بودرة', category:'مواد خام'},	  
+      {name:'سكر', category:'مواد خام'},
+      {name:'سكر بني', category:'مواد خام'},
+      {name:'فلادلفيا', category:'مواد خام'},
+      {name:'بكنج بودر', category:'مواد خام'},
+      {name:'فانيلا', category:'مواد خام'},
+      {name:'زبادي', category:'مواد خام'},
+      {name:'جبن كيري', category:'مواد خام'},	  
+      {name:'جبن سالم', category:'مواد خام'},
+      {name:'جبن مالح', category:'مواد خام'},	  
+      {name:'قشطة', category:'مواد خام'},
+      {name:'زبدة', category:'مواد خام'},	  
+      {name:'حليب نستله', category:'مواد خام'},
+      {name:'بسكوت دايجستف', category:'مواد خام'},	
+      {name:'مربى', category:'مواد خام'},
+      {name:'عسل', category:'مواد خام'},
+      {name:'صوص شوكليت', category:'مواد خام'},	
+      {name:'شوكليت', category:'مواد خام'},		  
+      {name:'قرفة', category:'مواد خام'},
+      {name:'عين الجمل', category:'مواد خام'},
+      {name:'تفاح', category:'مواد خام'},
+      {name:'ليمون', category:'مواد خام'},
+      {name:'برتقال', category:'مواد خام'},
+	  
+	  
+      {name:'علب', category:'بلاستيكات'},
+      {name:'قاعدة', category:'بلاستيكات'},
+      {name:'قالب كيك', category:'بلاستيكات'},	  	  
+	  
+	  
+      {name:'صحون تقديم', category:'تغليف'},
+      {name:'طباعة استكرات', category:'تغليف'},
+      {name:'أكياس', category:'تغليف'},	  
+      {name:'قطع تزيين ( زينه )', category:'تغليف'},
+	  
+    ];
+    const monthNames = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+
+    let currentYear = new Date().getFullYear();
+    let currentMonth = new Date().getMonth() + 1; // 1..12
+    // بيانات الصفحة بعد تحميلها من IndexedDB
+    // الهيكل: expensesData[YYYY-MM] = [{id, date, item, category, amount, note}]
+    let expensesData = {};
+    let allItems = [];
+    let salesData = {};
+
+// مراجع DOM
+    const itemSelect = document.getElementById('itemSelect');
+    const categorySelect = document.getElementById('categorySelect');
+    const amountInput = document.getElementById('amountInput');
+    const dateInput = document.getElementById('dateInput');
+    const noteInput = document.getElementById('noteInput');
+    const addExpenseBtn = document.getElementById('addExpenseBtn');
+    const clearFormBtn = document.getElementById('clearFormBtn');
+    const monthTitle = document.getElementById('monthTitle');
+    const prevMonthBtn = document.getElementById('prevMonth');
+    const nextMonthBtn = document.getElementById('nextMonth');
+
+    const expensesTableBody = document.querySelector('#expensesTable tbody');
+    const monthTotalEl = document.getElementById('monthTotal');
+
+    const salesSumEl = document.getElementById('salesSum');
+    const expensesSumEl = document.getElementById('expensesSum');
+    const netProfitEl = document.getElementById('netProfit');
+
+    // Charts
+    let pieChart, barChart, lineChart;
+
+    // إعداد أولي: لا تبدأ الصفحة قبل اكتمال قراءة IndexedDB
+    document.addEventListener("DOMContentLoaded", initializeExpensesPage);
+
+    async function initializeExpensesPage(){
+      try {
+        if(!window.NoshiDB){
+          throw new Error("ملف db.js غير مربوط أو لم يتم تحميله");
+        }
+
+        const [savedExpensesData, savedExpenseItems, savedSalesData] = await Promise.all([
+          NoshiDB.get("expensesData", {}),
+          NoshiDB.get("expenseItems", []),
+          NoshiDB.get("salesData", {})
+        ]);
+
+        expensesData = isPlainObject(savedExpensesData) ? savedExpensesData : {};
+        allItems = Array.isArray(savedExpenseItems) ? savedExpenseItems : [];
+        salesData = isPlainObject(savedSalesData) ? savedSalesData : {};
+
+        // نفس السلوك السابق: إنشاء البنود الافتراضية فقط إذا لم توجد بنود محفوظة
+        if(allItems.length === 0){
+          allItems = DEFAULT_ITEMS.map(item => ({...item}));
+          await NoshiDB.set("expenseItems", allItems);
+        }
+
+        initForm();
+        bindMonthNav();
+        refreshUI();
+      } catch(error) {
+        console.error("فشل تحميل بيانات المصروفات من IndexedDB:", error);
+        alert("تعذر تحميل بيانات المصروفات. لم يتم تعديل أي بيانات. تأكد من وجود db.js ثم أعد فتح الصفحة.");
+      }
+    }
+
+    function isPlainObject(value){
+      return value !== null && typeof value === "object" && !Array.isArray(value);
+    }
+
+    async function replaceExpensesData(nextData){
+      await NoshiDB.set("expensesData", nextData);
+      expensesData = nextData;
+    }
+
+    // ====== دوال واجهة ======
+    function initForm(){
+      // تعبئة القائمة
+      renderItemOptions();
+      // التاريخ اليوم
+      dateInput.valueAsDate = new Date();
+
+      addExpenseBtn.addEventListener('click', onAddExpense);
+      clearFormBtn.addEventListener('click', clearForm);
+
+      // عند اختيار بند من القائمة نضبط التصنيف الافتراضي إن وجد
+      itemSelect.addEventListener('change', () => {
+        const found = allItems.find(i => i.name === itemSelect.value);
+        if(found){ categorySelect.value = found.category || 'أخرى'; }
+      });
+
+      // التفويض للأزرار (قائمة iOS)
+      if(expensesTableBody){
+        expensesTableBody.addEventListener('click', (e)=>{
+          const btn = e.target.closest('button');
+          if(!btn) return;
+          if(btn.classList.contains('action-menu')){
+            openSheet(btn.dataset.key, parseInt(btn.dataset.idx,10));
+          }
+        }, {passive:true});
+      }
+    }
+
+    function bindMonthNav(){
+      prevMonthBtn.addEventListener('click', () => changeMonth(-1));
+      nextMonthBtn.addEventListener('click', () => changeMonth(1));
+    }
+
+    function changeMonth(offset){
+      currentMonth += offset;
+      if(currentMonth > 12){ currentMonth = 1; currentYear++; }
+      if(currentMonth < 1){ currentMonth = 12; currentYear--; }
+      refreshUI();
+    }
+
+    function refreshUI(){
+      const key = monthKey(currentYear, currentMonth);
+      monthTitle.textContent = `${monthNames[currentMonth-1]} ${currentYear}`;
+      renderTable(key);
+      renderSummaryAndProfit(key);
+      renderCharts(key);
+    }
+
+// ====== جدول المصروفات ======
+function renderTable(key){
+  const rows = (expensesData[key]||[]);
+  expensesTableBody.innerHTML = '';
+  let sum = 0;
+
+  rows.forEach((row, idx) => {
+    sum += Number(row.amount) || 0;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${idx+1}</td>
+      <td>${row.date||'-'}</td>
+      <td>${row.item||'-'}</td>
+      <td>${row.category||'-'}</td>
+      <td>${Number(row.amount).toFixed(2)}</td>
+      <td>${row.note||''}</td>
+      <td class="actions">
+        <button class="btn ghost action-menu" type="button" data-key="${key}" data-idx="${idx}">⋯</button>
+      </td>`;
+    expensesTableBody.appendChild(tr);
+  });
+
+  monthTotalEl.textContent = sum.toFixed(2) + ' ريال';
+}
+
+// ====== الملخص وصافي الربح (من salesData) ======
+    function renderSummaryAndProfit(key){
+      const expensesSum = sumExpenses(key);
+      const salesSum = sumSalesFromIndexedDB(key);
+      const net = salesSum - expensesSum;
+      salesSumEl.textContent = salesSum.toFixed(2) + ' ر.س';
+      expensesSumEl.textContent = expensesSum.toFixed(2) + ' ر.س';
+      netProfitEl.textContent = net.toFixed(2) + ' ر.س';
+    }
+
+    function sumExpenses(key){
+      return (expensesData[key]||[]).reduce((a,b)=>a + (Number(b.amount)||0), 0);
+    }
+    // يجمع totalAfter لكل الطلبات في الشهر المحدد من salesData المحمّلة من IndexedDB
+function sumSalesFromIndexedDB(key) {
+  const orders = Array.isArray(salesData[key]) ? salesData[key] : [];
+
+  return orders.reduce((sum, order) => {
+    const orderTotal = parseFloat(order?.totalAfter) || 0;
+    const orderItems = Array.isArray(order?.items) ? order.items : [];
+
+    // خصم تكاليف التوصيل (مندوب) كما في order.html
+    const deliveryCostItem = orderItems.find(item => item?.name === "مندوب");
+    const deliveryAmount = deliveryCostItem
+      ? (Number(deliveryCostItem.qty) || 0) * (Number(deliveryCostItem.price) || 0)
+      : 0;
+
+    return sum + (orderTotal - deliveryAmount);
+  }, 0);
+}
+
+    // ====== الرسوم البيانية ======
+    function renderCharts(key){
+      const rows = (expensesData[key]||[]);
+      const byItem = aggregateBy(rows, 'item');
+      const byCat = aggregateBy(rows, 'category');
+      const lineSeries = monthlyTotalsLastN(6); // آخر 6 شهور
+
+      // Pie
+      const pieData = {
+        labels: Object.keys(byItem),
+        datasets: [{ data: Object.values(byItem) }]
+      };
+      // Bar
+      const barData = {
+        labels: Object.keys(byCat),
+        datasets: [{ label:'إجمالي الفئة', data: Object.values(byCat) }]
+      };
+      // Line
+      const lineData = {
+        labels: lineSeries.labels,
+        datasets: [{ label:'إجمالي المصروفات', data: lineSeries.values }]
+      };
+
+      if(pieChart) pieChart.destroy();
+      if(barChart) barChart.destroy();
+      if(lineChart) lineChart.destroy();
+
+      pieChart = new Chart(document.getElementById('pieCanvas'), { type:'pie', data: pieData });
+      barChart = new Chart(document.getElementById('barCanvas'), { type:'bar', data: barData, options:{scales:{y:{beginAtZero:true}}} });
+      lineChart = new Chart(document.getElementById('lineCanvas'), { type:'line', data: lineData, options:{scales:{y:{beginAtZero:true}}} });
+    }
+
+    function aggregateBy(rows, key){
+      return rows.reduce((acc,row)=>{
+        const k = row[key]||'غير محدد';
+        acc[k] = (acc[k]||0) + (Number(row.amount)||0);
+        return acc;
+      },{});
+    }
+
+    // يعيد مجموع كل شهر آخر N شهور (للمخطط الخطي)
+    function monthlyTotalsLastN(n){
+      const labels = [];
+      const values = [];
+      for(let i=n-1;i>=0;i--){
+        const d = new Date();
+        d.setMonth(d.getMonth()-i);
+        const yy = d.getFullYear();
+        const mm = d.getMonth()+1;
+        const k = monthKey(yy, mm);
+        labels.push(`${monthNames[mm-1]} ${String(yy).slice(-2)}`);
+        values.push(sumExpenses(k));
+      }
+      return {labels, values};
+    }
+
+    // ====== إضافة/تعديل/حذف عبر الشيت والمودال ======
+function clearForm(resetCat=true){
+      amountInput.value='';
+      noteInput.value='';
+      if(resetCat) categorySelect.value='مواد خام';
+      // احتفظ بالتاريخ الحالي
+    }
+
+    // ====== أدوات مساعدة ======
+    function monthKey(y, m){ return `${y}-${String(m).padStart(2,'0')}`; }
+    function cryptoRandomId(){ if(window.crypto?.randomUUID) return crypto.randomUUID(); return 'id-' + Math.random().toString(36).slice(2,10); }
+    function mergeItems(def,saved){ const map = new Map(); [...def, ...saved].forEach(it=>{ map.set(it.name, it); }); return Array.from(map.values()); }
+async function upsertItem(item){
+  const items = allItems.map(savedItem => ({...savedItem}));
+  const idx = items.findIndex(i => i.name === item.name);
+
+  if(idx > -1){
+    items[idx] = {...item};
+  } else {
+    items.push({...item});
+  }
+
+  await NoshiDB.set("expenseItems", items);
+  allItems = items;
+  renderItemOptions();
+}
+    function renderItemOptions(){ itemSelect.innerHTML = ''; allItems.forEach(i=>{ const opt = document.createElement('option'); opt.value = i.name; opt.textContent = i.name; itemSelect.appendChild(opt); }); const first = allItems[0]; if(first) categorySelect.value = first.category||'أخرى'; }
+
+    // ====== iOS Action Sheet + Modal ======
+    let curKey=null, curIdx=null;
+    const bodyEl = document.body;
+    const sheet = document.getElementById('actionSheet');
+    const sheetBg = document.getElementById('sheetBg');
+    const sheetEdit = document.getElementById('sheetEdit');
+    const sheetDelete = document.getElementById('sheetDelete');
+    const sheetCancel = document.getElementById('sheetCancel');
+
+    const editBg = document.getElementById('editBg');
+    const editModal = document.getElementById('editModal');
+    const editItem = document.getElementById('editItem');
+    const editCat = document.getElementById('editCat');
+    const editAmount = document.getElementById('editAmount');
+    const editDate = document.getElementById('editDate');
+    const editNote = document.getElementById('editNote');
+    const editSave = document.getElementById('editSave');
+    const editClose = document.getElementById('editClose');
+
+    // ===== مودال إضافة بند =====
+    const newItemBtn = document.getElementById('openNewItemModal');
+    const newItemBg = document.getElementById('newItemBg');
+    const newItemName = document.getElementById('newItemName');
+    const newItemCat = document.getElementById('newItemCat');
+    const saveNewItem = document.getElementById('saveNewItem');
+    const cancelNewItem = document.getElementById('cancelNewItem');
+
+    // ===== مودال حذف بند =====
+    const openDeleteItemModal = document.getElementById('openDeleteItemModal');
+    const deleteItemBg = document.getElementById('deleteItemBg');
+    const deleteItemSelect = document.getElementById('deleteItemSelect');
+    const confirmDeleteItem = document.getElementById('confirmDeleteItem');
+    const cancelDeleteItem = document.getElementById('cancelDeleteItem');
+	
+	// ===== مودال حذف سجل مصروف =====
+const deleteExpenseBg =
+  document.getElementById('deleteExpenseBg');
+
+const deleteExpenseText =
+  document.getElementById('deleteExpenseText');
+
+const confirmDeleteExpense =
+  document.getElementById('confirmDeleteExpense');
+
+const cancelDeleteExpense =
+  document.getElementById('cancelDeleteExpense');
+
+    // ===== دالة إغلاق جميع المودالات =====
+    function closeAllModals() {
+      bodyEl.classList.remove(
+        'show-add-item-modal',
+        'show-delete-item-modal',
+        'show-edit-expense-modal',
+	    'show-delete-expense-modal',	
+        'sheet-open'
+      );
+      unlockScroll();
+    }
+
+    function openSheet(key, idx){
+      curKey = key;
+      curIdx = idx;
+      // أغلق أي مودالات مفتوحة أولاً
+      closeAllModals();
+      bodyEl.classList.add('sheet-open');
+      lockScroll();
+    }
+
+    function closeSheet(){
+      bodyEl.classList.remove('sheet-open');
+      unlockScroll();
+    }
+
+    function lockScroll(){ document.documentElement.style.overflow='hidden'; document.body.style.overflow='hidden'; }
+    function unlockScroll(){ document.documentElement.style.overflow=''; document.body.style.overflow=''; }
+
+    function openEdit(row){
+      // أغلق جميع المودالات أولاً
+      closeAllModals();
+      
+      editItem.value = row.item||'';
+      editCat.value = row.category||'أخرى';
+      editAmount.value = row.amount||'';
+      editDate.value = row.date||'';
+      editNote.value = row.note||'';
+      
+      // استخدم الكلاس الجديد الخاص بالتعديل
+      bodyEl.classList.add('show-edit-expense-modal');
+      lockScroll();
+    }
+
+    function closeEdit(){
+      bodyEl.classList.remove('show-edit-expense-modal');
+      unlockScroll();
+      curKey=null; curIdx=null;
+    }
+
+    [sheetBg, sheetCancel].forEach(el=> el.addEventListener('click', closeSheet, {passive:true}));
+    
+    sheetEdit.addEventListener('click', ()=>{ 
+      const row = (expensesData[curKey]||[])[curIdx]; 
+      if(!row){ 
+        closeSheet(); 
+        return; 
+      } 
+      closeAllModals(); // أغلق كل شيء أولاً
+      setTimeout(() => openEdit(row), 50); // تأخير بسيط للتأكد
+    }, {passive:true});
+sheetDelete.addEventListener('click', () => {
+  if (curKey === null || curIdx === null) {
+    return;
+  }
+
+  const rows = Array.isArray(expensesData[curKey])
+    ? expensesData[curKey]
+    : [];
+
+  const row = rows[curIdx];
+
+  if (!row) {
+    closeSheet();
+    return;
+  }
+
+  const itemName = row.item || 'بدون اسم';
+  const amount = Number(row.amount || 0);
+
+  deleteExpenseText.textContent =
+    `هل تريد حذف مصروف ${itemName} بمبلغ ${amount.toFixed(2)} ريال؟`;
+
+  closeSheet();
+
+  bodyEl.classList.add('show-delete-expense-modal');
+  lockScroll();
+});
+
+function closeDeleteExpenseModal() {
+  bodyEl.classList.remove('show-delete-expense-modal');
+  unlockScroll();
+
+  curKey = null;
+  curIdx = null;
+}
+
+[deleteExpenseBg, cancelDeleteExpense].forEach((element) => {
+  element.addEventListener('click', () => {
+    closeDeleteExpenseModal();
+  });
+});
+
+confirmDeleteExpense.addEventListener('click', async () => {
+  if (curKey === null || curIdx === null) {
+    closeDeleteExpenseModal();
+    return;
+  }
+
+  const deleteKey = curKey;
+  const deleteIndex = curIdx;
+
+  const currentRows = Array.isArray(expensesData[deleteKey])
+    ? expensesData[deleteKey]
+    : [];
+
+  const deletedExpense = currentRows[deleteIndex];
+
+  if (!deletedExpense) {
+    closeDeleteExpenseModal();
+    return;
+  }
+
+  const nextRows = [...currentRows];
+  nextRows.splice(deleteIndex, 1);
+
+  const nextExpensesData = {
+    ...expensesData,
+    [deleteKey]: nextRows
+  };
+
+  confirmDeleteExpense.disabled = true;
+  confirmDeleteExpense.textContent = 'جاري الحذف...';
+
+  try {
+    await replaceExpensesData(nextExpensesData);
+
+    refreshUI();
+
+    bodyEl.classList.remove('show-delete-expense-modal');
+    unlockScroll();
+
+    curKey = null;
+    curIdx = null;
+
+    showToast('✅ تم حذف المصروف بنجاح');
+  } catch (error) {
+    console.error(
+      'فشل حذف المصروف من IndexedDB:',
+      error
+    );
+
+    alert(
+      'تعذر حفظ الحذف. لم يتم حذف المصروف من قاعدة البيانات.'
+    );
+  } finally {
+    confirmDeleteExpense.disabled = false;
+    confirmDeleteExpense.textContent = 'حذف';
+  }
+});
+
+    editSave.addEventListener('click', async ()=>{
+      const editKey = curKey;
+      const editIndex = curIdx;
+      const rows = Array.isArray(expensesData[editKey]) ? expensesData[editKey] : [];
+      const row = rows[editIndex];
+
+      if(!row){ closeEdit(); return; }
+
+      const amount = parseFloat(editAmount.value||'0');
+      if(!(amount>0)){ alert('مبلغ غير صالح'); return; }
+
+      const nextRows = [...rows];
+      nextRows[editIndex] = {
+        ...row,
+        item: (editItem.value||row.item).trim(),
+        category: editCat.value||'أخرى',
+        amount: amount,
+        date: editDate.value||row.date,
+        note: editNote.value||''
+      };
+
+      const nextExpensesData = {...expensesData, [editKey]: nextRows};
+      editSave.disabled = true;
+
+      try {
+        await replaceExpensesData(nextExpensesData);
+        closeEdit();
+        refreshUI();
+        showToast('✅ تم تعديل المصروف بنجاح');
+      } catch(error) {
+        console.error("فشل تعديل المصروف في IndexedDB:", error);
+        alert("تعذر حفظ التعديل. بقي السجل السابق كما هو.");
+      } finally {
+        editSave.disabled = false;
+      }
+    });
+    
+    [editClose, editBg].forEach(el => el.addEventListener('click', closeEdit, {passive:true}));
+
+    // ===== مودال إضافة بند جديد =====
+    newItemBtn.addEventListener('click', ()=> {
+      closeAllModals(); // أغلق كل شيء أولاً
+      setTimeout(() => {
+        bodyEl.classList.add('show-add-item-modal');
+      }, 50);
+    });
+
+    [newItemBg, cancelNewItem].forEach(el => el.addEventListener('click', ()=>{
+      bodyEl.classList.remove('show-add-item-modal');
+    }));
+    saveNewItem.addEventListener('click', async ()=>{
+      const name = newItemName.value.trim();
+      const cat = newItemCat.value;
+      if(!name){ alert('فضلاً أدخل اسم البند'); return; }
+
+      saveNewItem.disabled = true;
+
+      try {
+        await upsertItem({name, category:cat});
+        itemSelect.value = name;
+        categorySelect.value = cat;
+
+        bodyEl.classList.remove('show-add-item-modal');
+        newItemName.value = '';
+        showToast('✅ تم إضافة البند الجديد');
+      } catch(error) {
+        console.error("فشل حفظ بند المصروف في IndexedDB:", error);
+        alert("تعذر حفظ البند الجديد. لم يتم تعديل البيانات.");
+      } finally {
+        saveNewItem.disabled = false;
+      }
+    });
+
+    // ===== مودال حذف بند =====
+    openDeleteItemModal.addEventListener('click', ()=>{
+      closeAllModals(); // أغلق كل شيء أولاً
+      
+      setTimeout(() => {
+        deleteItemSelect.innerHTML = '';
+        const items = allItems;
+        items.forEach(i=>{
+          const opt = document.createElement('option');
+          opt.value = i.name;
+          opt.textContent = i.name;
+          deleteItemSelect.appendChild(opt);
+        });
+
+        bodyEl.classList.add('show-delete-item-modal');
+      }, 50);
+    });
+
+    [deleteItemBg, cancelDeleteItem].forEach(el => el.addEventListener('click', ()=>{
+      bodyEl.classList.remove('show-delete-item-modal');
+    }));
+    confirmDeleteItem.addEventListener('click', async ()=>{
+      const name = deleteItemSelect.value;
+      if(!name){ alert('اختر بنداً أولاً'); return; }
+
+      const items = allItems.filter(i => i.name !== name);
+      confirmDeleteItem.disabled = true;
+
+      try {
+        await NoshiDB.set("expenseItems", items);
+        allItems = items;
+        renderItemOptions();
+
+        bodyEl.classList.remove('show-delete-item-modal');
+        showToast(`🗑 تم حذف البند: ${name}`);
+      } catch(error) {
+        console.error("فشل حذف بند المصروف من IndexedDB:", error);
+        alert("تعذر حفظ حذف البند. بقيت البيانات السابقة كما هي.");
+      } finally {
+        confirmDeleteItem.disabled = false;
+      }
+    });
+
+    // إغلاق بـ Escape
+    document.addEventListener('keydown', (ev)=>{
+      if(ev.key === 'Escape'){
+        closeAllModals();
+      }
+    });
+
+	function showToast(msg){
+      const old = document.getElementById('toastMsg');
+      if(old) old.remove();
+
+      const div = document.createElement('div');
+      div.id = 'toastMsg';
+      div.textContent = msg;
+      div.style.position = 'fixed';
+      div.style.bottom = '60px';
+      div.style.left = '50%';
+      div.style.transform = 'translateX(-50%)';
+      div.style.background = 'rgba(0,0,0,0.8)';
+      div.style.color = '#fff';
+      div.style.padding = '10px 16px';
+      div.style.borderRadius = '12px';
+      div.style.fontSize = '0.95rem';
+      div.style.zIndex = 10000;
+      div.style.opacity = '0';
+      div.style.transition = 'opacity 0.3s ease';
+      document.body.appendChild(div);
+
+      // اظهر الرسالة
+      requestAnimationFrame(()=>{ div.style.opacity='1'; });
+      setTimeout(()=>{
+        div.style.opacity='0';
+        setTimeout(()=>div.remove(),800);
+      },2500);
+    }
+    async function onAddExpense(){
+      const item = itemSelect.value;
+      const category = categorySelect.value || 'أخرى';
+      const amount = parseFloat(amountInput.value||'0');
+      const dateVal = dateInput.value || new Date().toISOString().slice(0,10);
+      const note = noteInput.value.trim();
+
+      if(!item){ alert('فضلاً أدخل اسم البند'); return; }
+      if(!(amount>0)){ alert('فضلاً أدخل مبلغ صحيح'); return; }
+
+      const key = monthKey(currentYear, currentMonth);
+      const currentRows = Array.isArray(expensesData[key]) ? expensesData[key] : [];
+      const newExpense = {
+        id: cryptoRandomId(),
+        date: dateVal,
+        item,
+        category,
+        amount,
+        note
+      };
+
+      const nextExpensesData = {
+        ...expensesData,
+        [key]: [...currentRows, newExpense]
+      };
+
+      addExpenseBtn.disabled = true;
+
+      try {
+        await replaceExpensesData(nextExpensesData);
+        showToast(`✅ تم إضافة المصروف: "${item}" بنجاح!`);
+        clearForm(false);
+        refreshUI();
+      } catch(error) {
+        console.error("فشل إضافة المصروف إلى IndexedDB:", error);
+        alert("تعذر حفظ المصروف. لم تتم إضافة أي بيانات.");
+      } finally {
+        addExpenseBtn.disabled = false;
+      }
+    }
+
+
+document.addEventListener("input", e => {
+  const el = e.target;
+  if (!el.matches("input[data-numeric]")) return;
+
+  el.value = el.value
+    // أرقام عربية → إنجليزية
+    .replace(/[٠-٩]/g, d => "0123456789"["٠١٢٣٤٥٦٧٨٩".indexOf(d)])
+    // فاصلة عربية أو فاصلة عادية → نقطة
+    .replace(/[٫،]/g, ".")
+    // منع أكثر من فاصلة عشرية
+    .replace(/(\..*)\./g, "$1");
+});
+  </script>
+  
+<script src="config.js"></script><script src="auth.js"></script><script>NoshiAuth.guard().catch(()=>{});</script>
+</body>
+</html>
