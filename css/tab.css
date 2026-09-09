@@ -1,70 +1,75 @@
-/* ================================
+/* ========================================
    التبويبات الرئيسية
-   ================================ */
+   ======================================== */
 
 .tabs {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 12px auto 18px;
-  direction: rtl;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px auto 18px;
+    direction: rtl;
 }
 
 .tabs .tab-btn {
-  box-sizing: border-box;
-  width: 140px;
-  min-width: 140px;
-  height: 46px;
+    box-sizing: border-box;
+    width: 140px;
+    min-width: 140px;
+    height: 46px;
 
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
-  padding: 8px 12px;
+    padding: 8px 12px;
 
-  background: #00bcd4;
-  color: white;
+    background-color: #00bcd4 !important;
+    color: #ffffff !important;
 
-  border: none;
-  border-radius: 8px;
+    border: none;
+    border-radius: 8px;
 
-  font-family: inherit;
-  font-size: 1.1em;
-  font-weight: 600;
+    font-family: inherit;
+    font-size: 1.1em;
+    font-weight: 600;
 
-  cursor: pointer;
-  text-decoration: none;
+    cursor: pointer;
+    text-decoration: none !important;
 
-  transition: all 0.2s ease;
+    transition: all 0.2s ease;
+}
+
+/* مهم للرابط "طلبات الموقع" */
+.tabs a.tab-btn,
+.tabs a.tab-btn:visited,
+.tabs a.tab-btn:hover,
+.tabs a.tab-btn:active {
+    background-color: #00bcd4 !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
 }
 
 .tabs .tab-btn:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
+    background-color: #00a9bd !important;
+    transform: translateY(-1px);
 }
 
-.tabs .tab-btn:active {
-  transform: translateY(0);
-}
-
-/* الصفحة الحالية */
 .tabs .tab-btn.active {
-  background: #0097a7;
+    background-color: #0097a7 !important;
 }
 
 /* الجوال */
 @media (max-width: 600px) {
-  .tabs {
-    gap: 6px;
-  }
+    .tabs {
+        gap: 6px;
+    }
 
-  .tabs .tab-btn {
-    width: calc(50% - 6px);
-    min-width: 0;
-    height: 44px;
-    font-size: 0.95em;
-  }
+    .tabs .tab-btn {
+        width: calc(50% - 6px);
+        min-width: 0;
+        height: 44px;
+        font-size: 0.95em;
+    }
 }
