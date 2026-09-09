@@ -1,8 +1,26 @@
+/* ========================================
+   NOSHI BAKERY - GLOBAL TABS
+   ======================================== */
+
+/* الحاوية الرئيسية للتبويبات */
+.tabs {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 12px auto 18px;
+    padding: 0;
+    direction: rtl;
+}
+
+/* شكل جميع التبويبات */
 .tabs .tab-btn {
     box-sizing: border-box;
-    width: 120px;
-    min-width: 120px;
+
     height: 38px;
+    min-width: 90px;
 
     display: inline-flex;
     align-items: center;
@@ -19,7 +37,73 @@
     font-family: inherit;
     font-size: 0.95em;
     font-weight: 600;
+    line-height: 1;
 
     cursor: pointer;
     text-decoration: none !important;
+
+    white-space: nowrap;
+
+    transition:
+        background-color 0.2s ease,
+        transform 0.15s ease;
+}
+
+/* الروابط مثل طلبات الموقع */
+.tabs a.tab-btn,
+.tabs a.tab-btn:visited,
+.tabs a.tab-btn:hover,
+.tabs a.tab-btn:active {
+    background-color: #00bcd4 !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
+/* عند تمرير الماوس */
+.tabs .tab-btn:hover {
+    background-color: #00a9bd !important;
+    transform: translateY(-1px);
+}
+
+/* عند الضغط */
+.tabs .tab-btn:active {
+    transform: translateY(0);
+}
+
+/* التبويب الحالي */
+.tabs .tab-btn.active {
+    background-color: #0097a7 !important;
+}
+
+/* ========================================
+   الجوال
+   ======================================== */
+
+@media (max-width: 600px) {
+
+    .tabs {
+        gap: 5px;
+        margin: 10px auto 14px;
+    }
+
+    .tabs .tab-btn {
+        min-width: 80px;
+        height: 36px;
+        padding: 5px 8px;
+        font-size: 0.88em;
+    }
+}
+
+/* شاشات صغيرة جدًا */
+@media (max-width: 380px) {
+
+    .tabs {
+        gap: 4px;
+    }
+
+    .tabs .tab-btn {
+        min-width: 75px;
+        padding: 5px 7px;
+        font-size: 0.84em;
+    }
 }
