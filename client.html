@@ -8,6 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>نوشي بيكري - العملاء</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="tab.css">
 <style>
 :root {
   --primary-color: #e67e22;
@@ -931,41 +932,39 @@ html, body {
 <h1>إدارة العملاء</h1>
 <div style="display:flex; flex-direction:column; align-items:center; gap:8px; width:100%; padding:10px;">
   
-  <div style="display:flex; justify-content:center; gap:8px; width:100%; flex-wrap:wrap;">
-    <button onclick="window.location.href='index.html'" 
-            style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
-      🛍️ المنتجات
+<div class="tabs">
+    <button onclick="window.location.href='index.html'" class="tab-btn">
+        🛍️ المنتجات
     </button>
-      <a href="dashboard.html" style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;">🌐 طلبات الموقع</a>
-    <button onclick="window.location.href='order.html'" 
-            style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
-      📦 الطلبيات
+
+    <a href="dashboard.html" class="tab-btn">
+        🌐 طلبات الموقع
+    </a>
+
+    <button onclick="window.location.href='order.html'" class="tab-btn">
+        📦 الطلبيات
     </button>
-  </div>
-  
-  <div style="display:flex; justify-content:center; gap:8px; width:100%; flex-wrap:wrap;">
-    <button onclick="window.location.href='client.html'" 
-            style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
-      👥 العملاء
+
+    <button onclick="window.location.href='client.html'" class="tab-btn">
+        👥 العملاء
     </button>
-    <button onclick="window.location.href='mandoubs.html'" 
-            style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
-      🚚 المناديب
+
+    <button onclick="window.location.href='mandoubs.html'" class="tab-btn">
+        🚚 المناديب
     </button>
-    <button onclick="window.location.href='sales.html'" 
-            style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
-      📊 الاحصائيات
+
+    <button onclick="window.location.href='sales.html'" class="tab-btn">
+        📊 الاحصائيات
     </button>
-    <button onclick="window.location.href='expenses.html'" 
-            style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
-      💳 المصروفات
+
+    <button onclick="window.location.href='expenses.html'" class="tab-btn">
+        💳 المصروفات
     </button>
-    <button onclick="window.location.href='client-products.html'" 
-            style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
-      ⏰ تسليم الطلبات
-    </button>					
-  </div>
-  
+
+    <button onclick="window.location.href='client-products.html'" class="tab-btn">
+        ⏰ تسليم الطلبات
+    </button>
+</div>
   <div style="text-align: center; margin: 10px 0;">
     <button class="font-size-btn" onclick="openFontSizeModal()">
       📝 ضبط حجم الخط
