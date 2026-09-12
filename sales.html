@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+  <meta name="referrer" content="no-referrer">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>تقارير المبيعات - نوشي بيكري</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet" />
+    <!-- Page-specific styles: edit css/sales.css only. -->
+  <link rel="stylesheet" href="css/sales.css">
+  
+  <link rel="stylesheet" href="css/tab.css">
+</head>
+<body>
+  <!-- ================================================================
+       NOSHI PAGE MAP — sales.html
+       HTML: Structure/content only.
+       CSS : css/sales.css (page styles) + css/tab.css (shared tabs when linked).
+       JS  : js/sales.js (page behavior).
+       Shared services remain external: config/auth/db/invoice/incoming/ui-modal as applicable.
+       CRITICAL: Do not rename persisted data fields or storage keys during UI maintenance.
+       This file was structurally refactored without intended business-logic changes.
+     ================================================================= -->
+
+  <div class="header">
+    <img src="images/Noshi.webp" alt="نوشي بيكري" />
+  </div>
+
+  <div class="navigation-buttons">
+    <div class="button-row">
+      <button onclick="window.location.href='index.html'" class="nav-btn">🛍️ المنتجات</button>
+      <a href="dashboard.html" style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;">🌐 طلبات الموقع</a>
+      <button onclick="window.location.href='order.html'" class="nav-btn">📦 الطلبيات</button>
+    </div>
+    <div class="button-row">
+      <button onclick="window.location.href='client.html'" class="nav-btn">👥 العملاء</button>
+      <button onclick="window.location.href='mandoubs.html'" class="nav-btn">🚚 المناديب</button>
+      <button onclick="window.location.href='sales.html'" class="nav-btn" style="background: #d35400;">📊 الاحصائيات</button>
+      <button onclick="window.location.href='expenses.html'" class="nav-btn">💳 المصروفات</button>
+					<button class="nav-btn" onclick="window.location.href='client-products.html'">⏰ تسليم الطلبات</button>			
+			
+    </div>
+		
+  </div>
+
+  <h1>تقارير المبيعات</h1>
+
+  <div class="filters">
+    <button class="filter-btn active" data-filter="current-month">هذا الشهر</button>
+    <button class="filter-btn" data-filter="last-month">الشهر الماضي</button>
+    <button class="filter-btn" data-filter="from-beginning">من البداية</button>
+  </div>
+
+  <!-- زر ضبط حجم الخط -->
+  <button class="font-control-btn" id="openFontModal">
+    📝 ضبط حجم الخط
+  </button>
+
+<div class="summary-card">
+  <div class="summary-title">📊 إجمالي المنتجات المباعة</div>
+  <div id="totalProducts" class="summary-value">0</div>
+
+  <div class="divider-line"></div>
+
+  <div class="summary-title">👥 عدد العملاء</div>
+  <div id="totalClients" class="summary-value">0</div>
+</div>
+
+    <div class="table-container">
+      <table id="salesTable">
+        <thead>
+          <tr>
+            <th>المنتج</th>
+            <th>الكمية</th>
+            <th>قبل الخصم</th>
+            <th>الخصم</th>
+            <th>بعد الخصم</th>
+            <th>👥 العملاء</th>
+          </tr>
+        </thead>
+        <tbody id="salesTableBody"></tbody>
+        <tfoot id="salesTableFooter"></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- نافذة ضبط حجم الخط -->
+  <div id="fontModal" class="font-modal-overlay">
+    <div class="font-modal-content">
+      <div class="font-modal-header">
+        <h2>📝 ضبط حجم الخط</h2>
+        <button class="font-close-btn" id="closeFontModal">✕</button>
+      </div>
+      <div class="font-modal-body">
+        <div class="font-control-group">
+          <label class="font-size-label">الحجم الحالي:</label>
+          <div class="font-size-display" id="currentFontSize">16</div>
+          
+          <div class="font-controls">
+            <button class="font-btn" id="decreaseFont">➖</button>
+            <button class="font-btn" id="increaseFont">➕</button>
+          </div>
+          
+          <div class="font-preview">
+            <p class="font-preview-text" id="fontPreviewText">
+              هذا نموذج للخط في الجدول
+            </p>
+          </div>
+          
+          <button class="font-reset-btn" id="resetFont">
+            🔄 إعادة الضبط
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة عرض العملاء -->
+  <div id="clientsModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h2 id="modalProductName">عملاء المنتج</h2>
+          <div class="modal-subtitle" id="modalSubtitle">كل العملاء الذين طلبوا هذا المنتج</div>
+        </div>
+        <button class="close-btn" id="closeModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="clients-container">
+          <div id="clientsList" class="client-list">
+            <!-- سيتم ملء بيانات العملاء هنا -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script src="ui-modal.js"></script>
+<script src="./db.js"></script>
+
+
+
+<!-- ===================== -->
+<!-- 👥 إحصائيات العملاء (تصميم جديد) -->
+<!-- ===================== -->
+<div class="client-stats-section">
+  <div class="client-stats-title">
+    <span>👥</span> إحصائيات العملاء (Top 5)
+  </div>
+  
+  <div class="client-stats-grid" id="clientStatsContent">
+    <!-- سيتم ملء البطاقات هنا بالجافاسكريبت -->
+  </div>
+</div>
+
+<!-- ===================== -->
+<!-- 📊 الإحصائيات حسب الفلترة -->
+<!-- ===================== -->
+<div class="summary-card">
+  <div id="filteredStatsTitle" class="summary-title" style="background: linear-gradient(135deg, #3498db, #2980b9); color: white; padding: 10px; border-radius: 8px; margin: -15px -15px 15px -15px;">
+    📊 الإحصائيات الحالية
+<div id="currentFilterDisplay" class="filter-period-text" style="color: #000; font-weight: 600;">(هذا الشهر)</div>
+
+  <div class="filter-stats-container">
+    <div class="filter-stat-item">
+      <div class="filter-stat-label">
+        <div class="filter-stat-icon">💰</div>
+        <div>إجمالي المبيعات</div>
+      </div>
+      <div id="filteredOriginal" class="filter-stat-value stat-original">0 ريال</div>
+    </div>
+    
+    <div class="filter-stat-item">
+      <div class="filter-stat-label">
+        <div class="filter-stat-icon">🏷️</div>
+        <div>إجمالي الخصم</div>
+      </div>
+      <div id="filteredDiscount" class="filter-stat-value stat-discount">0 ريال</div>
+    </div>
+    
+    <div class="filter-stat-item">
+      <div class="filter-stat-label">
+        <div class="filter-stat-icon">✅</div>
+        <div>صافي المبيعات</div>
+      </div>
+      <div id="filteredFinal" class="filter-stat-value stat-final">0 ريال</div>
+    </div>
+    
+    <div class="filter-stat-item">
+      <div class="filter-stat-label">
+        <div class="filter-stat-icon">📦</div>
+        <div>عدد الطلبات</div>
+      </div>
+      <div id="filteredOrdersCount" class="filter-stat-value stat-orders">0 طلب</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ===================== -->
+<!-- 🏆 أفضل الأشهر على الإطلاق -->
+<!-- ===================== -->
+<div class="summary-card">
+  <div class="summary-title" style="background: linear-gradient(135deg, #FFD700, #FFC107); color: #000; padding: 10px; border-radius: 8px; margin: -15px -15px 15px -15px;">
+    🏆 أفضل الأشهر على الإطلاق
+  </div>
+  
+  <div class="month-stats">
+    <div class="month-item month-sales">
+      <div class="month-icon">💰</div>
+      <div class="month-info">
+        <div class="month-name">أكثر شهر مبيعًا</div>
+        <div class="month-details">الأعلى صافي مبيعات</div>
+      </div>
+      <div class="month-value">
+        <div id="bestSalesMonthDisplay">—</div>
+        <div id="bestSalesValueDisplay" style="font-size:0.8em;color:#777;font-weight:600;"></div>
+      </div>
+    </div>
+    
+    <div class="month-item month-orders">
+      <div class="month-icon">📦</div>
+      <div class="month-info">
+        <div class="month-name">أكثر شهر طلبات</div>
+        <div class="month-details">الأعلى عدد طلبات</div>
+      </div>
+      <div class="month-value">
+        <div id="bestOrdersMonthDisplay">—</div>
+        <div id="bestOrdersValueDisplay" style="font-size:0.8em;color:#777;font-weight:600;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===================== -->
+<!-- 📅 إحصائية كل الشهور منذ البداية -->
+<!-- ===================== -->
+<div class="summary-card monthly-sales-card">
+  <div class="summary-title" style="background: linear-gradient(135deg, #16a085, #1abc9c); color: white; padding: 10px; border-radius: 8px; margin: -15px -15px 15px -15px; display: flex; justify-content: space-between; align-items: center;">
+    📅 مبيعات كل الشهور منذ البداية
+    <button id="sortMonthsBtn" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8em; cursor: pointer; font-weight: bold;">
+      🔽 ترتيب حسب الأعلى
+    </button>
+  </div>
+  <div class="monthly-stats-table-container">
+    <table class="monthly-stats-table">
+      <thead>
+        <tr>
+          <th>الشهر</th>
+          <th>عدد الطلبات</th>
+          <th>المنتجات المباعة</th>
+          <th>قبل الخصم</th>
+          <th>الخصم</th>
+          <th>صافي المبيعات</th>
+        </tr>
+      </thead>
+      <tbody id="monthlySalesStatsBody">
+        <tr><td colspan="6">لا توجد بيانات</td></tr>
+      </tbody>
+      <tfoot id="monthlySalesStatsFooter"></tfoot>
+    </table>
+  </div>
+</div>
+
+
+
+
+
+
+<script src="config.js"></script><script src="auth.js"></script>
+
+  <!-- Page-specific logic: edit js/sales.js only. Loaded after shared dependencies and page DOM. -->
+  <script src="js/sales.js"></script>
+</body>
+</html>

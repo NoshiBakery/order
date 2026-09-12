@@ -1,0 +1,53 @@
+NOSHI SAFE STRUCTURAL REFACTOR - VALIDATION REPORT
+Generated: 2026-09-10
+
+SCOPE
+- Structural extraction only: inline <style> -> css/<page>.css and inline JavaScript -> js/<page>.js.
+- No intentional business-rule, schema, D1, Worker, auth, backup, payment, split-delivery, or order-data changes.
+- Existing shared JS services remain shared and in their original files.
+
+PAGES REFACTORED
+- client-history.html -> css/client-history.css + js/client-history.js | HTML 29,146 -> 5,651 bytes
+- client-products.html -> css/client-products.css + js/client-products.js | HTML 32,053 -> 4,522 bytes
+- client.html -> css/client.css + js/client.js | HTML 56,787 -> 12,388 bytes
+- dashboard.html -> css/dashboard.css + js/dashboard.js | HTML 15,783 -> 3,798 bytes
+- expenses.html -> css/expenses.css + js/expenses.js | HTML 43,296 -> 11,676 bytes
+- index.html -> css/index.css + js/index.js | HTML 119,581 -> 15,483 bytes
+- login.html -> css/login.css + js/login.js | HTML 3,116 -> 2,036 bytes
+- mandoubs.html -> css/mandoubs.css + js/mandoubs.js | HTML 53,092 -> 7,892 bytes
+- migration.html -> css/migration.css + js/migration.js | HTML 9,761 -> 3,144 bytes
+- order.html -> css/order.css + js/order.js | HTML 109,986 -> 13,645 bytes
+- sales.html -> css/sales.css + js/sales.js | HTML 71,502 -> 10,884 bytes
+
+VALIDATION EXECUTED
+- Baseline before refactor: 2 rounds: HTML parse PASS; inline JS syntax PASS.
+- Per-page after refactor: 3 rounds for each of 11 pages: PASS.
+- Final whole-project validation: 10 rounds: 10/10 PASS.
+- Extracted CSS block count and exact content compared with original: PASS.
+- Extracted JS block count and exact content compared with original: PASS.
+- Non-inline HTML structure/content equivalence: PASS.
+- Shared external script order preserved: PASS.
+- Every page references exactly one same-name page CSS and JS file: PASS.
+- No non-empty inline <script> remains: PASS.
+- No inline <style> block remains: PASS.
+- Inline HTML handler function resolution check: PASS.
+- Node syntax check for all root JS and new js/*.js: PASS.
+- No NEW broken local asset references introduced: PASS.
+- Critical shared files byte-for-byte unchanged (SHA-256): PASS.
+- Images and root sound assets unchanged: PASS.
+
+PRE-EXISTING BASELINE WARNINGS (NOT CAUSED OR FIXED BY THIS REFACTOR)
+- index.html referenced images/add.mp3 and images/remove.mp3, while the files exist at project root.
+- index.html also references images/pay.mp3, which was not present in the supplied baseline package.
+- These references were deliberately left unchanged because this task was structural-only.
+
+RUNTIME BROWSER TEST NOTE
+- An additional Chromium localhost runtime comparison was attempted in the work environment.
+- The environment blocked localhost navigation with ERR_BLOCKED_BY_ADMINISTRATOR, so that test is NOT counted as passed.
+- Therefore an authenticated deployment smoke test remains required after upload, especially for save/payment/split/incoming workflows.
+
+MAINTENANCE CONTRACT
+- For page X.html, page-only styles live in css/X.css and page-only logic lives in js/X.js.
+- Shared tabs remain in css/tab.css.
+- Shared data/auth/API/invoice modules stay in their existing shared files.
+- Each HTML contains a NOSHI PAGE MAP comment pointing maintainers to its CSS/JS and warning against data-field renames.
