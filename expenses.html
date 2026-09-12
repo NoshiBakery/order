@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+  <meta name="referrer" content="no-referrer">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>المصروفات - نوشي بيكري</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@600;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- NOSHI: styles for this exact position live in css/expenses.css. -->
+<link rel="stylesheet" href="css/expenses.css?v=4.8.0">
+  <style id="noshi-auth-cloak">body{visibility:hidden!important}</style>
+  <link rel="stylesheet" href="css/tab.css?v=4.8.0">
+<link rel="stylesheet" href="css/theme.css?v=4.8.0">
+</head>
+<body>
+<!-- NOSHI PAGE MAP: expenses.html
+     CSS: css/expenses.css
+     JS: js/expenses.js, js/expenses.part2.js
+     Shared files remain shared. Do not change data keys during UI maintenance.
+-->
+  <div class="header">
+    <img src="images/Noshi.webp" alt="نوشي بيكري" />
+  </div>
+
+  <div class="noshi-global-tabs">
+    <div class="noshi-tab-row">
+      <button onclick="window.location.href='index.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+        🛍️ المنتجات
+      </button>
+      <a href="dashboard.html" style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;">🌐 طلبات الموقع</a>
+      <button onclick="window.location.href='order.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+        📦 الطلبيات
+      </button>
+    </div>
+    
+    <div class="noshi-tab-row">
+      <button onclick="window.location.href='client.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+        👥 العملاء
+      </button>
+      <button onclick="window.location.href='mandoubs.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+        🚚 المناديب
+      </button>
+      <button onclick="window.location.href='sales.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+      📊 الاحصائيات
+    </button>
+      <button onclick="window.location.href='expenses.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+💳 المصروفات
+    </button>
+      <button onclick="window.location.href='client-products.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+⏰ تسليم الطلبات
+      </button>					
+    </div>
+  </div>
+
+  <h1>المصروفات</h1>
+  <div class="wrap">
+    <!-- شريط تغيير الشهور -->
+    <div class="monthbar card">
+      <button class="btn" id="prevMonth">▶ الشهر السابق</button>
+      <div class="title" id="monthTitle"></div>
+      <button class="btn" id="nextMonth">الشهر التالي ◀ </button>
+    </div>
+
+    <div class="card">
+      <h3>➕ إضافة مصروف جديد</h3>
+      <div class="row">
+        <div class="field">
+          <label for="itemSelect">البند</label>
+          <div class="row">
+            <select id="itemSelect" aria-label="اختيار البند"></select>
+			<button type="button" id="openNewItemModal" class="btn">➕ إضافة بند جديد</button>
+			<button type="button" id="openDeleteItemModal" class="btn ghost">🗑 حذف بند</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="categorySelect">التصنيف</label>
+          <select id="categorySelect" aria-label="تصنيف المصروف">
+            <option value="مواد خام">مواد خام</option>
+            <option value="تغليف">تغليف</option>
+            <option value="بلاستيكات">بلاستيكات</option>
+            <option value="أخرى">أخرى</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="amountInput">المبلغ (ريال)</label>
+<input
+  id="amountInput"
+  type="text"
+  inputmode="decimal"
+  data-numeric
+  placeholder="0.00"
+  aria-label="قيمة المبلغ"
+/>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="dateInput">التاريخ</label>
+          <input id="dateInput" type="date" />
+        </div>
+        <div class="field">
+          <label for="noteInput">ملاحظة</label>
+          <input id="noteInput" placeholder="اختياري" autocomplete="off" />
+        </div>
+      </div>
+      <div class="actions-line">
+        <button class="btn" id="addExpenseBtn">➕ إضافة</button>
+        <button class="btn ghost" id="clearFormBtn">إعادة</button>
+      </div>
+    </div>
+
+    <!-- الملخص المالي وصافي الربح من IndexedDB.salesData -->
+    <div class="card">
+      <h3>💼 الملخص المالي للشهر</h3>
+      <div class="summary-grid">
+        <div class="summary-item"><div class="label">💰 صافي المبيعات</div><div class="value" id="salesSum">0</div></div>
+        <div class="summary-item"><div class="label">📉 إجمالي المصروفات</div><div class="value" id="expensesSum">0</div></div>
+        <div class="summary-item"><div class="label">✅ صافي الربح</div><div class="value" id="netProfit">0</div></div>
+      </div>
+    </div>
+
+    <div class="orange-line"></div>
+
+    <!-- جدول المصروفات -->
+    <div class="card">
+      <h3>📅 المصروفات الشهرية</h3>
+      <div style="overflow-x:auto">
+        <table id="expensesTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>التاريخ 📅</th>
+              <th>البند 📌</th>
+              <th>التصنيف</th>
+              <th>المبلغ 💵</th>
+              <th>الملاحظة ✏️</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div class="summary-item" style="flex:1"><div class="label">إجمالي المصروفات لهذا الشهر</div><div class="value" id="monthTotal">0</div></div>
+      </div>
+    </div>
+
+    <div class="orange-line"></div>
+
+    <!-- الرسوم البيانية -->
+    <div class="flex-cols">
+      <div class="card">
+        <h3>📊 نسبة كل بند (Pie)</h3>
+        <canvas id="pieCanvas" height="180"></canvas>
+      </div>
+      <div class="card">
+        <h3>📊 مجموع كل فئة (Bar)</h3>
+        <canvas id="barCanvas" height="180"></canvas>
+      </div>
+      <div class="card">
+        <h3>📈 مقارنة المصروفات بين الشهور (Line)</h3>
+        <canvas id="lineCanvas" height="180"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- iOS-style Action Sheet -->
+  <div class="sheet-backdrop" id="sheetBg"></div>
+  <div class="sheet" id="actionSheet" role="dialog" aria-modal="true">
+    <div class="handle"></div>
+    <div class="group">
+      <div class="cell" id="sheetEdit">✏️ تعديل</div>
+      <div class="cell danger" id="sheetDelete">❌ حذف</div>
+    </div>
+    <div class="group">
+      <div class="cell cancel" id="sheetCancel">إلغاء</div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal-backdrop" id="editBg"></div>
+  <div class="modal" id="editModal" role="dialog" aria-modal="true">
+    <header>تعديل المصروف</header>
+    <div class="row">
+      <label>البند</label>
+      <input id="editItem" />
+      <label>التصنيف</label>
+      <select id="editCat">
+        <option value="مواد خام">مواد خام</option>
+        <option value="تغليف">تغليف</option>
+        <option value="تشغيل">تشغيل</option>
+        <option value="أخرى">أخرى</option>
+      </select>
+      <label>المبلغ (ريال)</label>
+<input
+  id="editAmount"
+  type="text"
+  inputmode="decimal"
+  data-numeric
+  placeholder="0.00"
+/>
+      <label>التاريخ</label>
+      <input id="editDate" type="date" />
+      <label>ملاحظة</label>
+      <input id="editNote" />
+    </div>
+    <div class="foot">
+      <button class="btn" id="editSave">حفظ</button>
+      <button class="btn ghost" id="editClose">إلغاء</button>
+    </div>
+  </div>
+<!-- Delete Item Modal -->
+<div class="modal-backdrop" id="deleteItemBg"></div>
+<div class="modal" id="deleteItemModal" role="dialog" aria-modal="true">
+  <header>حذف بند</header>
+  <div class="row">
+    <label>اختر البند المراد حذفه</label>
+    <select id="deleteItemSelect"></select>
+  </div>
+  <div class="foot">
+    <button class="btn" id="confirmDeleteItem">حذف</button>
+    <button class="btn ghost" id="cancelDeleteItem">إلغاء</button>
+  </div>
+</div>
+
+<!-- Delete Expense Modal -->
+<div class="modal-backdrop" id="deleteExpenseBg"></div>
+
+<div
+  class="modal"
+  id="deleteExpenseModal"
+  role="dialog"
+  aria-modal="true"
+>
+  <header>حذف المصروف</header>
+
+  <div class="row">
+    <label id="deleteExpenseText">
+      هل تريد حذف هذا المصروف؟
+    </label>
+  </div>
+
+  <div class="foot">
+    <button class="btn" id="confirmDeleteExpense">
+      حذف
+    </button>
+
+    <button class="btn ghost" id="cancelDeleteExpense">
+      إلغاء
+    </button>
+  </div>
+</div>
+
+<!-- Add New Item Modal -->
+<div class="modal-backdrop" id="newItemBg"></div>
+<div class="modal" id="newItemModal" role="dialog" aria-modal="true">
+  <header>إضافة بند جديد</header>
+  <div class="row">
+    <label>اسم البند</label>
+    <input id="newItemName" />
+    <label>التصنيف</label>
+    <select id="newItemCat">
+      <option value="مواد خام">مواد خام</option>
+      <option value="تغليف">تغليف</option>
+      <option value="بلاستيكات">بلاستيكات</option>
+      <option value="أخرى">أخرى</option>
+    </select>
+  </div>
+  <div class="foot">
+    <button class="btn" id="saveNewItem">حفظ</button>
+    <button class="btn ghost" id="cancelNewItem">إلغاء</button>
+  </div>
+</div>
+
+<script src="ui-modal.js?v=4.8.0"></script>
+<script src="./db.js?v=4.8.0"></script>
+
+<!-- NOSHI: original inline script #1; same execution position, now external. -->
+<script src="js/expenses.js?v=4.8.0"></script>
+  
+<script src="config.js?v=4.8.0"></script><script src="auth.js?v=4.8.0"></script><script src="theme.js?v=4.8.0"></script><!-- NOSHI: original inline script #2; same execution position, now external. -->
+<script src="js/expenses.part2.js?v=4.8.0"></script>
+</body>
+</html>
