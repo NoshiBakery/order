@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl">
+<head>
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+  <meta name="referrer" content="no-referrer">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>منتجات الزبائن - نوشي بيكري</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700&family=Cairo:wght@700&display=swap" rel="stylesheet" />
+  <!-- NOSHI: styles for this exact position live in css/client-products.css. -->
+<link rel="stylesheet" href="css/client-products.css?v=4.9.0">
+  <style id="noshi-auth-cloak">
+body{visibility:hidden!important}
+html{background:#f6f1ec!important;min-height:100%;color-scheme:light}
+html::before{content:"🔐  جاري التحقق من الجلسة…\A\Aانتظر لحظات";white-space:pre-line;visibility:visible!important;position:fixed;z-index:2147483647;inset:0;display:grid;place-items:center;text-align:center;padding:24px;background:#f6f1ec;color:#3b302c;font:800 16px/1.8 -apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif}
+html[data-auth-state="slow"]::before{content:"⏳  التحقق أخذ وقتًا أطول من المعتاد…\A\Aلا تغلق التطبيق، نحاول إكمال الاتصال"}
+html[data-auth-state="error"]::before{content:"⚠️  تعذر التحقق من الجلسة\A\Aاضغط على الشاشة لإعادة المحاولة";background:#fff5f2;color:#7a2e24}
+html[data-theme="dark"]{background:#0b1016!important}
+html[data-theme="dark"]::before{background:#0b1016;color:#f4f7fb}
+html[data-theme="dark"][data-auth-state="error"]::before{background:#160f12;color:#ffb7b2}
+</style>
+<script>
+(function(){
+  window.__noshiAuthSlowTimer=setTimeout(function(){
+    if(document.getElementById('noshi-auth-cloak')) document.documentElement.dataset.authState='slow';
+  },6000);
+  window.__noshiAuthFailTimer=setTimeout(function(){
+    if(!document.getElementById('noshi-auth-cloak')) return;
+    document.documentElement.dataset.authState='error';
+    document.documentElement.addEventListener('click',function(){ location.reload(); },{once:true});
+  },18000);
+})();
+</script>
+  <link rel="stylesheet" href="css/tab.css?v=4.9.0">
+<!-- NOSHI DARK THEME: all night-mode visual rules live only in css/dark-theme.css -->
+<link rel="stylesheet" href="css/dark-theme.css?v=5.0.0">
+</head>
+<body>
+<!-- NOSHI PAGE MAP: client-products.html
+     CSS: css/client-products.css
+     JS: js/client-products.js, js/client-products.part2.js
+     Shared files remain shared. Do not change data keys during UI maintenance.
+-->
+
+<div class="header">
+  <img src="images/Noshi.webp" alt="نوشي بيكري" />
+  <h2 style="color:#d35400;">📋 منتجات الزبائن</h2>
+</div>
+
+<nav class="nav" aria-label="التنقل">
+
+  <div class="nav-row">
+
+    <button class="nav-btn" onclick="window.location.href='index.html'">
+      🛍️ المنتجات
+    </button>
+
+    <a href="dashboard.html" class="nav-btn">
+      🌐 طلبات الموقع
+    </a>
+
+    <button class="nav-btn" onclick="window.location.href='order.html'">
+      📦 الطلبيات
+    </button>
+
+  </div>
+
+  <div class="nav-row">
+
+    <button class="nav-btn" onclick="window.location.href='client.html'">
+      👥 العملاء
+    </button>
+
+    <button class="nav-btn" onclick="window.location.href='mandoubs.html'">
+      🚚 المناديب
+    </button>
+
+    <button class="nav-btn" onclick="window.location.href='sales.html'">
+      📊 الاحصائيات
+    </button>
+
+    <button class="nav-btn" onclick="window.location.href='expenses.html'">
+      💳 المصروفات
+    </button>
+
+    <button class="nav-btn" onclick="window.location.href='client-products.html'">
+      ⏰ تسليم الطلبات
+    </button>
+
+  </div>
+
+</nav>
+
+<!-- إحصائيات -->
+
+<div class="stats-container" id="statsContainer">
+  <div class="stat-card">
+    <div class="number" id="totalClients">0</div>
+    <div class="label">👥 إجمالي الزبائن</div>
+  </div>
+  <div class="stat-card">
+    <div class="number" id="totalProducts">0</div>
+    <div class="label">🍰 إجمالي المنتجات</div>
+  </div>
+  <div class="stat-card">
+    <div class="number" id="checkedProducts">0</div>
+    <div class="label">✅ تم تجهيزها</div>
+  </div>
+  <div class="stat-card">
+    <div class="number" id="completionRate">0%</div>
+    <div class="label">📊 نسبة الإنجاز</div>
+  </div>
+</div>
+
+<!-- معلومات انتهاء الصلاحية -->
+
+<div class="expiry-info" id="expiryInfo"></div>
+
+<!-- أكثر المنتجات طلباً -->
+
+<div class="top-products" id="topProductsContainer">
+  <strong>🏆 أكثر المنتجات طلباً</strong>
+  <div id="topProductsList"></div>
+</div>
+
+<!-- بحث -->
+
+<input type="text" id="searchInput" class="search-box" placeholder="🔍 ابحث عن زبون أو منتج...">
+
+<!-- فلاتر -->
+
+<div class="filter-buttons">
+  <button class="filter-btn active" data-filter="all">الكل</button>
+  <button class="filter-btn" data-filter="today">طلبات اليوم 📅</button>
+  <button class="filter-btn" data-filter="tomorrow">طلبات بكرة ⏰</button>
+  <button class="filter-btn" data-filter="completed">المكتملة ✅</button>
+  <button class="filter-btn" data-filter="pending">غير المكتملة ⏳</button>
+</div>
+
+<!-- قائمة الزبائن -->
+
+<div id="clientsContainer"></div>
+
+<script src="ui-modal.js?v=4.9.0"></script>
+<script src="./db.js?v=4.9.0"></script>
+
+<!-- NOSHI: original inline script #1; same execution position, now external. -->
+<script src="js/client-products.js?v=4.9.0"></script>
+
+
+<script src="config.js?v=4.9.0"></script><script src="auth.js?v=4.9.0"></script><script src="theme.js?v=5.0.0"></script><!-- NOSHI: original inline script #2; same execution position, now external. -->
+<script src="js/client-products.part2.js?v=4.9.0"></script>
+</body>
+</html>
