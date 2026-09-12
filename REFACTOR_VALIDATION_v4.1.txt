@@ -1,0 +1,16 @@
+client-history: scripts=2 styles=1 cloak=1 PASS
+client-products: scripts=2 styles=1 cloak=1 PASS
+client: scripts=2 styles=2 cloak=1 PASS
+dashboard: scripts=1 styles=1 cloak=1 PASS
+expenses: scripts=2 styles=1 cloak=1 PASS
+index: scripts=1 styles=1 cloak=1 PASS
+login: scripts=1 styles=1 cloak=0 PASS
+mandoubs: scripts=3 styles=1 cloak=1 PASS
+migration: scripts=1 styles=1 cloak=0 PASS
+order: scripts=3 styles=1 cloak=1 PASS
+sales: scripts=3 styles=1 cloak=1 PASS
+
+10 project rounds: 10/10 PASS
+Shared critical files byte-identical: db.js, auth.js, config.js, incoming.js, invoice.js, ui-modal.js, internal-worker.js, html2canvas.min.js
+Auth cloak preserved inline by design.
+Script execution positions preserved via page.js / page.partN.js files.

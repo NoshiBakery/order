@@ -1,0 +1,819 @@
+/* Extracted from index.html — structural refactor only. */
+/* =========================
+      NOSHI - Mobile Compact UI (Clean)
+      Keeps product order + IDs
+    ========================= */
+
+    :root{
+      --bg: #fff8f0;
+      --card: #ffffff;
+      --accent: #d35400;
+      --brand: #00bcd4;
+      --shadow: 0 2px 8px rgba(0,0,0,0.12);
+      --radius: 12px;
+    }
+
+    *{ box-sizing: border-box; }
+    html, body{ width:100%; max-width:100%; overflow-x: clip; }
+    @supports not (overflow: clip){ html, body{ overflow-x:hidden; } }
+    img, video, canvas{ max-width:100%; height:auto; display:block; }
+    *{ overflow-wrap:anywhere; word-break:break-word; }
+
+    body{
+      margin:0;
+      background: var(--bg);
+      color:#333;
+      font-family: "Cairo","Tajawal","Segoe UI",Tahoma,Geneva,Verdana,sans-serif;
+      padding: 6px;
+      line-height: 1.15;
+      font-size: 12px;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+
+    /* ===== Header ===== */
+    header{
+      background: transparent;
+      padding: 6px 0 0;
+      margin-bottom: 10px;
+    }
+
+    .topbar{
+      display:grid;
+      grid-template-columns: 80px 1fr 80px;
+      align-items:center;
+      gap: 6px;
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 6px 6px;
+    }
+
+    .brand-logo{
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+      justify-self: start;
+    }
+
+    .brand-title{
+      text-align:center;
+      margin:0;
+      line-height: 1.05;
+    }
+    .brand-title .ar{
+      font-size: 1.05rem;
+      font-weight: 900;
+      display:block;
+    }
+    .brand-title .en{
+      font-size: 0.85rem;
+      font-weight: 800;
+      color:#555;
+      display:block;
+      margin-top: 2px;
+    }
+
+    .spacer{ width: 80px; height: 1px; }
+
+    .nav{
+      max-width: 920px;
+      margin: 8px auto 0;
+      padding: 0 6px 6px;
+      display:flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .nav-row{
+      display:flex;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn{
+      background: var(--brand);
+      color:#fff;
+      border:none;
+      cursor:pointer;
+      border-radius: 10px;
+      padding: 6px 8px;
+      font-size: 0.78rem;
+      font-weight: 900;
+      min-width: 115px;
+      box-shadow: var(--shadow);
+    }
+
+    /* ===== Sections Titles ===== */
+    .section-title{
+      font-size: 1rem;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 4px;
+      margin: 10px 0 10px;
+      display:flex;
+      align-items:center;
+      gap: 6px;
+    }
+    .section-title .emoji{ font-size: 1.1rem; }
+
+    #ordersTitle{
+      font-size: 0.95rem;
+      font-weight: 900;
+      margin: 12px 0 6px;
+      display:flex;
+      align-items:center;
+      gap: 6px;
+      color: var(--accent);
+    }
+
+/* ===== Products Grid (نسخة مستقرة ونهائية) ===== */
+
+.products-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 6px;
+}
+
+/* كرت المنتج */
+.product{
+  background: var(--card);
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+/* صورة المنتج */
+.product img{
+  width: 100%;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* زر الإضافة */
+.product button{
+  margin-top: 5px;
+  width: 100%;
+  border: none;
+  border-radius: 9px;
+  background: #e67e22;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 900;
+  font-size: 0.70rem;
+  padding: 6px;
+
+  /* التحكم بالمحتوى */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;   /* 👈 مهم */
+  gap: 2px;
+}
+
+.product button.added{
+  background: #27ae60 !important;
+}
+
+/* اسم المنتج — دايم يمين + ثابت */
+.product button .name{
+  font-size: 0.70rem;
+  color: #111;
+  text-align: right;
+  direction: rtl;
+
+  line-height: 1.15;
+  min-height: calc(1.15em * 2); /* 👈 يحجز مكان سطرين */
+  overflow: hidden;
+}
+
+/* السعر */
+.product button .price{
+  font-size: 0.65rem;
+  color: #fff9c4;
+  text-align: center;
+}
+
+    /* ===== Cart ===== */
+    #cartList{
+      list-style:none;
+      padding:0;
+      margin: 8px 0 0;
+      font-size: 0.78rem;
+    }
+    #cartList li{
+      background: #ffe5b4;
+      margin-bottom: 6px;
+      padding: 6px 6px;
+      border-radius: 10px;
+      display:flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items:center;
+      gap: 6px;
+    }
+
+    .edit-btn, .remove-btn{
+      border:none;
+      color:#fff;
+      cursor:pointer;
+      font-weight: 900;
+      font-size: 0.72rem;
+      padding: 4px 6px;
+      border-radius: 8px;
+    }
+    .edit-btn{ background:#2980b9; }
+    .remove-btn{ background:#FC674C; }
+
+    /* ===== Total ===== */
+    #total{
+      margin: 10px 0 6px;
+      text-align:center;
+      color: var(--accent);
+      font-weight: 900;
+      font-size: 0.95rem;
+    }
+    #total .amount{ color:#2c3e50; font-size: 1.05rem; margin-left:4px; }
+    #total .currency{ color:#2980b9; font-size: 0.85rem; font-weight: 900; }
+
+    /* ===== Divider ===== */
+    .divider{
+      width: 100%;
+      height: 2px;
+      background:#000;
+      margin: 10px 0;
+      border-radius: 2px;
+    }
+
+    /* ===== Primary Buttons (under cart) ===== */
+    .action-btn{
+      width:100%;
+      display:block;
+      margin: 8px auto;
+      border:none;
+      border-radius: 12px;
+      padding: 7px 8px;
+      font-size: 0.78rem;
+      font-weight: 900;
+      cursor:pointer;
+      box-shadow: var(--shadow);
+      transform:none !important;
+    }
+    #clearCartBtn{ background:#c0392b; color:#fff; }
+    #shareBtn{ background: linear-gradient(135deg, #3498db 30%, #2980b9 100%); color:#fff; }
+    #approveOrderBtn{ background: linear-gradient(135deg, #27ae60 30%, #2ecc71 100%); color:#fff; }
+    #approveOrderBtn:disabled{ background:#95a5a6 !important; cursor:not-allowed; opacity:0.8; }
+
+    /* تعطيل تكبير hover اللي كان يسوي مشاكل */
+    #shareBtn:hover, #approveOrderBtn:hover{ transform:none !important; box-shadow: var(--shadow) !important; }
+
+    /* ===== Payment ===== */
+    #paymentMethodContainer{
+      margin: 10px auto;
+      text-align:center;
+    }
+    #paymentMethodContainer h3{
+      margin: 6px 0 8px;
+      font-size: 0.95rem;
+      color:#333;
+    }
+
+    .pay-row{
+      display:flex;
+      justify-content:center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .payment-method-btn{
+      border:none;
+      border-radius: 10px;
+      background:#f0f0f0;
+      color:#333;
+      cursor:pointer;
+      font-weight: 900;
+      font-size: 0.78rem;
+      padding: 6px 8px;
+      box-shadow: var(--shadow);
+    }
+    #paymentError{
+      color:#e74c3c;
+      font-size: 0.75rem;
+      margin-top: 6px;
+      display:none;
+    }
+
+    /* ===== Fields (Client / Mandoub / Delivery) ===== */
+    .field-wrap{
+      width: min(96vw, 520px);
+      margin: 10px auto 10px;
+      text-align:right;
+    }
+    .field-label{
+      display:block;
+      margin-bottom: 6px;
+      font-weight: 900;
+      font-size: 0.82rem;
+    }
+    .req{ color:#e74c3c; }
+
+.field-input{
+  width:85%;
+  margin: 0 auto;      /* 👈 هذا اللي يوسّطه */
+  display: block;      /* 👈 ضروري مع margin auto */
+  border: 2px solid #e67e22;
+  border-radius: 12px;
+  padding: 9px 9px;
+  background:#fff;
+  outline:none;
+  -webkit-appearance:none;
+  appearance:none;
+  font-size: 16px; /* يمنع زوم iOS */
+}
+
+
+    .field-error{
+      display:none;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color:#e74c3c;
+      font-weight: 800;
+    }
+
+    /* Mandoub select block */
+    .mandoub-wrap{
+      width: min(96vw, 520px);
+      margin: 10px auto 10px;
+      text-align:center;
+    }
+    .mandoub-label{
+      display:block;
+      margin-bottom: 6px;
+      font-weight: 900;
+      font-size: 0.82rem;
+      text-align: right;
+    }
+    #selectMandoubBtn{
+      width:80%;
+      border: 2px solid #e67e22;
+      border-radius: 12px;
+      padding: 8px 8px;
+      background:#f8f8f8;
+      cursor:pointer;
+      font-weight: 900;
+      font-size: 0.78rem;
+    }
+    #mandoubSelectError{
+      color:#e74c3c;
+      display:none;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-align:right;
+    }
+
+    /* Delivery */
+    .delivery-wrap{
+      width: min(96vw, 520px);
+      margin: 10px auto 10px;
+      text-align:center;
+    }
+    .delivery-label{
+      display:block;
+      margin-bottom: 6px;
+      font-weight: 900;
+      font-size: 0.82rem;
+      text-align:right;
+    }
+    #deliveryDateInput{
+      width:65%;
+      border: 2px solid #e67e22;
+      border-radius: 12px;
+      padding: 9px 9px;
+      background:#f8f8f8;
+      font-size: 16px; /* يمنع زوم iOS */
+    }
+    #deliveryCountdown{
+      margin-top: 16px;
+      font-size: 0.75rem;
+      color:#27ae60;
+      font-weight: 900;
+      text-align:center;
+    }
+    #deliveryDateError{
+      color:#e74c3c;
+      display:none;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-align:right;
+    }
+
+    /* ===== Discount ===== */
+    #discountContainer{
+      width: min(96vw, 520px);
+      margin: 10px auto 10px;
+      background:#fce5cd;
+      border-radius: 12px;
+      padding: 8px;
+      display:flex;
+      align-items:center;
+      gap: 6px;
+      flex-wrap: wrap;
+      font-weight: 900;
+      color: var(--accent);
+      font-size: 0.78rem;
+    }
+ #discountInput{
+  flex: none;          /* يمنعه يتمدد */
+  width: 80px;        /* 👈 صغر العرض هنا */
+  min-width: 80px;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  padding: 4px 6px;   /* 👈 يصغر الارتفاع */
+  outline:none;
+  direction:ltr;
+  font-size: 14px;   /* 👈 خط أصغر */
+  background:#fff;
+}
+    #applyDiscountBtn{
+      border:none;
+      border-radius: 10px;
+      padding: 7px 8px;
+      background: var(--accent);
+      color:#fff;
+      font-weight: 900;
+      cursor:pointer;
+      font-size: 0.78rem;
+    }
+
+    /* ===== Discount Details (hidden by default) ===== */
+    #discountDetails{
+      display:none;
+      width: min(96vw, 520px);
+      margin: 10px auto;
+      background:#f8f8f8;
+      border-radius: 12px;
+      padding: 10px;
+      text-align:center;
+      box-shadow: var(--shadow);
+      font-size: 0.78rem;
+      color: var(--accent);
+      line-height: 1.4;
+    }
+
+    /* ===== Global Note ===== */
+    #globalNoteContainer{
+      width: min(96vw, 520px);
+      margin: 10px auto 12px;
+      background:#fcefe3;
+      border-radius: 12px;
+      padding: 8px;
+      font-size: 0.78rem;
+      font-weight: 900;
+      color:#444;
+    }
+    .note-title{
+      margin-bottom: 6px;
+      color: var(--accent);
+      font-weight: 900;
+    }
+    #globalNoteInput{
+      width:100%;
+      border-radius: 12px;
+      border: 2px solid #e8dccf;
+      padding: 9px 9px;
+      outline:none;
+      resize: vertical;
+      background:#fff;
+      font-size: 16px; /* يمنع زوم iOS */
+    }
+    .note-actions{
+      display:flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .note-actions button{
+      flex:1;
+      border:none;
+      border-radius: 10px;
+      padding: 7px 8px;
+      color:#fff;
+      font-weight: 900;
+      cursor:pointer;
+      font-size: 0.78rem;
+    }
+    #applyGlobalNoteBtn{ background:#2c7da0; }
+    #clearGlobalNoteBtn{ background:#c0392b; }
+    #pasteGlobalNoteBtn{ background:#8e44ad; }
+
+    /* ===== Toast ===== */
+    #msgBox{
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      background:#27ae60;
+      color:#fff;
+      font-size: 0.78rem;
+      padding: 10px 12px;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 9999;
+    }
+    #msgBox.show{ opacity:1; pointer-events:auto; }
+
+    /* ===== Edit Modal ===== */
+    #editModal{
+      display:none;
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,0.6);
+      z-index: 99999;
+      align-items:center;
+      justify-content:center;
+    }
+    #editModal .modal-content{
+      width: min(94vw, 380px);
+      background:#fff;
+      border-radius: 14px;
+      padding: 12px;
+      text-align:right;
+      font-size: 0.9rem;
+    }
+    #editModal h3{ margin: 0 0 10px; color: var(--accent); }
+    #editModal label{ display:block; margin: 8px 0 6px; font-weight: 900; }
+    #editModal input, #editModal textarea{
+      width:100%;
+      border-radius: 10px;
+      border: 1.5px solid var(--accent);
+      padding: 8px 10px;
+      outline:none;
+      font-size: 16px; /* iOS */
+    }
+    #editModal .buttons{ display:flex; gap:8px; margin-top: 10px; }
+    #editModal .buttons button{
+      flex:1;
+      border:none;
+      border-radius: 10px;
+      padding: 8px;
+      color:#fff;
+      font-weight: 900;
+      cursor:pointer;
+      font-size: 0.78rem;
+    }
+    #editModal .save-btn{ background:#27ae60; }
+    #editModal .cancel-btn{ background:#c0392b; }
+
+    /* ===== Mandoub Modal ===== */
+    #mandoubModal{
+      display:none;
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,0.65);
+      z-index: 99999;
+      align-items:center;
+      justify-content:center;
+      padding: 14px;
+    }
+    #mandoubModal .modal-content{
+      width: min(94vw, 340px);
+      max-height: 75vh;
+      overflow:auto;
+      background:#fff;
+      border-radius: 14px;
+      padding: 12px;
+      text-align:center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+    #mandoubModal .modal-title{
+      margin: 0 0 10px;
+      font-weight: 900;
+      color: var(--accent);
+      font-size: 0.9rem;
+      text-align: right;
+    }
+    #mandoubModal .mandoub-option{
+      width:100%;
+      border:none;
+      border-radius: 12px;
+      padding: 8px 8px;
+      margin: 6px 0;
+      background:#e67e22;
+      color:#fff;
+      font-weight: 900;
+      cursor:pointer;
+      font-size: 0.78rem;
+    }
+
+    button{
+      -webkit-appearance: none;
+      touch-action: manipulation;
+    }
+/* ===== تصميم السلة النهائي (مضبوط + أزرار ثابتة يسار) ===== */
+
+#cartList li{
+  position: relative;       /* مهم لتثبيت الأزرار */
+  background: #ffe5b4;
+  margin-bottom: 6px;
+  padding: 6px;
+  padding-left: 52px;       /* مساحة للأزرار الثابتة يسار */
+  border-radius: 10px;
+}
+
+/* الصف الرئيسي */
+.cart-row{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* الصورة أقصى اليمين */
+.cart-thumb{
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex: 0 0 44px;
+}
+
+/* الخط الفاصل (أوضح) */
+.cart-divider{
+  width: 2px;                       /* كان 1px */
+  height: 44px;                     /* نفس ارتفاع الصورة */
+  background: rgba(0,0,0,0.45);     /* أوضح */
+  border-radius: 2px;
+}
+
+/* النص */
+.cart-mid{
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+}
+
+/* اسم المنتج */
+.cart-title{
+  font-weight: 900;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* الخصم تحت الاسم */
+.cart-sub{
+  margin-top: 2px;
+  font-size: 0.68rem;
+  font-weight: 900;
+  color: #2c7da0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* الأزرار ثابتة أقصى اليسار وفوق بعض */
+.cart-actions-vert{
+  position: absolute;
+  left: 6px;                  /* أقصى اليسار */
+  top: 50%;
+  transform: translateY(-50%); /* وسط عمودي */
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* تصغير الأزرار */
+.cart-actions-vert .edit-btn,
+.cart-actions-vert .remove-btn{
+  font-size: 0.7rem;
+  padding: 4px 6px;
+  border-radius: 8px;
+}
+.cart-line{
+  margin-top: 2px;
+  font-size: 0.68rem;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* فراغ بين الطلبات والإجمالي */
+#cartList + *{
+  margin-top: 30px;
+}
+
+/* فراغ بين الإجمالي وزر حذف كل الطلب */
+#cartList + * + *{
+  margin-top: 30px;
+}
+.divider1,
+.separator{
+  margin-top: 32px;   /* مسافة واضحة فوق الخط */
+  margin-bottom: 12px;
+}
+/* فقط الخط اللي فوق زر حذف الطلب */
+.divider-before-clear{
+  margin-top: 32px;
+  margin-bottom: 12px;
+}
+
+/* مسافة عمودية عامة */
+.space{
+  height: 1px;   /* غير الرقم حسب الذوق */
+}
+
+
+/* زر الإعدادات - ثابت في أعلى يسار */
+.settings-btn {
+  background: #2c3e50;
+  border: none;
+  border-radius: 50px;
+  width: 44px;
+  height: 44px;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: end;
+}
+
+
+.settings-btn:hover {
+  background: #1a252f;
+  transform: scale(1.02) translateZ(0);
+  -webkit-transform: scale(1.02) translateZ(0);
+}
+
+/* مودال الإعدادات */
+.settings-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  z-index: 100000;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-modal .modal-box {
+  background: white;
+  width: 90%;
+  max-width: 350px;
+  border-radius: 20px;
+  padding: 20px;
+  text-align: center;
+  direction: rtl;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.settings-modal h3 {
+  font-size: 1.3rem;
+  margin-bottom: 16px;
+  color: #2c3e50;
+}
+
+.settings-modal .backup-btn {
+  background: #8e44ad;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  width: 100%;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.settings-modal .close-settings {
+  background: #95a5a6;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  width: 100%;
+  cursor: pointer;
+}
+
+
+  
+    /* ===== Compact Arabic delivery-date control ===== */
+    .delivery-date-card{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:5px}
+    #deliveryDatePickerBtn{min-height:40px;height:40px;padding:7px 12px;border:1px solid #e3d8cf;border-radius:11px;background:#fff;color:#4f4038;font-family:inherit;font-size:13px;font-weight:850;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    #deliveryDatePickerBtn:hover{background:#fffaf6}
+    #deliveryDateInput{width:188px!important;max-width:100%;height:40px!important;min-height:40px!important;padding:6px 8px!important;border-radius:11px!important;font-size:13px!important;background:#fff!important}
+    @media(max-width:520px){#deliveryDateInput{width:170px!important}.delivery-date-card{gap:6px}#deliveryDatePickerBtn{flex:1;min-width:145px}}

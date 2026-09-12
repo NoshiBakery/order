@@ -1,0 +1,88 @@
+/* =========================================================
+   NOSHI BAKERY — GLOBAL NAVIGATION TABS
+   Single source of truth for navigation on every internal page.
+   Keep page-specific tab colors/sizes OUT of HTML and other CSS files.
+========================================================= */
+:root{
+  --noshi-tab-bg:#00bcd4;
+  --noshi-tab-bg-hover:#00a9bd;
+  --noshi-tab-bg-active:#008fa1;
+  --noshi-tab-text:#fff;
+  --noshi-tab-radius:10px;
+  --noshi-tab-height:40px;
+  --noshi-tab-gap:6px;
+}
+
+.nav,.tabs,.navtabs,.navigation-buttons,.noshi-global-tabs{
+  width:min(100%,760px)!important;
+  margin:10px auto 16px!important;
+  padding:0!important;
+  direction:rtl;
+}
+
+/* Old two-row wrappers become one shared grid without changing HTML semantics. */
+.nav,.tabs,.navtabs,.navigation-buttons,.noshi-global-tabs{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:var(--noshi-tab-gap)!important;
+  align-items:stretch!important;
+}
+.nav-row,.button-row,.noshi-global-tabs>.noshi-tab-row{
+  display:contents!important;
+}
+
+.nav .nav-btn,.tabs .tab-btn,.navtabs a,.navigation-buttons .nav-btn,
+.navigation-buttons a,.noshi-global-tabs>.noshi-tab-row button,.noshi-global-tabs>.noshi-tab-row a{
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  height:var(--noshi-tab-height)!important;
+  min-height:var(--noshi-tab-height)!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:6px 8px!important;
+  margin:0!important;
+  background:var(--noshi-tab-bg)!important;
+  color:var(--noshi-tab-text)!important;
+  border:0!important;
+  border-radius:var(--noshi-tab-radius)!important;
+  font-family:inherit!important;
+  font-size:13px!important;
+  font-weight:800!important;
+  line-height:1.15!important;
+  text-decoration:none!important;
+  white-space:nowrap!important;
+  cursor:pointer!important;
+  box-shadow:none!important;
+  transition:background-color .16s ease,transform .12s ease!important;
+}
+
+.nav .nav-btn:hover,.tabs .tab-btn:hover,.navtabs a:hover,.navigation-buttons .nav-btn:hover,
+.navigation-buttons a:hover,.noshi-global-tabs>.noshi-tab-row button:hover,.noshi-global-tabs>.noshi-tab-row a:hover{
+  background:var(--noshi-tab-bg-hover)!important;
+  transform:translateY(-1px);
+}
+.nav .nav-btn:active,.tabs .tab-btn:active,.navtabs a:active,.navigation-buttons .nav-btn:active,
+.navigation-buttons a:active,.noshi-global-tabs>.noshi-tab-row button:active,.noshi-global-tabs>.noshi-tab-row a:active{transform:none}
+
+.nav .active,.tabs .active,.navtabs .active,.navigation-buttons .active,.noshi-global-tabs .active,
+[aria-current="page"]{
+  background:var(--noshi-tab-bg-active)!important;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.28)!important;
+}
+
+ .noshi-global-tabs>:not(.noshi-tab-row){grid-column:1/-1}
+
+@media(max-width:600px){
+  .nav,.tabs,.navtabs,.navigation-buttons,.noshi-global-tabs{
+    width:100%!important;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:5px!important;
+    margin:8px auto 13px!important;
+  }
+  .nav .nav-btn,.tabs .tab-btn,.navtabs a,.navigation-buttons .nav-btn,
+  .navigation-buttons a,.noshi-global-tabs>.noshi-tab-row button,.noshi-global-tabs>.noshi-tab-row a{
+    height:39px!important;min-height:39px!important;font-size:12.5px!important;padding:5px 6px!important;
+  }
+}

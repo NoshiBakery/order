@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+  <meta name="referrer" content="no-referrer">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>سجل الطلبات - نوشي بيكري</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700&family=Cairo:wght@700&display=swap" rel="stylesheet" />
+  <!-- NOSHI: styles for this exact position live in css/order.css. -->
+<link rel="stylesheet" href="css/order.css">
+  <style id="noshi-auth-cloak">body{visibility:hidden!important}</style>
+  <link rel="stylesheet" href="css/tab.css">
+</head>
+<body>
+<!-- NOSHI PAGE MAP: order.html
+     CSS: css/order.css
+     JS: js/order.js, js/order.part2.js, js/order.part3.js
+     Shared files remain shared. Do not change data keys during UI maintenance.
+-->
+  <div class="header">
+    <img src="images/Noshi.webp" alt="نوشي بيكري" />
+  </div>
+
+  <div class="noshi-global-tabs">
+    <div class="noshi-tab-row">
+      <button onclick="window.location.href='index.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+        🛍️ المنتجات
+      </button>
+      <a href="dashboard.html" style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;">🌐 طلبات الموقع</a>
+      <button onclick="window.location.href='order.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+        📦 الطلبيات
+      </button>
+    </div>
+    
+    <div class="noshi-tab-row">
+      <button onclick="window.location.href='client.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+        👥 العملاء
+      </button>
+      <button onclick="window.location.href='mandoubs.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+        🚚 المناديب
+      </button>
+      <button onclick="window.location.href='sales.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+        📊 الاحصائيات
+      </button>
+      <button onclick="window.location.href='expenses.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+        💳 المصروفات
+      </button>
+      <button onclick="window.location.href='client-products.html'" 
+              style="font-size:1.1em; padding:8px 12px; background:#00bcd4; color:white; border:none; border-radius:8px; cursor:pointer; min-width:120px;">
+⏰ تسليم الطلبات
+      </button>			
+    </div>
+    
+    <!-- زر ضبط حجم الخط -->
+    <div style="margin-top: 10px;">
+      <button onclick="openFontSizeModal()" 
+              style="font-size:1.1em; padding:10px 20px; background:#9b59b6; color:white; border:none; border-radius:8px; cursor:pointer; min-width:150px; display:flex; align-items:center; justify-content:center; gap:8px;">
+        📝 ضبط حجم الخط
+      </button>
+    </div>
+  </div>
+	
+	<!-- نافذة عرض عملاء اليوم -->
+<div id="todayCustomersModal" style="
+  position:fixed; inset:0; background:rgba(0,0,0,0.7);
+  display:none; justify-content:center; align-items:center;
+  z-index:100000; font-family:'Cairo',sans-serif;
+">
+  <div style="
+    background:#fff; width:min(95%,450px); max-height:80vh;
+    border-radius:16px; padding:20px; overflow:auto;
+  ">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+      <h3 style="margin:0; color:#d35400;">👥 عملاء اليوم</h3>
+      <button onclick="closeTodayCustomersModal()" style="
+        background:#e74c3c; color:#fff; border:none;
+        border-radius:8px; padding:6px 12px; cursor:pointer;
+      ">✖ إغلاق</button>
+    </div>
+    <div id="todayCustomersList" style="font-size:1em;">
+      <!-- تظهر القائمة هنا -->
+    </div>
+  </div>
+</div>
+
+<!-- تبويبات التنقل الداخلية -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('monthly')">طلبات الشهر</button>
+  <button class="tab-btn" onclick="switchTab('upcoming')">الطلبات القادمة</button>
+<button class="tab-btn" onclick="showTodayCustomers()" style="background:#8e44ad;">👥 عملاء اليوم</button>
+</div>
+
+<h1>سجل الطلبات</h1>
+<!-- ✅ ملخص طلبات اليوم (ثابت بدون حوسة) -->
+<div id="todayDeliverySummary" style="
+  margin: 8px auto 10px;
+  max-width: 860px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  border-right: 5px solid #27ae60;
+">
+
+  <div style="
+    text-align:center;
+    font-weight:800;
+    color:#2c3e50;
+    font-size:0.9em;
+    margin-bottom:6px;
+  ">
+    <button type="button" onclick="changeSummaryDay(-1)" style="border:0;background:#f3eee9;border-radius:9px;padding:4px 9px;cursor:pointer;">‹</button>
+    📅 <span id="summaryDayLabel">طلبات اليوم</span> :- <span id="todayDateText"></span>
+    <button type="button" onclick="changeSummaryDay(1)" style="border:0;background:#f3eee9;border-radius:9px;padding:4px 9px;cursor:pointer;">›</button>
+    <button type="button" onclick="resetSummaryDay()" style="border:0;background:transparent;color:#27ae60;font-weight:800;cursor:pointer;">اليوم</button>
+  </div>
+
+  <div style="
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:6px;
+  ">
+
+    <!-- فوق يمين -->
+    <div style="background:#fff8f0; border-radius:10px; padding:6px; text-align:center;">
+      <div style="font-size:0.8em; color:#555;">📦 عدد الطلبات</div>
+      <div id="td_count" style="font-size:1.1em; font-weight:900;">0</div>
+    </div>
+
+    <!-- فوق يسار -->
+<div style="background:#fff8f0; border-radius:10px; padding:6px; text-align:center;">
+  <div style="font-size:0.8em; color:#555;">🎁 إجمالي الخصم</div>
+  <div id="td_discount" style="font-size:1.05em; font-weight:900;">0.00 ريال</div>
+</div>
+
+
+    <!-- تحت يمين -->
+    <div style="background:#fff8f0; border-radius:10px; padding:6px; text-align:center;">
+      <div style="font-size:0.8em; color:#555;">💰 قبل الخصم</div>
+      <div id="td_before" style="font-size:1.05em; font-weight:900;">0.00 ريال</div>
+    </div>
+
+    <!-- تحت يسار -->
+    <div style="background:#fff8f0; border-radius:10px; padding:6px; text-align:center;">
+      <div style="font-size:0.8em; color:#555;">✅ بعد الخصم</div>
+      <div id="td_after" style="font-size:1.05em; font-weight:900;">0.00 ريال</div>
+    </div>
+
+  </div>
+</div>
+
+<div style="margin-top:10px; margin-bottom:16px; border-bottom:2px solid #e67e22;"></div>
+
+
+
+<!-- محتوى تبويب طلبات الشهر -->
+<div id="monthlyTab" class="tab-content active">
+  
+<!-- زر فلترة الطلبات -->
+<div style="text-align:center; margin:10px 0;">
+  <button id="filterUnpaidBtn"
+          onclick="filterUnpaidMonthlyOrders()"
+          style="padding:10px 20px; background:#e74c3c; color:white; border:none; border-radius:8px; font-size:1.1em; cursor:pointer; display:block; margin:0 auto;">
+    ⚠️ عرض الطلبات غير المحولة (<span id="unpaidCountText" style="color:#ffeb3b; font-weight:bold;">0</span>)
+  </button>
+</div>
+
+  <!-- عناصر التحكم تبقى هنا (خارج الـ container) -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+    <button id="prevMonthBtn" style="padding: 8px 15px; background: #e67e22; color: white; border: none; border-radius: 8px; cursor: pointer;">
+      ◀ الشهر السابق
+    </button>
+    
+    <h2 id="currentMonthTitle" style="margin: 0; color: #d35400; font-size: 1.3em;"></h2>
+    
+    <button id="nextMonthBtn" style="padding: 8px 15px; background: #e67e22; color: white; border: none; border-radius: 8px; cursor: pointer;">
+      الشهر التالي ▶
+    </button>
+  </div>
+  
+  <div id="noOrdersMessage" style="display: none; text-align: center; padding: 20px; background: #f8f8f8; border-radius: 8px; margin-bottom: 20px;">
+    لا توجد طلبات في هذا الشهر
+  </div>
+  
+  <!-- الـ container فقط للطلبات والجدول -->
+  <div id="ordersContainer">
+    <!-- سيتم تعبئته بالجافاسكريبت -->
+  </div>
+</div>
+
+  <!-- زر السداد (آخر تبويب الشهر) -->
+  <div style="text-align:center; margin:18px 0;">
+<button id="openBulkPayModalBtn"
+        style="padding:12px 22px; background:#27ae60; color:white; border:none; border-radius:10px; font-size:1.1em; cursor:pointer;">
+  💳 السداد
+</button>
+  </div>
+
+<!-- مودال السداد -->
+<div id="bulkPayModal" style="
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.65);
+  display:none; justify-content:center; align-items:center;
+  z-index:10000;
+  font-family:'Cairo', sans-serif;
+">
+  <div style="
+    background:#fff; padding:22px; border-radius:14px;
+    width:95%; max-width:420px; text-align:center;
+    font-family:'Cairo', sans-serif;
+  ">
+    <h2 style="margin:0 0 14px; color:#2c3e50; font-family:'Tajawal','Cairo',sans-serif;">
+      السداد
+    </h2>
+
+    <button id="bulkPayAllBtn" style="
+      width:100%; padding:14px; background:#27ae60; color:#fff;
+      border:none; border-radius:10px; cursor:pointer; margin-bottom:10px;
+      font-family:'Cairo', sans-serif; font-size:1.05em;
+    ">
+      سداد جميع الطلبيات
+    </button>
+
+    <button id="bulkPayExceptNotTransferredBtn" style="
+      width:100%; padding:14px; background:#e67e22; color:#fff;
+      border:none; border-radius:10px; cursor:pointer; margin-bottom:10px;
+      font-family:'Cairo', sans-serif; font-size:1.05em;
+    ">
+      سداد جميع الطلبيات باستثناء الغير محوله من العميل
+    </button>
+
+    <button id="bulkPayUndoBtn" style="
+      width:100%; padding:14px; background:#8e44ad; color:#fff;
+      border:none; border-radius:10px; cursor:pointer; margin-bottom:10px; display:none;
+      font-family:'Cairo', sans-serif; font-size:1.05em;
+    ">
+      ↩️ تراجع عن آخر عملية سداد
+    </button>
+
+    <div style="display:flex; gap:10px; justify-content:center;">
+      <button id="closeBulkPayModalBtn" style="
+        padding:12px 18px; background:#e74c3c; color:#fff;
+        border:none; border-radius:10px; cursor:pointer;
+        font-family:'Cairo', sans-serif; font-size:1.05em;
+      ">
+        إغلاق
+      </button>
+    </div>
+
+    <div id="bulkPayHint" style="
+      margin-top:12px; font-size:0.95em; color:#555;
+      font-family:'Cairo', sans-serif;
+    "></div>
+  </div>
+</div>
+
+<!-- تبويب الطلبات القادمة -->
+<div id="upcomingTab" class="tab-content">
+  <div id="upcomingOrdersContainer">
+    <!-- سيتم تعبئته بالجافاسكريبت -->
+  </div>
+  
+  <div id="noUpcomingMessage" style="display: none; text-align: center; padding: 40px; color: #666; font-size: 1.2em;">
+    🎉 لا توجد طلبات قادمة للتسليم
+  </div>
+</div>
+
+<!-- نافذة ضبط حجم الخط -->
+<div id="fontSizeModal">
+  <div class="font-size-modal-content">
+    <span class="font-size-label">ضبط حجم خط الجدول</span>
+    
+    <div class="font-controls">
+      <button class="font-btn decrease-btn" onclick="decreaseFontSize()">➖</button>
+      
+      <div class="font-size-display" id="currentFontSizeDisplay">16</div>
+      
+      <button class="font-btn increase-btn" onclick="increaseFontSize()">➕</button>
+    </div>
+    
+    <div style="color: #7f8c8d; font-size: 0.9em; margin-bottom: 10px;">
+	النطاق: 6 - 24 نقطة
+    </div>
+    
+    <div class="preview-text" id="fontPreview">
+      هذا مثال لنص المعاينة. سيكون حجم الخط في الجدول هكذا.
+    </div>
+    
+    <button class="reset-btn" onclick="resetFontSize()">
+      🔄 إعادة الضبط (16)
+    </button>
+    
+    <button class="close-modal-btn" onclick="closeFontSizeModal()">
+      إغلاق
+    </button>
+  </div>
+</div>
+
+<audio id="clickSound" src="add.mp3"></audio>
+<audio id="deleteSound" src="remove.mp3"></audio>
+<script src="ui-modal.js"></script>
+<script src="./db.js"></script>
+
+<!-- NOSHI: original inline script #1; same execution position, now external. -->
+<script src="js/order.js"></script>
+
+<script src="invoice.js"></script>
+<!-- NOSHI: original inline script #2; same execution position, now external. -->
+<script src="js/order.part2.js"></script>
+
+<script src="config.js"></script><script src="auth.js"></script><!-- NOSHI: original inline script #3; same execution position, now external. -->
+<script src="js/order.part3.js"></script>
+</body>
+
+</html>
