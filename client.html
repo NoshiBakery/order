@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+  <meta name="referrer" content="no-referrer">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>نوشي بيكري - العملاء</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="css/tab.css">
+<!-- NOSHI: styles for this exact position live in css/client.css. -->
+<link rel="stylesheet" href="css/client.css">
+  <style id="noshi-auth-cloak">body{visibility:hidden!important}</style>
+</head>
+<body>
+<!-- NOSHI PAGE MAP: client.html
+     CSS: css/client.css, css/client.part2.css
+     JS: js/client.js, js/client.part2.js
+     Shared files remain shared. Do not change data keys during UI maintenance.
+-->
+
+<h1>إدارة العملاء</h1>
+<div style="display:flex; flex-direction:column; align-items:center; gap:8px; width:100%; padding:10px;">
+  
+<div class="tabs">
+    <button onclick="window.location.href='index.html'" class="tab-btn">
+        🛍️ المنتجات
+    </button>
+
+    <a href="dashboard.html" class="tab-btn">
+        🌐 طلبات الموقع
+    </a>
+
+    <button onclick="window.location.href='order.html'" class="tab-btn">
+        📦 الطلبيات
+    </button>
+
+    <button onclick="window.location.href='client.html'" class="tab-btn">
+        👥 العملاء
+    </button>
+
+    <button onclick="window.location.href='mandoubs.html'" class="tab-btn">
+        🚚 المناديب
+    </button>
+
+    <button onclick="window.location.href='sales.html'" class="tab-btn">
+        📊 الاحصائيات
+    </button>
+
+    <button onclick="window.location.href='expenses.html'" class="tab-btn">
+        💳 المصروفات
+    </button>
+
+    <button onclick="window.location.href='client-products.html'" class="tab-btn">
+        ⏰ تسليم الطلبات
+    </button>
+</div>
+  <div style="text-align: center; margin: 10px 0;">
+    <button class="font-size-btn" onclick="openFontSizeModal()">
+      📝 ضبط حجم الخط
+    </button>
+  </div>
+</div>
+
+<form id="addClientForm" autocomplete="off">
+  <label>👤 اسم العميل:</label>
+<div style="position: relative; width: 100%;">
+  <input type="text" id="clientName" placeholder="اسم العميل" required style="padding-left: 50px; width: 100%; box-sizing: border-box;">
+  <button type="button" id="pasteButton" 
+          style="position: absolute; left: 5px; top: 35%; transform: translateY(-50%); width: 40px; height: 35px; background-color: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; justify-content: center;">
+    📋 لصق
+  </button>
+</div>
+  </div>
+  <div id="clientNameError">⚠️ هذا الاسم موجود بالفعل، اختر اسمًا مختلفًا</div>
+  
+  <label>📞 رقم الجوال (واتساب):</label>
+<div style="position: relative; width: 100%;">
+<input type="tel" id="clientPhone" placeholder="05xxxxxxxx" inputmode="numeric" style="padding-left: 50px; width: 100%; box-sizing: border-box;">  
+<button type="button" id="pastePhoneBtn" 
+          style="position: absolute; left: 5px; top: 30%; transform: translateY(-50%); width: 40px; height: 35px; background-color: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; justify-content: center;">
+    📋 لصق
+  </button>
+</div>
+  
+  <label>📅 تاريخ الانضمام:</label>
+  <input type="date" id="clientDate">
+  
+  <button type="submit">➕ إضافة عميل</button>
+</form>
+
+<input type="text" id="searchInput" placeholder="🔍 ابحث عن عميل...">
+
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>👤 الاسم</th>
+        <th>📞 الجوال</th>
+        <th>📅 التاريخ</th>
+        <th>🛠️ الإجراءات</th>
+      </tr>
+    </thead>
+    <tbody id="clientsTable"></tbody>
+  </table>
+</div>
+
+<!-- Edit Client Modal -->
+<div id="editClientModal" class="modal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeEditModal()">&times;</button>
+    <h3 class="modal-title">✏️ تعديل بيانات العميل</h3>
+    
+    <label for="editClientName">👤 اسم العميل:</label>
+    <input type="text" id="editClientName" class="modal-input" required>
+    
+    <button type="button" id="clearNameButton" 
+            style="background-color: #e74c3c; color: white; border: none; border-radius: 5px; padding: 8px 12px; cursor: pointer; font-size: 1rem; margin-top: 10px;">
+      مسح الاسم
+    </button>
+
+    <button type="button" id="pasteNameButton" 
+            style="background-color: #27ae60; color: white; border: none; border-radius: 5px; padding: 8px 12px; cursor: pointer; font-size: 1rem; margin-top: 10px;">
+      لصق الاسم
+    </button>
+    
+    <label for="editClientPhone">📞 رقم الجوال:</label>
+    <div style="position: relative; width: 100%;">
+      <input type="tel" id="editClientPhone" class="modal-input" placeholder="05xxxxxxxx" inputmode="numeric" style="padding-left: 50px; width: 100%; box-sizing: border-box;">  
+      <button type="button" id="pasteEditPhoneBtn" 
+              style="position: absolute; left: 5px; top: 50%; transform: translateY(-50%); width: 40px; height: 35px; background-color: #27ae60; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; justify-content: center;">
+        📋
+      </button>
+    </div>
+    
+    <label for="editClientDate">📅 تاريخ الانضمام:</label>
+    <input type="date" id="editClientDate" class="modal-input">
+    
+    <div class="modal-buttons">
+      <button class="save-btn" onclick="saveClientEdit()">💾 حفظ</button>
+      <button class="cancel-btn" onclick="closeEditModal()">❌ إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- Orders Modal -->
+<div id="ordersModal" class="modal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeOrdersModal()">&times;</button>
+
+    <h3 class="modal-title">
+      📦 طلبات العميل: <span id="ordersClientName"></span>
+    </h3>
+
+    <div class="orders-summary">
+      <div><span>إجمالي الطلبات</span> <span id="ordersCount">0</span></div>
+      <div><span>إجمالي قبل الخصم</span> <span id="ordersTotal">0 ر.س</span></div>
+      <div><span>إجمالي الخصم</span> <span id="ordersDiscount">0 ر.س</span></div>
+      <div><span>الصافي</span> <span id="ordersNet">0 ر.س</span></div>
+      <div><span>المدفوع للمندوب</span> <span id="ordersDelivery">0 ر.س</span></div>
+      <div><span>آخر طلب</span> <span id="lastOrderDate">-</span></div>
+    </div>
+
+    <div class="order-history-tools">
+      <input
+        type="text"
+        id="orderHistorySearchInput"
+        placeholder="🔎 بحث داخل طلبات العميل..."
+        oninput="renderOrderHistory()"
+      >
+
+      <select id="orderHistoryMonthFilter" onchange="renderOrderHistory()">
+        <option value="all">كل الشهور</option>
+      </select>
+
+      <select id="orderHistoryStatusFilter" onchange="renderOrderHistory()">
+        <option value="all">كل الحالات</option>
+        <option value="paid">المدفوعة فقط</option>
+        <option value="unpaid">غير المدفوعة فقط</option>
+        <option value="cash">نقد فقط</option>
+        <option value="transfer">تحويل فقط</option>
+      </select>
+
+      <button
+        type="button"
+        onclick="resetOrderHistoryFilters()"
+        style="border:none; border-radius:10px; background:#7f8c8d; color:white; font-weight:bold; cursor:pointer;"
+      >
+        🔄 تصفير الفلاتر
+      </button>
+    </div>
+
+    <div id="ordersList" class="orders-list"></div>
+  </div>
+</div>
+
+<!-- نافذة ضبط حجم الخط -->
+<div id="fontSizeModal" class="modal">
+  <div class="modal-content">
+    <div class="font-size-modal-content">
+      <span class="font-size-label">ضبط حجم خط الجداول</span>
+      
+      <div class="font-controls">
+        <button class="font-btn decrease-btn" onclick="decreaseFontSize()">➖</button>
+        
+        <div class="font-size-display" id="currentFontSizeDisplay">16</div>
+        
+        <button class="font-btn increase-btn" onclick="increaseFontSize()">➕</button>
+      </div>
+      
+      <div style="color: #7f8c8d; font-size: 0.9em; margin-bottom: 10px;">
+        النطاق: 8 - 24 نقطة
+      </div>
+      
+      <div class="preview-text" id="fontPreview">
+        هذا مثال لنص المعاينة. سيكون حجم الخط في الجدول هكذا.
+      </div>
+      
+      <button class="reset-btn" onclick="resetFontSize()">
+        🔄 إعادة الضبط (16)
+      </button>
+      
+      <button class="close-modal-btn" onclick="closeFontSizeModal()">
+        إغلاق
+      </button>
+    </div>
+  </div>
+</div>
+
+<audio id="addSound" src="add.mp3"></audio>
+<audio id="removeSound" src="remove.mp3"></audio>
+<audio id="deleteSound" src="remove.mp3"></audio>
+
+<script src="ui-modal.js"></script>
+<script src="./db.js"></script>
+
+<!-- NOSHI: original inline script #1; same execution position, now external. -->
+<script src="js/client.js"></script>
+
+
+<div id="confirmModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 9999; justify-content: center; align-items: center;">
+  <div style="background: #fff; padding: 25px 20px; border-radius: 12px; text-align: center; max-width: 320px; width: 90%; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-family: 'Tahoma', sans-serif;">
+    <p id="confirmText" style="margin-bottom: 20px; font-size: 1rem; color: #333;">هل أنت متأكد من الإجراء؟</p>
+    <div style="display: flex; justify-content: center; gap: 10px;">
+      <button id="confirmYes" style="background: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.9rem; cursor: pointer;">نعم، احذف</button>
+      <button id="confirmNo" style="background: #bdc3c7; color: #2c3e50; padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.9rem; cursor: pointer;">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal عرض رقم الجوال -->
+<div id="phoneModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99999; justify-content: center; align-items: center; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);">
+  <div style="background: white; padding: 25px 20px; border-radius: 20px; max-width: 320px; width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: modalPop 0.3s ease;">
+    
+    <h3 id="clientNameDisplay" style="color: var(--secondary-color); margin-bottom: 5px; font-size: 1.1rem; font-weight: 700;">اسم العميل</h3>
+    <p style="color: #888; font-size: 0.7rem; margin-bottom: 12px;">📞 اضغط على الرقم لنسخه</p>
+    
+    <div id="phoneDisplay" style="background: #f8f4f0; padding: 10px 15px; border-radius: 12px; margin-bottom: 18px; direction: ltr; unicode-bidi: embed; font-family: 'Courier New', monospace; font-size: 0.95rem; font-weight: 700; color: #2c3e50; letter-spacing: 1px; border: 2px dashed var(--primary-color); cursor: pointer; user-select: all;">
+      05xxxxxxxx
+    </div>
+    
+    <button onclick="closePhoneModal()" style="width: 100%; padding: 12px; background: var(--danger-color); color: white; border: none; border-radius: 12px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: all 0.2s;">
+      ✖ إغلاق
+    </button>
+  </div>
+</div>
+
+<!-- NOSHI: styles for this exact position live in css/client.part2.css. -->
+<link rel="stylesheet" href="css/client.part2.css">
+
+<script src="config.js"></script><script src="auth.js"></script><!-- NOSHI: original inline script #2; same execution position, now external. -->
+<script src="js/client.part2.js"></script>
+</body>
+</html>

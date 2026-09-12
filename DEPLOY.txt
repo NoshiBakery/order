@@ -1,0 +1,51 @@
+DEPLOY — exact order
+====================
+
+A) CLOUDFLARE WORKER (DO THIS FIRST)
+Replace the current internal Worker code with:
+  internal-worker.js
+Then Deploy.
+
+Keep the same bindings/secrets/variable:
+- DB -> noshi-internal
+- ORDERS_DB -> noshi-orders
+- OWNER_PASSWORD secret
+- MOTHER_PASSWORD secret
+- INTERNAL_ORIGIN = https://noshibakery.github.io
+
+B) OPTIONAL SAFE D1 INDEXES
+Run on noshi-internal:
+  cloudflare/noshi-internal-performance.sql
+Run on noshi-orders:
+  cloudflare/noshi-orders-performance.sql
+These commands only CREATE INDEX IF NOT EXISTS. They do not delete data.
+
+C) GITHUB
+Upload the changed/new frontend files from this ZIP, preserving folders.
+Important new folders/files:
+- images/Noshi.webp
+- images/thumbs/*.webp
+
+D) TEST
+1. Login on owner phone.
+2. Open orders / clients / dashboard and compare load time.
+3. Create a temporary order with quantity > 1, open split delivery, add second schedule, drag product cards only, save.
+4. Verify both delivery slots appear under the correct dates/mandoubs.
+5. Open mother phone and verify the same live data.
+
+No migration.html and no JSON re-import are needed for this patch.
+
+============================================================
+2026-09-10 SAFE PATCH DEPLOY ORDER
+============================================================
+1. Deploy `internal-worker.js` FIRST.
+   - Required before monthly keys such as salesData_2026_09 can be written.
+   - Keep bindings/secrets unchanged: DB, ORDERS_DB, OWNER_PASSWORD, MOTHER_PASSWORD, INTERNAL_ORIGIN.
+2. Upload the GitHub Pages files from this patch.
+3. Open the system read-only and verify navigation, orders, clients, website orders and images.
+4. Open `migration.html` and use "تقسيم المبيعات شهريًا للسرعة".
+   - It COPIES monthly partitions and verifies exact JSON equality.
+   - It DOES NOT delete legacy `salesData`.
+5. Download `all_data.json` and keep it before any later cleanup.
+
+Do NOT delete either D1 database and do NOT delete legacy salesData in this release.
