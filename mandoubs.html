@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+  <meta name="referrer" content="no-referrer">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>إدارة مستحقات المناديب</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+  <!-- NOSHI: styles for this exact position live in css/mandoubs.css. -->
+<link rel="stylesheet" href="css/mandoubs.css">
+  <style id="noshi-auth-cloak">body{visibility:hidden!important}</style>
+  <link rel="stylesheet" href="css/tab.css">
+</head>
+<body>
+<!-- NOSHI PAGE MAP: mandoubs.html
+     CSS: css/mandoubs.css
+     JS: js/mandoubs.js, js/mandoubs.part2.js, js/mandoubs.part3.js
+     Shared files remain shared. Do not change data keys during UI maintenance.
+-->
+
+<div class="container">
+  <div class="logo">
+    <img src="images/Noshi.webp" alt="Noshi Bakery Logo">
+  </div>
+  <h1>🚚 إدارة مستحقات المناديب</h1>
+  
+  <div class="tabs">
+    <button class="tab-btn" onclick="location.href='index.html'">🛍️ المنتجات</button>
+    <a class="tab-btn" href="dashboard.html" style="text-decoration:none; display:inline-block; box-sizing:border-box;">🌐 طلبات الموقع</a>
+    <button class="tab-btn" onclick="location.href='order.html'">📦 الطلبات</button>
+    <button class="tab-btn" onclick="location.href='client.html'">👥 العملاء</button>
+    <button class="tab-btn" style="background:#00bcd4">🚚 المناديب</button>
+	<button class="tab-btn" onclick="location.href='sales.html'">📊 الاحصائيات</button>
+    <button class="tab-btn" onclick="location.href='expenses.html'">💳 المصروفات</button>
+		<button class="tab-btn" onclick="window.location.href='client-products.html'">⏰ تسليم الطلبات</button>		
+  </div>
+  
+  <!-- زر ضبط حجم الخط -->
+  <div style="display:flex; justify-content:center; margin:10px 0;">
+    <button class="font-size-btn" onclick="openFontSizeModal()">
+      📝 ضبط حجم الخط
+    </button>
+  </div>
+  
+  <!-- تنقل الشهور -->
+<div class="month-navigation">
+  <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+    <button class="month-btn" id="prevMonth">▶ الشهر السابق</button>
+    <div style="text-align:center"><div class="current-month" id="currentMonth"></div><div style="font-size:.72rem;color:#777;margin-top:2px;font-weight:700">حسب تاريخ التسليم</div></div>
+    <button class="month-btn" id="nextMonth">الشهر التالي ◀</button>
+  </div>
+</div>
+  
+  <!-- جدول الطلبات -->
+  <table class="orders-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>العميل</th>
+        <th>المبلغ</th>
+        <th>المندوب</th>
+        <th>الحالة</th>
+        <th>تفاصيل</th>
+      </tr>
+    </thead>
+    <tbody id="ordersTableBody"></tbody>
+  </table>
+  
+  <!-- إحصائيات المناديب -->
+  <div class="mandoubs-stats">
+    <h2 style="text-align:center; color:var(--secondary); margin-top:0;">إحصائيات المناديب</h2>
+    <div id="mandoubsContainer"></div>
+  </div>
+</div>
+
+<!-- مودال اختيار المندوب -->
+<div id="mandoubModal" class="modal">
+  <div class="modal-content">
+    <h3 class="modal-title">اختر المندوب</h3>
+    <button class="mandoub-option" onclick="selectMandoub('ماهر')">🚚 ماهر</button>
+    <button class="mandoub-option" onclick="selectMandoub('اياد')">🚚 اياد</button>
+    <button class="mandoub-option" onclick="selectMandoub('عماد')">🚚 عماد</button>
+    <button class="mandoub-option" onclick="selectMandoub('عبد الملك')">🚚 عبد الملك</button>
+    <button class="mandoub-option" onclick="selectMandoub('عبدالرحمن')">🚚 عبدالرحمن</button>
+    <button class="mandoub-option" onclick="selectMandoub(null)">⚪ لم يتم تحديد المندوب</button>
+    <button class="mandoub-option" style="background:#e74c3c" onclick="closeModal()">إلغاء</button>
+  </div>
+</div>
+
+<!-- نافذة تفاصيل الطلب (مودال محسن مع إيموجي) -->
+<div id="orderDetailsModal" class="modal" style="align-items: center; justify-content: center;">
+  <div class="modal-content" style="
+    background: transparent;
+    width: 94%;
+    max-width: 380px;
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+  ">
+    <div id="orderDetailsContent"></div>
+  </div>
+</div>
+
+<!-- نافذة ضبط حجم الخط -->
+<div id="fontSizeModal" class="modal">
+  <div class="modal-content">
+    <div class="font-size-modal-content">
+      <span class="font-size-label">ضبط حجم خط الجداول</span>
+      
+      <div class="font-controls">
+        <button class="font-btn decrease-btn" onclick="decreaseFontSize()">➖</button>
+        
+        <div class="font-size-display" id="currentFontSizeDisplay">16</div>
+        
+        <button class="font-btn increase-btn" onclick="increaseFontSize()">➕</button>
+      </div>
+      
+      <div style="color: #7f8c8d; font-size: 0.9em; margin-bottom: 10px;">
+        النطاق: 8 - 24 نقطة
+      </div>
+      
+      <div class="preview-text" id="fontPreview">
+        هذا مثال لنص المعاينة. سيكون حجم الخط في الجدول هكذا.
+      </div>
+      
+      <button class="reset-btn" onclick="resetFontSize()">
+        🔄 إعادة الضبط (16)
+      </button>
+      
+      <button class="close-modal-btn" onclick="closeFontSizeModal()">
+        إغلاق
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="ui-modal.js"></script>
+<script src="./db.js"></script>
+
+<!-- NOSHI: original inline script #1; same execution position, now external. -->
+<script src="js/mandoubs.js"></script>
+<script src="invoice.js"></script>
+<!-- NOSHI: original inline script #2; same execution position, now external. -->
+<script src="js/mandoubs.part2.js"></script>
+<div id="payMandoubModal" class="modal">
+  <div class="modal-content" style="
+    background:#ffffff;
+    border-radius:16px;
+    padding:15px;
+    max-width:340px;
+    width:88%;
+    max-height:calc(100dvh - 30px);
+    overflow-y:auto;
+    box-shadow:0 10px 35px rgba(0,0,0,0.18);
+    font-family:'Cairo',sans-serif;
+    text-align:center;
+  ">
+
+    <h3 style="
+      color:#27ae60;
+      margin:0 0 10px;
+      font-size:19px;
+      font-weight:800;
+    ">
+      💵 تأكيد السداد
+    </h3>
+
+    <div id="payMandoubInfo" style="margin-bottom:12px;"></div>
+
+    <div style="display:flex; gap:8px;">
+      <button id="cancelPayMandoub" style="
+        flex:1;
+        background:#e74c3c;
+        color:#ffffff;
+        border:none;
+        padding:9px;
+        min-height:40px;
+        border-radius:10px;
+        font-size:14px;
+        font-weight:700;
+        font-family:'Cairo',sans-serif;
+        cursor:pointer;
+      ">
+        إلغاء
+      </button>
+
+      <button id="confirmPayMandoub" style="
+        flex:1.25;
+        background:#27ae60;
+        color:#ffffff;
+        border:none;
+        padding:9px;
+        min-height:40px;
+        border-radius:10px;
+        font-size:14px;
+        font-weight:800;
+        font-family:'Cairo',sans-serif;
+        cursor:pointer;
+      ">
+        تأكيد السداد
+      </button>
+    </div>
+
+  </div>
+</div>
+  </div>
+</div>
+
+<script src="config.js"></script><script src="auth.js"></script><!-- NOSHI: original inline script #3; same execution position, now external. -->
+<script src="js/mandoubs.part3.js"></script>
+</body>
+</html>
