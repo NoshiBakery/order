@@ -1,0 +1,107 @@
+(function(){
+  "use strict";
+  const cfg = () => window.NOSHI_CONFIG || {};
+  const enabled = () => cfg().CLOUD_ENABLED === true;
+  const base = () => String(cfg().INTERNAL_API_BASE || "").replace(/\/$/, "");
+  const TOKEN_KEY = "noshi_session_token";
+  let guardInFlight = null;
+
+  function getToken(){
+    try { return sessionStorage.getItem(TOKEN_KEY) || ""; } catch(_) { return ""; }
+  }
+  function setToken(token){
+    try { if(token) sessionStorage.setItem(TOKEN_KEY, token); else sessionStorage.removeItem(TOKEN_KEY); } catch(_) {}
+  }
+
+  async function api(path, options={}){
+    if(!enabled()) throw new Error("cloud_not_enabled");
+    const headers = new Headers(options.headers || {});
+    if(options.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+    const token = getToken();
+    if(token && !headers.has("Authorization")) headers.set("Authorization", "Bearer " + token);
+
+    // iOS/Safari can occasionally leave a fetch pending indefinitely after
+    // backgrounding the app. A bounded request prevents the auth cloak from
+    // leaving every protected page white forever.
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    if(options.signal){
+      if(options.signal.aborted) controller.abort();
+      else options.signal.addEventListener('abort',()=>controller.abort(),{once:true});
+    }
+    let r;
+    try{
+      r = await fetch(base()+path, Object.assign({}, options, {
+        credentials:"include",
+        headers,
+        cache:"no-store",
+        signal:controller.signal
+      }));
+    }catch(error){
+      if(error && error.name==='AbortError'){ const err=new Error('انتهت مهلة الاتصال. تحقق من الشبكة ثم أعد المحاولة.'); err.status=408; throw err; }
+      throw error;
+    }finally{ clearTimeout(timeoutId); }
+    const data = await r.json().catch(()=>({}));
+    if(r.ok && path === "/api/auth/login" && data && data.token) setToken(data.token);
+    if(r.status === 401) {
+      if(path !== "/api/auth/login") setToken("");
+      const err = new Error("unauthorized"); err.status=401; err.data=data; throw err;
+    }
+    if(!r.ok){
+      const err = new Error(data.error || "request_failed"); err.status=r.status; err.data=data; throw err;
+    }
+    return data;
+  }
+
+  async function me(){
+    if(!enabled()) return {localMode:true, displayName:"الوضع المحلي"};
+    return api('/api/auth/me');
+  }
+
+  function clearAuthWatchdog(){
+    try{ clearTimeout(window.__noshiAuthSlowTimer); clearTimeout(window.__noshiAuthFailTimer); }catch(_){}
+  }
+  function revealProtectedPage(){
+    clearAuthWatchdog();
+    try{ delete document.documentElement.dataset.authState; }catch(_){}
+    const cloak = document.getElementById("noshi-auth-cloak");
+    if(cloak) cloak.remove();
+  }
+  function showProtectedError(message){
+    clearAuthWatchdog();
+    document.documentElement.dataset.authState = "error";
+    document.documentElement.dataset.authMessage = String(message || "auth_error");
+    document.documentElement.addEventListener("click", function retryAuth(){ location.reload(); }, {once:true});
+  }
+
+  async function guard(){
+    if(!enabled()) { revealProtectedPage(); return {localMode:true}; }
+    if(guardInFlight) return guardInFlight;
+    guardInFlight = (async()=>{
+      try {
+        const user = await me();
+        if(window.NoshiTheme && typeof window.NoshiTheme.applyForUser === "function") window.NoshiTheme.applyForUser(user);
+        revealProtectedPage();
+        return user;
+      } catch(e){
+        if(e.status===401 || e.message==='unauthorized') { clearAuthWatchdog(); location.replace('login.html'); throw e; }
+        // Security + UX: never reveal protected content when verification did not succeed.
+        // Keep it protected, but show a visible retry state instead of a blank white page.
+        showProtectedError(e && e.message);
+        throw e;
+      } finally {
+        guardInFlight = null;
+      }
+    })();
+    return guardInFlight;
+  }
+
+  async function logout(){
+    if(!enabled()){ location.replace('login.html'); return; }
+    try { await api('/api/auth/logout',{method:'POST'}); } catch(_) {}
+    setToken("");
+    location.replace('login.html');
+  }
+
+  window.NoshiAuth = Object.freeze({enabled, api, me, guard, logout});
+})();
