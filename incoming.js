@@ -70,7 +70,7 @@
       const isCellProduct=["p18","p19","p20"].includes(String(productId||"").trim());
       const sizeMatch=isCellProduct ? incomingName.match(/^(.*)\s+—\s+(صغير|وسط)$/) : null;
       const baseName=sizeMatch ? sizeMatch[1].trim() : incomingName;
-      const sizeNote=sizeMatch ? `الحجم: ${sizeMatch[2]}` : "";
+      const sizeNote=sizeMatch ? `الحجمس ${sizeMatch[2]}` : "";
       return {
         productId,
         name:baseName,
