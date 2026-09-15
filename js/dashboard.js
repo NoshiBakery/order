@@ -65,7 +65,7 @@
         price: Number(i.originalUnitPrice ?? i.originalPrice ?? i.original_unit_price ?? i.price ?? i.unitPrice ?? i.unit_price ?? 0),
         originalPrice: Number(i.originalUnitPrice ?? i.originalPrice ?? i.original_unit_price ?? i.price ?? i.unitPrice ?? i.unit_price ?? 0),
         discount: Math.max(0, Math.min(100, Number(i.discountPercent ?? i.discount ?? i.discount_percent ?? 0))),
-        notes: sizeMatch ? `الحجم: ${sizeMatch[2]}` : ''
+        notes: sizeMatch ? `الحجم ${sizeMatch[2]}` : ''
       };
     }) : [];
     const originalSubtotal = items.reduce((sum, i) => {
