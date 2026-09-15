@@ -52,15 +52,22 @@
       return;
     }
     const c = match(o);
-    const items = Array.isArray(o.items) ? o.items.map(i => ({
-      ...i,
-      name: i.name || i.productName || 'منتج',
-      qty: Number(i.qty || i.quantity || 1),
-      price: Number(i.originalUnitPrice ?? i.originalPrice ?? i.original_unit_price ?? i.price ?? i.unitPrice ?? i.unit_price ?? 0),
-      originalPrice: Number(i.originalUnitPrice ?? i.originalPrice ?? i.original_unit_price ?? i.price ?? i.unitPrice ?? i.unit_price ?? 0),
-      discount: Math.max(0, Math.min(100, Number(i.discountPercent ?? i.discount ?? i.discount_percent ?? 0))),
-      notes: ''
-    })) : [];
+    const items = Array.isArray(o.items) ? o.items.map(i => {
+      const productId = String(i.productId || i.id || '').trim();
+      const incomingName = String(i.name || i.productName || 'منتج').trim();
+      const sizeMatch = ['p18','p19','p20'].includes(productId)
+        ? incomingName.match(/^(.*)\s+—\s+(صغير|وسط)$/)
+        : null;
+      return {
+        ...i,
+        name: sizeMatch ? sizeMatch[1].trim() : incomingName,
+        qty: Number(i.qty || i.quantity || 1),
+        price: Number(i.originalUnitPrice ?? i.originalPrice ?? i.original_unit_price ?? i.price ?? i.unitPrice ?? i.unit_price ?? 0),
+        originalPrice: Number(i.originalUnitPrice ?? i.originalPrice ?? i.original_unit_price ?? i.price ?? i.unitPrice ?? i.unit_price ?? 0),
+        discount: Math.max(0, Math.min(100, Number(i.discountPercent ?? i.discount ?? i.discount_percent ?? 0))),
+        notes: sizeMatch ? `الحجم: ${sizeMatch[2]}` : ''
+      };
+    }) : [];
     const originalSubtotal = items.reduce((sum, i) => {
       return sum + Number(i.price || 0) * Number(i.qty || 0);
     }, 0);
