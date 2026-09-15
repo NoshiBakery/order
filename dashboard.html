@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+  <meta name="referrer" content="no-referrer">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>طلبات الموقع - نوشي</title>
+  <style id="noshi-auth-cloak">
+body{visibility:hidden!important}
+html{background:#f6f1ec!important;min-height:100%;color-scheme:light}
+html::before{content:"🔐  جاري التحقق من الجلسة…\A\Aانتظر لحظات";white-space:pre-line;visibility:visible!important;position:fixed;z-index:2147483647;inset:0;display:grid;place-items:center;text-align:center;padding:24px;background:#f6f1ec;color:#3b302c;font:800 16px/1.8 -apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif}
+html[data-auth-state="slow"]::before{content:"⏳  التحقق أخذ وقتًا أطول من المعتاد…\A\Aلا تغلق التطبيق، نحاول إكمال الاتصال"}
+html[data-auth-state="error"]::before{content:"⚠️  تعذر التحقق من الجلسة\A\Aاضغط على الشاشة لإعادة المحاولة";background:#fff5f2;color:#7a2e24}
+html[data-theme="dark"]{background:#0b1016!important}
+html[data-theme="dark"]::before{background:#0b1016;color:#f4f7fb}
+html[data-theme="dark"][data-auth-state="error"]::before{background:#160f12;color:#ffb7b2}
+</style>
+<script>
+(function(){
+  window.__noshiAuthSlowTimer=setTimeout(function(){
+    if(document.getElementById('noshi-auth-cloak')) document.documentElement.dataset.authState='slow';
+  },6000);
+  window.__noshiAuthFailTimer=setTimeout(function(){
+    if(!document.getElementById('noshi-auth-cloak')) return;
+    document.documentElement.dataset.authState='error';
+    document.documentElement.addEventListener('click',function(){ location.reload(); },{once:true});
+  },18000);
+})();
+</script>
+  <link rel="stylesheet" href="css/tab.css?v=4.9.0">
+  <link rel="stylesheet" href="css/dashboard.css?v=4.9.0">
+<!-- NOSHI DARK THEME: all night-mode visual rules live only in css/dark-theme.css -->
+<link rel="stylesheet" href="css/dark-theme.css?v=5.2.0">
+<style id="noshi-phone-review-ui">
+.phone-review-panel{
+  width:min(calc(100% - 20px),520px);
+  padding:18px 16px calc(18px + env(safe-area-inset-bottom));
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif;
+  overflow-x:hidden
+}
+.phone-review-heading{display:flex;align-items:center;gap:10px;padding-inline-end:52px;margin-bottom:12px}
+.phone-review-heading h2{margin:0!important;font-size:19px;color:#332a26}
+.phone-review-heading p{margin:3px 0 0;color:#76655c;font-size:12px;line-height:1.45}
+.phone-review-badge{width:32px;height:32px;min-width:32px;border-radius:10px;display:grid;place-items:center;background:#fff1df;color:#a65300;font-weight:950}
+.phone-review-client{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fffaf6;border:1px solid #f3e7df;border-radius:10px;padding:9px 11px;margin-bottom:8px}
+.phone-review-client span{font-size:12px;color:#8b6e60;font-weight:800}
+.phone-review-client strong{font-size:15px;color:#2f2723;font-weight:950}
+.phone-review-numbers{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.phone-review-number{min-width:0;margin:0;border:1px solid #eee1d8;border-radius:11px;background:#fff;padding:9px 10px;text-align:right;font-family:inherit;color:#3b302c}
+button.phone-review-number{cursor:pointer}
+.phone-review-number span{display:block;font-size:11px;color:#8b6e60;font-weight:800;margin-bottom:4px}
+.phone-review-number b{display:block;font-size:15px;font-weight:900;text-align:right}
+.phone-review-number small{display:block;margin-top:3px;font-size:10px;color:#9a7d6e}
+.phone-review-number.editable{background:#fffaf6}
+.phone-review-number.editable:active{background:#fff4eb}
+.phone-review-diff{margin-top:8px;border-radius:10px;padding:8px 10px;background:#fff8e1;border:1px solid #ffe0a6;color:#805c12;font-size:12px;font-weight:800}
+.phone-review-edit{margin-top:8px;background:#fffaf6;border:1px solid #f3e7df;border-radius:11px;padding:9px}
+.phone-review-edit label{display:block;font-size:11px;font-weight:800;color:#5f5048;margin-bottom:5px}
+.phone-review-edit-row{display:grid;grid-template-columns:minmax(0,1fr) 64px;gap:7px}
+.phone-review-edit input{width:100%;min-width:0;height:42px;border:1px solid #dfcdc1;border-radius:10px;padding:7px 9px;font:700 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif;text-align:right}
+.phone-review-edit button{border:0;border-radius:10px;background:#5d4037;color:#fff;font-weight:900;font-family:inherit}
+.phone-review-decisions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.phone-review-decisions button{min-width:0;min-height:46px;border-radius:12px;font:900 14px -apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif}
+.phone-review-confirm{border:0;background:#2e9c57;color:#fff}
+.phone-review-new{border:1px solid #dfcdc1;background:#fff;color:#5d4037}
+.phone-check-alert{display:flex;align-items:center;gap:8px;margin:8px 0;padding:8px 9px;background:#fff8e1;border:1px solid #ffe0a6;border-radius:10px;color:#6f5318}
+.phone-check-alert>span{width:24px;height:24px;min-width:24px;border-radius:8px;display:grid;place-items:center;background:#ffe9b6;color:#8a6110;font-weight:950}
+.phone-check-alert b{display:block;font-size:12px;line-height:1.35}
+.phone-check-alert small{display:block;margin-top:1px;font-size:10px;color:#8b7446}
+@media(max-width:520px){
+ .phone-review-panel{width:calc(100% - 14px);padding:16px 13px calc(16px + env(safe-area-inset-bottom))}
+ .phone-review-heading{padding-inline-end:48px}
+ .phone-review-numbers{grid-template-columns:1fr}
+ .phone-review-decisions{grid-template-columns:1fr}
+ .phone-review-decisions button{min-height:48px;font-size:15px}
+}
+</style>
+</head>
+<body>
+<!-- NOSHI PAGE MAP: dashboard.html
+     CSS: css/dashboard.css
+     JS: js/dashboard.js
+     Shared files remain shared. Do not change data keys during UI maintenance.
+-->
+<main class="wrap">
+  <div class="top"><img class="logo" src="images/Noshi.webp" alt="Noshi"><div class="title"><h1>طلبات الموقع الخارجي</h1><p id="who" class="hidden"></p></div><button class="iconbtn" id="logoutBtn" title="تسجيل الخروج">↪️</button></div>
+  <nav class="navtabs" aria-label="التنقل الرئيسي">
+    <a href="index.html">🛍️ المنتجات</a>
+    <a href="dashboard.html" class="active" aria-current="page">🌐 طلبات الموقع</a>
+    <a href="order.html">📦 الطلبيات</a>
+    <a href="client.html">👥 العملاء</a>
+    <a href="mandoubs.html">🚚 المناديب</a>
+    <a href="sales.html">📊 الاحصائيات</a>
+    <a href="expenses.html">💳 المصروفات</a>
+    <a href="client-products.html">⏰ تسليم الطلبات</a>
+  </nav>
+  <div class="bar"><button class="refresh" id="refreshBtn">↻ تحديث الطلبات</button></div>
+  <div id="cloudState" class="state cloud hidden"></div>
+  <div id="list" class="grid"><div class="state">جاري تجهيز لوحة الطلبات…</div></div>
+</main>
+
+<div id="detailsSheet" class="sheet" aria-hidden="true"><section class="panel" role="dialog" aria-modal="true"><button class="close" data-close="detailsSheet">×</button><h2>تفاصيل الطلب</h2><div id="detailsBody"></div></section></div>
+<div id="phoneReviewSheet" class="sheet" aria-hidden="true">
+  <section class="panel phone-review-panel" role="dialog" aria-modal="true" dir="rtl">
+    <button class="close" data-close="phoneReviewSheet">×</button>
+
+    <div class="phone-review-heading">
+      <span class="phone-review-badge">!</span>
+      <div>
+        <h2>تحقق من رقم الجوال</h2>
+        <p>يوجد رقم قريب لعميلة مسجلة في نوشي.</p>
+      </div>
+    </div>
+
+    <div class="phone-review-client">
+      <span>العميلة المحتملة</span>
+      <strong id="reviewCandidate"></strong>
+    </div>
+
+    <div class="phone-review-numbers">
+      <button type="button" id="reviewIncoming" class="phone-review-number editable">
+        <span>المدخل من قبل العميلة</span>
+        <b dir="ltr"></b>
+        <small>اضغط لتعديل الرقم</small>
+      </button>
+      <div class="phone-review-number">
+        <span>الرقم لدى نظام نوشي</span>
+        <b id="reviewSaved" dir="ltr"></b>
+        <small>الرقم المسجل</small>
+      </div>
+    </div>
+
+    <div id="reviewDiff" class="phone-review-diff"></div>
+
+    <div id="reviewEditWrap" class="phone-review-edit hidden">
+      <label for="reviewEditPhone">تعديل رقم الجوال</label>
+      <div class="phone-review-edit-row">
+        <input id="reviewEditPhone" dir="ltr" inputmode="tel">
+        <button id="reviewEditBtn" type="button">حفظ</button>
+      </div>
+    </div>
+
+    <div class="phone-review-decisions">
+      <button id="reviewSameBtn" class="phone-review-confirm">هي نفس العميلة</button>
+      <button id="reviewNewBtn" class="phone-review-new">عميلة جديدة</button>
+    </div>
+    <div id="reviewMsg" class="msg"></div>
+  </section>
+</div>
+<div id="clientSheet" class="sheet" aria-hidden="true"><section class="panel client-panel" role="dialog" aria-modal="true"><button class="close" data-close="clientSheet">×</button><h2>إضافة عميلة جديدة</h2><p class="client-intro">هذا الرقم غير مسجل حاليًا. راجع البيانات ثم أضف العميلة قبل تجهيز الطلب.</p><div class="client-fields"><div class="field phone-field"><label>رقم الجوال</label><input id="newPhone" dir="ltr"></div><div class="field name-field"><label>اسم العميلة</label><input id="newName" autocomplete="off" placeholder="مثال: أم محمد"></div><div class="field date-field"><label>تاريخ الانضمام</label><input id="joinDate" type="date"></div></div><button id="createClientBtn" class="accept client-create-btn">إنشاء العميلة</button><div id="clientMsg" class="msg"></div></section></div>
+
+<script src="config.js?v=4.9.0"></script><script src="auth.js?v=4.9.0"></script><script src="theme.js?v=5.0.0"></script><script src="db.js?v=4.9.0"></script><script src="incoming.js?v=4.9.0"></script><script src="ui-modal.js?v=5.1.0"></script><script src="invoice.js?v=4.9.0"></script>
+<!-- NOSHI: original inline script #1; same execution position, now external. -->
+<script src="js/dashboard.js?v=5.2.0"></script>
+</body></html>
