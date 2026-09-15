@@ -76,7 +76,14 @@
       ),
       qty:Math.max(1,Number(i.qty||i.quantity||1)),
       discount:Math.max(0,Math.min(100,Number(i.discountPercent ?? i.discount ?? i.discount_percent ?? 0))),
-      notes:"", notesLocked:false, customName:""
+      notes:
+        String(i.variant || "").trim() === "medium"
+          ? "الحجم: وسط"
+          : String(i.variant || "").trim() === "small"
+            ? "الحجم: صغير"
+            : "",
+      notesLocked:["small","medium"].includes(String(i.variant || "").trim()),
+      customName:""
     }));
     items.push({name:"مندوب",originalName:"مندوب",price:fee,originalPrice:fee,qty:1,discount:0,notes:"",notesLocked:false,customName:""});
     return {
