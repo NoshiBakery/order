@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+  <meta name="referrer" content="no-referrer">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>طلبات الموقع - نوشي</title>
+  <style id="noshi-auth-cloak">
+body{visibility:hidden!important}
+html{background:#f6f1ec!important;min-height:100%;color-scheme:light}
+html::before{content:"🔐  جاري التحقق من الجلسة…\A\Aانتظر لحظات";white-space:pre-line;visibility:visible!important;position:fixed;z-index:2147483647;inset:0;display:grid;place-items:center;text-align:center;padding:24px;background:#f6f1ec;color:#3b302c;font:800 16px/1.8 -apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif}
+html[data-auth-state="slow"]::before{content:"⏳  التحقق أخذ وقتًا أطول من المعتاد…\A\Aلا تغلق التطبيق، نحاول إكمال الاتصال"}
+html[data-auth-state="error"]::before{content:"⚠️  تعذر التحقق من الجلسة\A\Aاضغط على الشاشة لإعادة المحاولة";background:#fff5f2;color:#7a2e24}
+html[data-theme="dark"]{background:#0b1016!important}
+html[data-theme="dark"]::before{background:#0b1016;color:#f4f7fb}
+html[data-theme="dark"][data-auth-state="error"]::before{background:#160f12;color:#ffb7b2}
+</style>
+<script>
+(function(){
+  window.__noshiAuthSlowTimer=setTimeout(function(){
+    if(document.getElementById('noshi-auth-cloak')) document.documentElement.dataset.authState='slow';
+  },6000);
+  window.__noshiAuthFailTimer=setTimeout(function(){
+    if(!document.getElementById('noshi-auth-cloak')) return;
+    document.documentElement.dataset.authState='error';
+    document.documentElement.addEventListener('click',function(){ location.reload(); },{once:true});
+  },18000);
+})();
+</script>
+  <link rel="stylesheet" href="css/tab.css?v=4.9.0">
+  <link rel="stylesheet" href="css/dashboard.css?v=4.9.0">
+<!-- NOSHI DARK THEME: all night-mode visual rules live only in css/dark-theme.css -->
+<link rel="stylesheet" href="css/dark-theme.css?v=5.2.0">
+<style>
+.phone-review-panel{max-width:520px!important;padding:22px!important;text-align:right}
+.phone-review-head{display:flex;align-items:center;gap:12px;padding-inline-end:34px;margin-bottom:16px}
+.phone-review-head h2{margin:0 0 3px;font-size:20px}
+.phone-review-head p{margin:0;color:#777;font-size:13px}
+.phone-review-icon{width:34px;height:34px;min-width:34px;border-radius:50%;display:grid;place-items:center;background:#fff3cd;color:#7a5b00;font-weight:900;font-size:18px}
+.phone-review-person{padding:12px 14px;border-radius:12px;background:#faf8f5;margin-bottom:10px}
+.phone-review-person span,.phone-review-compare span{display:block;font-size:11px;color:#777;margin-bottom:4px}
+.phone-review-person strong{font-size:17px}.phone-review-person small{margin-inline-start:8px;color:#9a7410}
+.phone-review-compare{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.phone-review-compare>div{border:1px solid #e8e2dc;border-radius:11px;padding:10px 12px}
+.phone-review-compare b{display:block;text-align:right;font-size:15px;direction:ltr}
+.phone-review-edit{border-top:1px solid #eee7e1;padding-top:12px}
+.phone-review-edit label{display:block;font-size:12px;color:#666;margin-bottom:6px}
+.phone-review-edit-row{display:flex;gap:7px;direction:rtl}
+.phone-review-edit-row input{flex:1;min-width:0;text-align:right}
+.phone-review-edit-row button{white-space:nowrap}
+.phone-review-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.phone-review-actions button{min-height:44px}
+.phone-review-panel .msg{margin-top:8px}
+@media(max-width:560px){
+ .phone-review-panel{width:calc(100% - 24px)!important;padding:18px!important}
+ .phone-review-compare,.phone-review-actions{grid-template-columns:1fr}
+ .phone-review-head{padding-inline-end:28px}
+}
+</style>
+<style>
+.phone-check-alert{display:flex;align-items:center;gap:9px;margin:9px 0;padding:8px 10px;border:1px solid #eadfbd;border-radius:10px;background:#fffaf0;color:#5f512d;text-align:right}
+.phone-check-alert>span{width:23px;height:23px;min-width:23px;border-radius:50%;display:grid;place-items:center;background:#f6e9bd;color:#745f1c;font-weight:900;font-size:13px}
+.phone-check-alert b{display:block;font-size:13px;line-height:1.35}
+.phone-check-alert small{display:block;margin-top:1px;color:#83765b;font-size:11px}
+</style>
+</head>
+<body>
+<!-- NOSHI PAGE MAP: dashboard.html
+     CSS: css/dashboard.css
+     JS: js/dashboard.js
+     Shared files remain shared. Do not change data keys during UI maintenance.
+-->
+<main class="wrap">
+  <div class="top"><img class="logo" src="images/Noshi.webp" alt="Noshi"><div class="title"><h1>طلبات الموقع الخارجي</h1><p id="who" class="hidden"></p></div><button class="iconbtn" id="logoutBtn" title="تسجيل الخروج">↪️</button></div>
+  <nav class="navtabs" aria-label="التنقل الرئيسي">
+    <a href="index.html">🛍️ المنتجات</a>
+    <a href="dashboard.html" class="active" aria-current="page">🌐 طلبات الموقع</a>
+    <a href="order.html">📦 الطلبيات</a>
+    <a href="client.html">👥 العملاء</a>
+    <a href="mandoubs.html">🚚 المناديب</a>
+    <a href="sales.html">📊 الاحصائيات</a>
+    <a href="expenses.html">💳 المصروفات</a>
+    <a href="client-products.html">⏰ تسليم الطلبات</a>
+  </nav>
+  <div class="bar"><button class="refresh" id="refreshBtn">↻ تحديث الطلبات</button></div>
+  <div id="cloudState" class="state cloud hidden"></div>
+  <div id="list" class="grid"><div class="state">جاري تجهيز لوحة الطلبات…</div></div>
+</main>
+
+<div id="detailsSheet" class="sheet" aria-hidden="true"><section class="panel" role="dialog" aria-modal="true"><button class="close" data-close="detailsSheet">×</button><h2>تفاصيل الطلب</h2><div id="detailsBody"></div></section></div>
+<div id="phoneReviewSheet" class="sheet phone-review-sheet" aria-hidden="true">
+  <section class="panel client-panel phone-review-panel" role="dialog" aria-modal="true" dir="rtl">
+    <button class="close" data-close="phoneReviewSheet">×</button>
+
+    <div class="phone-review-head">
+      <div class="phone-review-icon">!</div>
+      <div>
+        <h2>تحقق من رقم الجوال</h2>
+        <p>وجدنا عميلة في نوشي برقم قريب جدًا.</p>
+      </div>
+    </div>
+
+    <div class="phone-review-person">
+      <span>العميلة المحتملة</span>
+      <strong id="reviewCandidate"></strong>
+      <small id="reviewDiff"></small>
+    </div>
+
+    <div class="phone-review-compare">
+      <div>
+        <span>المدخل من قبل العميلة</span>
+        <b id="reviewIncoming" dir="ltr"></b>
+      </div>
+      <div>
+        <span>الرقم لدى نظام نوشي</span>
+        <b id="reviewSaved" dir="ltr"></b>
+      </div>
+    </div>
+
+    <div class="phone-review-edit">
+      <label for="reviewEditPhone">تعديل رقم الجوال</label>
+      <div class="phone-review-edit-row">
+        <input id="reviewEditPhone" dir="ltr" inputmode="tel">
+        <button id="reviewEditBtn" class="details">تعديل</button>
+      </div>
+    </div>
+
+    <div class="phone-review-actions">
+      <button id="reviewSameBtn" class="accept">✓ هي نفس العميلة</button>
+      <button id="reviewNewBtn" class="create">عميلة جديدة — الرقم صحيح</button>
+    </div>
+    <div id="reviewMsg" class="msg"></div>
+  </section>
+</div><div id="clientSheet" class="sheet" aria-hidden="true"><section class="panel client-panel" role="dialog" aria-modal="true"><button class="close" data-close="clientSheet">×</button><h2>إضافة عميلة جديدة</h2><p class="client-intro">هذا الرقم غير مسجل حاليًا. راجع البيانات ثم أضف العميلة قبل تجهيز الطلب.</p><div class="client-fields"><div class="field phone-field"><label>رقم الجوال</label><input id="newPhone" dir="ltr"></div><div class="field name-field"><label>اسم العميلة</label><input id="newName" autocomplete="off" placeholder="مثال: أم محمد"></div><div class="field date-field"><label>تاريخ الانضمام</label><input id="joinDate" type="date"></div></div><button id="createClientBtn" class="accept client-create-btn">إنشاء العميلة</button><div id="clientMsg" class="msg"></div></section></div>
+
+<script src="config.js?v=4.9.0"></script><script src="auth.js?v=4.9.0"></script><script src="theme.js?v=5.0.0"></script><script src="db.js?v=4.9.0"></script><script src="incoming.js?v=4.9.0"></script><script src="ui-modal.js?v=5.1.0"></script><script src="invoice.js?v=4.9.0"></script>
+<!-- NOSHI: original inline script #1; same execution position, now external. -->
+<script src="js/dashboard.js?v=5.2.0"></script>
+</body></html>
