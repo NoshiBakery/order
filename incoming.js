@@ -64,27 +64,30 @@
 
   function toInternalDraft(order, client){
     const fee=deliveryFee(order.deliveryArea);
-    const items=(Array.isArray(order.items)?order.items:[]).map(i=>({
-      productId:i.productId || i.id || null,
-      name:String(i.name||i.productName||"منتج"),
-      originalName:String(i.name||i.productName||"منتج"),
-      price:Number(
-        i.originalUnitPrice ?? i.originalPrice ?? i.original_unit_price ?? i.price ?? i.unitPrice ?? i.unit_price ?? 0
-      ),
-      originalPrice:Number(
-        i.originalUnitPrice ?? i.originalPrice ?? i.original_unit_price ?? i.price ?? i.unitPrice ?? i.unit_price ?? 0
-      ),
-      qty:Math.max(1,Number(i.qty||i.quantity||1)),
-      discount:Math.max(0,Math.min(100,Number(i.discountPercent ?? i.discount ?? i.discount_percent ?? 0))),
-      notes:
-        String(i.variant || "").trim() === "medium"
-          ? "الحجم: وسط"
-          : String(i.variant || "").trim() === "small"
-            ? "الحجم: صغير"
-            : "",
-      notesLocked:["small","medium"].includes(String(i.variant || "").trim()),
-      customName:""
-    }));
+    const items=(Array.isArray(order.items)?order.items:[]).map(i=>{
+      const productId=i.productId || i.id || null;
+      const incomingName=String(i.name||i.productName||"منتج").trim();
+      const isCellProduct=["p18","p19","p20"].includes(String(productId||"").trim());
+      const sizeMatch=isCellProduct ? incomingName.match(/^(.*)\s+—\s+(صغير|وسط)$/) : null;
+      const baseName=sizeMatch ? sizeMatch[1].trim() : incomingName;
+      const sizeNote=sizeMatch ? `الحجم: ${sizeMatch[2]}` : "";
+      return {
+        productId,
+        name:baseName,
+        originalName:baseName,
+        price:Number(
+          i.originalUnitPrice ?? i.originalPrice ?? i.original_unit_price ?? i.price ?? i.unitPrice ?? i.unit_price ?? 0
+        ),
+        originalPrice:Number(
+          i.originalUnitPrice ?? i.originalPrice ?? i.original_unit_price ?? i.price ?? i.unitPrice ?? i.unit_price ?? 0
+        ),
+        qty:Math.max(1,Number(i.qty||i.quantity||1)),
+        discount:Math.max(0,Math.min(100,Number(i.discountPercent ?? i.discount ?? i.discount_percent ?? 0))),
+        notes:sizeNote,
+        notesLocked:Boolean(sizeNote),
+        customName:""
+      };
+    });
     items.push({name:"مندوب",originalName:"مندوب",price:fee,originalPrice:fee,qty:1,discount:0,notes:"",notesLocked:false,customName:""});
     return {
       externalRequestId:String(order.id || order.orderNumber || ""),
