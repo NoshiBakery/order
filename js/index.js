@@ -683,8 +683,15 @@ clientSelect.addEventListener("input", () => {
     }, 2000);
   }
 
+let approveOrderInFlight = false;
+
 async function approveOrder() {
+  if (approveOrderInFlight) return;
   if (!validateBeforeApprove()) return;
+
+  approveOrderInFlight = true;
+  const approveButton = document.getElementById("approveOrderBtn");
+  if (approveButton) approveButton.disabled = true;
 
   try {
     // ✅ قراءة وضع التعديل من IndexedDB
@@ -762,6 +769,13 @@ async function approveOrder() {
       deliveries: activePlan || undefined
     };
 
+    // عند تعديل طلب موجود نحافظ على هويته الخارجية كما هي.
+    if (editingOrder?.order) {
+      if (editingOrder.order.externalRequestId) orderData.externalRequestId = editingOrder.order.externalRequestId;
+      if (editingOrder.order.externalOrderNumber) orderData.externalOrderNumber = editingOrder.order.externalOrderNumber;
+      if (editingOrder.order.source) orderData.source = editingOrder.order.source;
+    }
+
     // إذا كان الطلب قادمًا من الموقع الخارجي نحفظ معرفه لمنع التكرار لاحقًا في D1.
     const incomingDraft = !editingOrder ? await NoshiDB.get("incomingOrderDraft", null) : null;
     if (incomingDraft && incomingDraft.externalRequestId) {
@@ -809,27 +823,36 @@ async function approveOrder() {
 
     // ✅ التحقق إذا كنا نعدل فاتورة قديمة
     if (editingOrder) {
-      const oldMonthKey = editingOrder.monthKey;
-      const orderIndex = editingOrder.orderIndex;
+      const originalId = editingOrder?.order?.id;
+      orderData.id = originalId || orderData.id;
 
-      // حافظ على نفس رقم الفاتورة القديم
-      orderData.id = editingOrder.order.id || orderData.id;
-
-      if (!salesData[oldMonthKey]) {
-        salesData[oldMonthKey] = [];
+      // لا نعتمد على index قديم فقط؛ نبحث عن نفس الطلب بهويته الأصلية.
+      let editTarget = null;
+      for (const [existingMonth, monthOrders] of Object.entries(salesData)) {
+        if (!Array.isArray(monthOrders)) continue;
+        const existingIndex = monthOrders.findIndex(o => String(o?.id ?? "") === String(originalId ?? ""));
+        if (existingIndex >= 0) {
+          editTarget = { month: existingMonth, index: existingIndex };
+          break;
+        }
       }
 
-      // استبدال الطلب القديم بالجديد
-      salesData[oldMonthKey][orderIndex] = orderData;
+      // لو لم نجد الأصل نوقف الحفظ بدل إنشاء نسخة ثانية بأي حال.
+      if (!editTarget) {
+        throw new Error("EDIT_ORDER_NOT_FOUND");
+      }
 
-      // حذف وضع التعديل من IndexedDB فقط
-      await NoshiDB.remove("editingOrder");
+      salesData[editTarget.month][editTarget.index] = orderData;
     } else {
       // إنشاء طلب جديد
       salesData[monthKey].push(orderData);
     }
 
+    // نحفظ أولًا. لا نحذف وضع التعديل إلا بعد نجاح الحفظ السحابي.
     await NoshiDB.set("salesData", salesData);
+    if (editingOrder) {
+      await NoshiDB.remove("editingOrder");
+    }
 
 // صفحة المناديب تعتمد على salesData مباشرة؛ لا نكرر نفس الطلب في mandoubOrders.
 // إزالة النسخة المكررة تقلل حجم الكتابة وتمنع حالة نجاح salesData وفشل النسخة الثانية.
@@ -861,7 +884,9 @@ async function approveOrder() {
 
   } catch (error) {
     console.error("فشل حفظ الطلب في IndexedDB:", error);
-    alert("❌ حدث خطأ أثناء حفظ الطلب. لم يتم حذف بيانات LocalStorage القديمة.");
+    approveOrderInFlight = false;
+    if (approveButton) approveButton.disabled = false;
+    alert("❌ حدث خطأ أثناء حفظ الطلب. لم يتم إنشاء نسخة جديدة من الطلب.");
   }
 }
 
