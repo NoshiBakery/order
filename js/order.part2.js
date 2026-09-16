@@ -9,6 +9,7 @@ showDetails = function(month, index, event) {
   const order = salesData?.[month]?.[index];
   if (!order) return showMessage?.("❌ لم يتم العثور على الطلب");
   NoshiInvoice.open(order, {
+    showDeliveryInfo: true,
     onEdit: () => editInvoice(month, index, { preventDefault() {} })
   });
 };

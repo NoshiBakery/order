@@ -208,11 +208,15 @@
     document.body.appendChild(host);
     const shadow = host.attachShadow ? host.attachShadow({ mode: "open" }) : host;
 
-    const footer = typeof options.onEdit === "function"
+    const deliveryFooter = options.showDeliveryInfo
+      ? `<div class="footer"><div class="delivery"><span class="label">🕒 تاريخ التسليم</span>${esc(formatDeliveryDate(order?.deliveryDate))}</div></div>`
+      : "";
+
+    const editFooter = typeof options.onEdit === "function"
       ? `<div class="footer"><button class="edit" type="button">✏️ تعديل الطلب</button></div>`
-      : options.showDeliveryInfo
-        ? `<div class="footer"><div class="delivery"><span class="label">🕒 تاريخ التسليم</span>${esc(formatDeliveryDate(order?.deliveryDate))}</div></div>`
-        : "";
+      : "";
+
+    const footer = `${deliveryFooter}${editFooter}`;
 
     shadow.innerHTML = `<style>${css}</style><div class="overlay"><div class="shell"><div class="topbar"><button class="close" type="button" aria-label="إغلاق الفاتورة">✕</button></div><div class="receipt">${buildReceiptInner(order || {})}</div>${footer}</div></div>`;
     const overlay = shadow.querySelector(".overlay");
