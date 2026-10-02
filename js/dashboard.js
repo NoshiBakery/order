@@ -160,8 +160,86 @@
   });
 
   function showCreate(o){const p=NoshiIncoming.normalizeSaudiPhone(o.phone);newPhone.value=p.formatted||o.phone;newName.value='';joinDate.value=today();clientMsg.textContent='';openSheet('clientSheet');setTimeout(()=>newName.focus(),80)}
-  createClientBtn.addEventListener('click',async()=>{if(!selected)return;clientMsg.textContent='';try{const c=NoshiIncoming.makeClient(newName.value,newPhone.value,joinDate.value);if(clients.some(x=>(x.name||'').trim()===c.name))throw new Error('هذا الاسم موجود مسبقًا');if(NoshiIncoming.findClientByPhone(clients,c.phone))throw new Error('هذا الرقم أصبح مرتبطًا بعميلة موجودة');clients.push(c);await NoshiDB.set('clients',clients);closeSheet('clientSheet');render();showDetails(selected)}catch(e){clientMsg.textContent=e.message}});
+createClientBtn.addEventListener('click', async () => {
+  if (!selected) return;
 
+  clientMsg.textContent = '';
+
+  try {
+    const c = NoshiIncoming.makeClient(
+      newName.value,
+      newPhone.value,
+      joinDate.value
+    );
+
+    // أولاً: الرقم لا يجوز أن يكون مرتبطًا بعميلة أخرى
+    const clientWithSamePhone = NoshiIncoming.findClientByPhone(
+      clients,
+      c.phone
+    );
+
+    if (clientWithSamePhone) {
+      throw new Error(
+        `هذا الرقم مرتبط مسبقًا بالعميلة "${clientWithSamePhone.name}"`
+      );
+    }
+
+    // البحث عن عميلة موجودة بنفس الاسم
+    const existingClient = clients.find(
+      x => (x.name || '').trim() === c.name
+    );
+
+    if (existingClient) {
+
+      // الاسم موجود ولديها رقم بالفعل:
+      // ممنوع تغيير رقمها من الـ Dashboard
+      const existingPhone = String(existingClient.phone || '').trim();
+
+      if (existingPhone) {
+        throw new Error(
+          `العميلة "${existingClient.name}" مسجلة مسبقًا ولديها رقم جوال. لا يمكن تغيير رقمها من صفحة الطلبات.`
+        );
+      }
+
+      // الاسم موجود ولكن بدون رقم:
+      // نطلب تأكيد إضافة الرقم إلى نفس العميلة
+      const yes = await NoshiUI.confirm(
+        `العميلة "${existingClient.name}" مسجلة مسبقًا بدون رقم جوال.\n\nهل تريد إضافة الرقم ${c.phone} إلى العميلة ${existingClient.name}؟`,
+        {
+          title: 'إضافة رقم للعميلة',
+          confirmText: 'نعم، إضافة الرقم',
+          cancelText: 'إلغاء'
+        }
+      );
+
+      if (!yes) return;
+
+      // تحديث نفس سجل العميلة فقط
+      existingClient.phone = c.phone;
+
+      await NoshiDB.set('clients', clients);
+
+      closeSheet('clientSheet');
+      render();
+      showDetails(selected);
+      return;
+    }
+
+    // الاسم غير موجود والرقم غير موجود:
+    // إنشاء عميلة جديدة بالطريقة المعتادة
+    clients.push(c);
+
+    await NoshiDB.set('clients', clients);
+
+    closeSheet('clientSheet');
+    render();
+    showDetails(selected);
+
+  } catch (e) {
+    clientMsg.textContent = e.message;
+  }
+});
+   
   async function acceptOrder(o){
     const pot=potential(o); if(pot){showPhoneReview(o);return}
     const c=match(o); if(!c){showCreate(o);return}
