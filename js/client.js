@@ -237,14 +237,30 @@ document.getElementById('pasteEditPhoneBtn').addEventListener('click', function(
 
 // ========== دوال العملاء ==========
 function getClientOrders(clientId) {
+  const client = clients.find(c => String(c.id) === String(clientId));
+  if (!client) return [];
+
   let orders = [];
+
   Object.values(salesData).forEach(monthOrders => {
+    if (!Array.isArray(monthOrders)) return;
+
     monthOrders.forEach(order => {
-      if (order.clientId === clientId) {
+      // المطابقة الأساسية عن طريق ID
+      const sameId =
+        String(order.clientId || "") === String(client.id || "");
+
+      // للطلبات القديمة التي لا تحتوي clientId:
+      // نطابقها بالاسم فقط
+      const sameNameWithoutId =
+        !order.clientId && order.client === client.name;
+
+      if (sameId || sameNameWithoutId) {
         orders.push(order);
       }
     });
   });
+
   return orders.sort((a, b) => new Date(b.date) - new Date(a.date));
 }
 
