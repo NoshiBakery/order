@@ -342,7 +342,12 @@
     Object.keys(output).filter(isSalesMonthStorageKey).forEach(storageKey => {
       const monthKey = storageKey.slice("salesData_".length).replace("_", "-");
       const rows = output[storageKey];
-      if (Array.isArray(rows)) mergedSales[monthKey] = rows;
+      if (
+  Array.isArray(rows) &&
+  !Array.isArray(mergedSales[monthKey])
+) {
+  mergedSales[monthKey] = JSON.parse(JSON.stringify(rows));
+}
       delete output[storageKey];
     });
     output.salesData = mergedSales;
