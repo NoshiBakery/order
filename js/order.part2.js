@@ -153,6 +153,7 @@ showDetails = function(month, index, event) {
   if (!order) return showMessage?.("❌ لم يتم العثور على الطلب");
   NoshiInvoice.open(order, {
     showDeliveryInfo: true,
+    onReprint: () => noshiReprintOrder(order),
     onEdit: () => editInvoice(month, index, { preventDefault() {} })
   });
 };
