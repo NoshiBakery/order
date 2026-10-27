@@ -714,8 +714,10 @@ function buildNoshiPrintPayload(order) {
     // نفس معرف الطلب عند إنشائه وتعديله
     internalId: String(order.id),
 
-    // رقم الفاتورة الموجود في نوشي الداخلي
-    invoiceNumber: String(order.id),
+// رقم الطلب الظاهر على الفاتورة: نفس رقم الموقع الخارجي
+invoiceNumber: order.externalOrderNumber
+  ? String(order.externalOrderNumber).padStart(4, "0")
+  : String(order.id),
 
     client: String(order.client || ""),
     deliveryDate: match ? match[1] : rawDelivery,
