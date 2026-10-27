@@ -1316,6 +1316,159 @@ function closePaymentSimpleModal() {
   });
 }
 
+// =====================================================
+// NOSHI PRINT - إعادة طباعة الفواتير المحفوظة
+// =====================================================
+
+let noshiReprintBusy = false;
+
+async function openNoshiReprint(monthKey, orderIndex, event) {
+  if (event) event.preventDefault();
+
+  const order = salesData?.[monthKey]?.[orderIndex];
+
+  if (!order || order.id === undefined || order.id === null) {
+    alert("تعذر تحديد الفاتورة المطلوبة.");
+    return;
+  }
+
+  document.getElementById("noshiReprintModal")?.remove();
+
+  const modal = document.createElement("div");
+  modal.id = "noshiReprintModal";
+
+  modal.style.cssText = `
+    position:fixed;
+    inset:0;
+    z-index:1000000;
+    background:rgba(0,0,0,.60);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:15px;
+    box-sizing:border-box;
+    direction:rtl;
+  `;
+
+  const panel = document.createElement("div");
+
+  panel.style.cssText = `
+    background:#fff;
+    color:#222;
+    border-radius:18px;
+    padding:22px;
+    width:100%;
+    max-width:390px;
+    box-sizing:border-box;
+    font-family:Tahoma,Arial,sans-serif;
+    text-align:center;
+    box-shadow:0 15px 45px rgba(0,0,0,.25);
+  `;
+
+  const title = document.createElement("h3");
+  title.textContent = "إعادة طباعة الفاتورة";
+  title.style.margin = "0 0 12px";
+
+  const info = document.createElement("p");
+  info.textContent =
+    "العميل: " + (order.client || "غير محدد");
+  info.style.cssText = "font-size:14px;color:#555;margin-bottom:20px";
+
+  const message = document.createElement("p");
+  message.style.cssText = "font-size:13px;color:#555;min-height:18px";
+
+  const buttons = [];
+
+  function makeButton(label, target, background) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = label;
+
+    btn.style.cssText = `
+      display:block;
+      width:100%;
+      padding:13px;
+      margin:9px 0;
+      border:none;
+      border-radius:11px;
+      background:${background};
+      color:#fff;
+      font-size:14px;
+      font-weight:bold;
+      cursor:pointer;
+    `;
+
+    if (target) {
+      buttons.push(btn);
+      btn.addEventListener("click", () => submitReprint(target));
+    } else {
+      btn.addEventListener("click", () => {
+        if (!noshiReprintBusy) modal.remove();
+      });
+    }
+
+    panel.appendChild(btn);
+  }
+
+  async function submitReprint(target) {
+    if (noshiReprintBusy) return;
+
+    if (!window.NoshiAuth || !NoshiAuth.enabled()) {
+      message.textContent = "يتطلب إعادة الطباعة اتصالًا بنوشي الداخلي.";
+      return;
+    }
+
+    const requestId = "rp-" + crypto.randomUUID();
+
+    noshiReprintBusy = true;
+    buttons.forEach(btn => btn.disabled = true);
+    message.textContent = "جاري إرسال طلب إعادة الطباعة...";
+
+    try {
+      const result = await NoshiAuth.api("/api/print/reprint", {
+        method: "POST",
+        body: JSON.stringify({
+          internalId: String(order.id),
+          requestId,
+          target
+        })
+      });
+
+      if (result?.ok !== true || result?.print?.success !== true) {
+        throw new Error("REPRINT_NOT_CONFIRMED");
+      }
+
+      message.textContent = "تم إدراج الفاتورة في قائمة الطباعة.";
+
+      setTimeout(() => modal.remove(), 1300);
+
+    } catch (error) {
+      console.error("NOSHI REPRINT ERROR:", error);
+
+      message.textContent =
+        "تعذر تأكيد وصول الطلب. تحقق من سجل الطباعة قبل المحاولة مجددًا.";
+
+      // عند نتيجة اتصال غير مؤكدة لا نرسل طلبًا جديدًا تلقائيًا.
+      // إعادة المحاولة تحتاج معالجة بنفس requestId.
+    } finally {
+      noshiReprintBusy = false;
+      buttons.forEach(btn => btn.disabled = false);
+    }
+  }
+
+  panel.appendChild(title);
+  panel.appendChild(info);
+
+  makeButton("فاتورة العميل", "customer", "#2980b9");
+  makeButton("تذكرة المطبخ", "kitchen", "#8e44ad");
+  makeButton("الفاتورتان معًا", "both", "#27ae60");
+  makeButton("إلغاء", null, "#777");
+
+  panel.appendChild(message);
+  modal.appendChild(panel);
+  document.body.appendChild(modal);
+}
+
 // عرض تفاصيل الطلب - تصميم صغير ومرتب
 function showDetails(month, index, event) {
   if (event) event.preventDefault();
