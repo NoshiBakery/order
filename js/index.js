@@ -682,10 +682,80 @@ clientSelect.addEventListener("input", () => {
       applyDiscountBtn.textContent = originalText;
     }, 2000);
   }
+// =====================================================
+// NOSHI PRINT - إرسال الطلبات المعتمدة للطباعة
+// =====================================================
 
+function buildNoshiPrintPayload(order) {
+  const rawDelivery = String(order.deliveryDate || "").trim();
+
+  // التاريخ والوقت مفصولان بالشكل الذي يفهمه Worker الطباعة
+  const match = rawDelivery.match(
+    /^(\d{4}-\d{2}-\d{2})(?:[ T](\d{2}:\d{2}))?/
+  );
+
+  const items = (Array.isArray(order.items) ? order.items : [])
+    .map(item => ({
+      id: String(
+        item.productId ||
+        item.originalName ||
+        item.name ||
+        ""
+      ).trim(),
+
+      name: String(item.name || "").trim(),
+      qty: Number(item.qty || 0),
+      price: Number(item.price || 0),
+      discount: Number(item.discount || 0),
+      notes: String(item.notes || "")
+    }));
+
+  return {
+    // نفس معرف الطلب عند إنشائه وتعديله
+    internalId: String(order.id),
+
+    // رقم الفاتورة الموجود في نوشي الداخلي
+    invoiceNumber: String(order.id),
+
+    client: String(order.client || ""),
+    deliveryDate: match ? match[1] : rawDelivery,
+    deliveryTime: match ? (match[2] || "") : "",
+
+    globalNote: String(order.globalNote || ""),
+    items,
+
+    generalDiscount: Number(order.generalDiscount || 0),
+    totalBefore: Number(order.totalBefore || 0),
+    totalAfter: Number(order.totalAfter || 0)
+  };
+}
+
+async function sendApprovedOrderToNoshiPrint(order) {
+  if (!window.NoshiAuth || !NoshiAuth.enabled()) {
+    throw new Error("PRINT_REQUIRES_CLOUD_CONNECTION");
+  }
+
+  const payload = buildNoshiPrintPayload(order);
+
+  if (!payload.internalId || !payload.invoiceNumber) {
+    throw new Error("PRINT_ORDER_ID_MISSING");
+  }
+
+  if (!payload.deliveryDate || !payload.deliveryTime) {
+    throw new Error("PRINT_DELIVERY_DATE_MISSING");
+  }
+
+  return await NoshiAuth.api("/api/print/order", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+// =====================================================
 let approveOrderInFlight = false;
 
 async function approveOrder() {
+	
   if (approveOrderInFlight) return;
   if (!validateBeforeApprove()) return;
 
@@ -870,7 +940,46 @@ async function approveOrder() {
         showMessage("⚠️ تم حفظ الطلب، لكن تعذر تحديث حالة طلب الموقع. أعد المحاولة عند توفر الاتصال.");
       }
     }
+    // =====================================================
+    // NOSHI PRINT - بعد نجاح حفظ الفاتورة داخليًا
+    // =====================================================
 
+    try {
+
+      const printResult =
+        await sendApprovedOrderToNoshiPrint(orderData);
+
+      if (printResult.ok && printResult.print?.changed === false) {
+        console.log(
+          "NOSHI PRINT: لا توجد تغييرات تستدعي الطباعة"
+        );
+      } else {
+        console.log(
+          "NOSHI PRINT: تم إرسال مهمة الطباعة",
+          printResult
+        );
+      }
+
+    } catch (printError) {
+
+      // مهم: الطلب محفوظ مسبقًا، لذلك لا نعيد حفظه
+      // ولا نعتبر فشل الطباعة فشلًا في حفظ الطلب.
+
+      console.error(
+        "NOSHI PRINT: تعذر تأكيد إرسال الفاتورة",
+        printError
+      );
+
+      alert(
+        "تم حفظ الطلب بنجاح في نوشي الداخلي، " +
+        "لكن تعذر تأكيد إرسال الفاتورة للطابعة.\n\n" +
+        "تحقق من سجل NOSHI Print قبل إعادة الطباعة " +
+        "حتى لا تتكرر الفاتورة."
+      );
+
+    }
+
+    // =====================================================
     approveSound.currentTime = 0;
     approveSound.play();
 
