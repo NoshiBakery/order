@@ -196,6 +196,7 @@
     .receipt{all:initial;display:block;width:100%;max-width:300px;background:white;border-radius:14px;padding:18px;box-shadow:0 4px 15px rgba(0,0,0,.08);margin:0 auto;border:1px solid #f0e6d9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:15px;line-height:1.35;direction:rtl;color:#000;box-sizing:border-box}
     .footer{width:100%;max-width:300px;margin:10px auto 0}
     .edit{appearance:none;border:0;width:100%;min-height:48px;border-radius:13px;background:#2980b9;color:#fff;font:800 15px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .reprint{appearance:none;border:0;width:100%;min-height:48px;border-radius:13px;background:#8e44ad;color:#fff;font:800 15px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;cursor:pointer;margin-bottom:9px}
     .delivery{background:#fff;border:1px solid #eadfd6;border-radius:13px;padding:12px 10px;text-align:center;color:#2c3e50;font-size:14px;font-weight:800;line-height:1.7;box-shadow:0 2px 8px rgba(0,0,0,.05)}
     .delivery .label{display:block;color:#d35400;font-size:13px;margin-bottom:2px}
     @media(max-width:520px){.overlay{align-items:flex-end;padding:0}.shell{width:100%;max-width:none;max-height:94dvh;border-radius:22px 22px 0 0;padding:10px 10px max(14px,env(safe-area-inset-bottom))}.receipt{max-width:300px}.topbar{padding-top:2px}}
@@ -212,19 +213,28 @@
       ? `<div class="footer"><div class="delivery"><span class="label">🕒 تاريخ التسليم</span>${esc(formatDeliveryDate(order?.deliveryDate))}</div></div>`
       : "";
 
+    const reprintFooter = typeof options.onReprint === "function"
+      ? `<div class="footer"><button class="reprint" type="button">🖨️ إعادة طباعة</button></div>`
+      : "";
+
     const editFooter = typeof options.onEdit === "function"
       ? `<div class="footer"><button class="edit" type="button">✏️ تعديل الطلب</button></div>`
       : "";
 
-    const footer = `${deliveryFooter}${editFooter}`;
+    const footer = `${deliveryFooter}${reprintFooter}${editFooter}`;
 
     shadow.innerHTML = `<style>${css}</style><div class="overlay"><div class="shell"><div class="topbar"><button class="close" type="button" aria-label="إغلاق الفاتورة">✕</button></div><div class="receipt">${buildReceiptInner(order || {})}</div>${footer}</div></div>`;
     const overlay = shadow.querySelector(".overlay");
     const closeBtn = shadow.querySelector(".close");
     const editBtn = shadow.querySelector(".edit");
+    const reprintBtn = shadow.querySelector(".reprint");
     closeBtn?.addEventListener("click", close);
     overlay?.addEventListener("click", (e) => { if (e.target === overlay) close(); });
     editBtn?.addEventListener("click", () => { close(); options.onEdit?.(); });
+    reprintBtn?.addEventListener("click", () => {
+      close();
+      options.onReprint?.(order);
+    });
     host._noshiEsc = (e) => { if (e.key === "Escape") close(); };
     document.addEventListener("keydown", host._noshiEsc);
 
