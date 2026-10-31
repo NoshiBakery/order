@@ -98,7 +98,7 @@
       deliveryDate:combineDeliveryDate(order),
       deliveryArea:deliveryAreaLabel(order.deliveryArea),
       deliveryFee:fee,
-      globalNote:"",
+      globalNote:String(order.notes ?? order.globalNote ?? "").trim().slice(0,1000),
       items
     };
   }
