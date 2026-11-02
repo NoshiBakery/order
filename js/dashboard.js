@@ -55,8 +55,13 @@
           <div class="summary-line"><span>🚚 التوصيل</span><b>${NoshiIncoming.deliveryAreaLabel(o.deliveryArea)} · ${money(fee)}</b></div>
           <div class="summary-line note-row ${(o.notes||o.note)?'has-note':''}"><span>📝 الملاحظات</span><b>${(o.notes||o.note)?esc(o.notes||o.note):'لا توجد ملاحظات'}</b></div>
         </div>
-        <div class="order-total-chip"><span>إجمالي الطلب</span><b>${money(grand)}</b></div>
-        ${pot?`<div class="phone-check-alert"><span>!</span><div><b>تحقق من رقم الجوال</b><small>قد تكون العميلة: ${esc(pot.client.name)}</small></div></div>`:''}
+${Number(o.couponDiscount || 0) > 0 ? `
+  <div class="summary-line">
+    <span>🎟️ كود الخصم: ${esc(o.couponCode || "—")}</span>
+    <b>− ${money(o.couponDiscount)}</b>
+  </div>
+` : ""}
+<div class="order-total-chip"><span>إجمالي الطلب</span><b>${money(grand)}</b></div>        ${pot?`<div class="phone-check-alert"><span>!</span><div><b>تحقق من رقم الجوال</b><small>قد تكون العميلة: ${esc(pot.client.name)}</small></div></div>`:''}
         <div class="actions"><button class="details" data-action="details">🧾 عرض الفاتورة</button>${c?'<button class="accept" data-action="accept">✓ قبول</button>':pot?'<button class="create" data-action="verify-phone">⚠️ التحقق من الجوال</button>':'<button class="create" data-action="create">＋ إنشاء العميلة</button>'}<button class="reject" data-action="reject">رفض</button></div>
       </article>`
     }).join('');
@@ -104,8 +109,9 @@
       // IMPORTANT: preserve website per-item discount in invoice totals.
       // Delivery is never discounted and is included equally in before/after totals.
       totalBefore: originalSubtotal + fee,
-      totalAfter: discountedSubtotal + fee,
-      notes: ''
+totalAfter: Number(o.total ?? (discountedSubtotal + fee)),
+couponCode: String(o.couponCode || ""),
+couponDiscount: Number(o.couponDiscount || 0),      notes: ''
     };
     NoshiInvoice.open(invoiceOrder, { showDeliveryInfo: true });
   }
