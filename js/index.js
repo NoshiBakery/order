@@ -770,9 +770,13 @@ invoiceNumber: order.externalOrderNumber
     globalNote: String(order.globalNote || ""),
     items,
 
-    generalDiscount: Number(order.generalDiscount || 0),
-    totalBefore: Number(order.totalBefore || 0),
-    totalAfter: Number(order.totalAfter || 0)
+generalDiscount: Number(order.generalDiscount || 0),
+
+couponCode: String(order.couponCode || ""),
+couponDiscount: Math.max(0, Number(order.couponDiscount || 0)),
+
+totalBefore: Number(order.totalBefore || 0),
+totalAfter: Number(order.totalAfter || 0),
   };
 }
 
