@@ -78,7 +78,7 @@
     const totals = financials(order || {});
     const hasDiscount = totals.discount > 0.009;
     const couponCode = String(order?.couponCode || "").trim();
-    const couponDiscount = Math.max(0, Number(order?.couponDiscount || 0));
+const couponDiscount = Math.max(0, Number(order?.couponDiscount || 0));
     const deliveries = Array.isArray(order?.deliveries) && order.deliveries.length > 1 ? order.deliveries : [];
     const deliveriesHtml = deliveries.length ? `
       <div style="margin:12px 0;padding:11px;border:1px solid #e6ddff;background:#faf8ff;border-radius:12px;text-align:right;">
@@ -145,6 +145,7 @@
           <b>−${money(couponDiscount)} ر.س</b>
         </div>
       ` : ""}
+      
       <div class="total-section" style="background:#fffaf5;padding:12px;border-radius:10px;margin:15px 0;border:1px solid #f5e9dd;">
         ${hasDiscount ? `
           <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:14px;align-items:center;">
