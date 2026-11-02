@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="no-referrer">
+<title>نوشي بيكري - أكواد الخصم</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tab.css?v=4.9.0">
+<style id="noshi-auth-cloak">body{visibility:hidden!important}html{background:#f6f1ec!important;min-height:100%;color-scheme:light}html::before{content:"🔐 جاري التحقق من الجلسة…";visibility:visible!important;position:fixed;z-index:2147483647;inset:0;display:grid;place-items:center;background:#f6f1ec;color:#3b302c;font:800 16px Cairo,Tahoma,sans-serif}</style>
+<style>
+:root{color-scheme:light;--ink:#29332e;--line:#e5e8e5;--green:#21835b;--bg:#f6f7f5}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Cairo,Tahoma,Arial,sans-serif}main{max-width:1100px;margin:0 auto;padding:20px 16px 50px}.tabs{margin:16px auto!important}h1{text-align:center;font-size:25px;margin:23px 0 12px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 0}.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:18px;box-shadow:0 3px 18px #182d2310}h2{font-size:19px;margin:0 0 14px}.muted{font-size:12px;color:#6e7d74}.btn{font-family:inherit;background:#245b45;color:white;border:0;border-radius:10px;padding:10px 16px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;justify-content:center;align-items:center}.btn.secondary{background:#eaf2ed;color:#245b45}.btn.red{background:#a94343}.btn:disabled{opacity:.6;cursor:not-allowed}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:13px;font-weight:800}input,select{width:100%;min-height:43px;padding:9px 11px;border:1px solid #ced9d1;border-radius:9px;font:inherit;background:white;color:#25382e}input[type=checkbox]{min-height:auto;width:19px;height:19px}.check{display:flex;align-items:center;gap:9px;font-weight:700}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.filters{display:flex;gap:7px;flex-wrap:wrap}.filters button{background:#edf2ef;color:#3b5948;border:0;border-radius:9px;padding:8px 12px;cursor:pointer;font:inherit;font-weight:700}.filters button.active{background:#245b45;color:white}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:740px;font-size:12px}th,td{text-align:right;padding:12px;border-bottom:1px solid var(--line)}th{background:#f5f8f6}td .btn{padding:5px 10px;font-size:11px}.tag{display:inline-block;padding:4px 10px;border-radius:99px;background:#eef1f0;color:#4a6456;font-weight:800}.tag.active{background:#e4f6ed;color:#137244}.tag.fully_reserved,.tag.exhausted{background:#fff1dc;color:#96600a}.msg{padding:12px;border-radius:10px;margin:12px 0;background:#eef5fa;color:#34577b;display:none}.msg.bad{display:block;background:#fff0f0;color:#ac3333}.msg.good{display:block;background:#e9f8ed;color:#17633c}.counter{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.counter>div{background:#f6f9f7;border-radius:11px;padding:12px;text-align:center}.counter b{display:block;font-size:21px}.empty{text-align:center;padding:27px;color:#789087}@media(max-width:650px){.grid{grid-template-columns:1fr}.counter{grid-template-columns:repeat(3,minmax(0,1fr))}h1{font-size:21px}} 
+</style>
+<link rel="stylesheet" href="css/dark-theme.css?v=5.2.0">
+</head>
+<body>
+<h1>🎟️ إدارة أكواد الخصم</h1>
+<div class="tabs">
+<button onclick="location.href='index.html'" class="tab-btn">🛍️ المنتجات</button>
+<a href="dashboard.html" class="tab-btn">🌐 طلبات الموقع</a>
+<button onclick="location.href='order.html'" class="tab-btn">📦 الطلبيات</button>
+<button onclick="location.href='client.html'" class="tab-btn">👥 العملاء</button>
+<button onclick="location.href='mandoubs.html'" class="tab-btn">🚚 المناديب</button>
+<button onclick="location.href='sales.html'" class="tab-btn">📊 الاحصائيات</button>
+<button onclick="location.href='expenses.html'" class="tab-btn">💳 المصروفات</button>
+<button onclick="location.href='client-products.html'" class="tab-btn">⏰ تسليم الطلبات</button>
+</div>
+<main>
+<div class="top"><a class="btn secondary" href="client.html">↩ العودة للعملاء</a><button class="btn secondary" id="refresh" type="button">↻ تحديث القائمة</button></div>
+<div id="notice" class="msg" role="status" aria-live="polite"></div>
+<section class="panel" id="formPanel">
+<h2 id="formTitle">➕ إنشاء كود خصم</h2>
+<form id="couponForm">
+<div class="grid">
+<div class="field"><label for="code">كود الخصم (اتركه فارغًا للتوليد التلقائي)</label><input id="code" maxlength="32" autocomplete="off" placeholder="NOSHI20"><button type="button" id="generate" class="btn secondary">🎲 توليد رمز</button></div>
+<div class="field"><label for="type">نوع الخصم</label><select id="type"><option value="percent">نسبة مئوية (%)</option><option value="fixed">مبلغ ثابت (ريال)</option></select></div>
+<div class="field"><label for="value">قيمة الخصم</label><input id="value" type="number" min="0.01" step="0.01" required placeholder="20"></div>
+<div class="field"><label for="startDate">تاريخ البداية</label><input id="startDate" type="date" required></div>
+<div class="field"><label for="duration">مدة الصلاحية</label><select id="duration"><option value="3">3 أيام</option><option value="7" selected>أسبوع</option><option value="10">10 أيام</option><option value="14">أسبوعين</option><option value="month">شهر</option></select></div>
+<div class="field"><label for="usage">حد الاستخدامات</label><select id="usage"><option value="unlimited">غير محدود</option><option value="once">استخدام واحد</option><option value="limited">عدد محدد</option></select><input id="maxUses" type="number" min="1" step="1" placeholder="أدخل العدد" style="display:none"></div>
+</div>
+<div class="actions"><label class="check"><input type="checkbox" id="stacking"> يسمح بالخصم على المنتجات المخفضة مسبقًا</label><label class="check"><input type="checkbox" id="enabled" checked> الكود مفعّل</label><label class="check"><input type="checkbox" id="archived"> مؤرشف</label></div>
+<p class="muted">صحن التقديم وشريط العبارة والمندوب مستثناة دائمًا عند تفعيل حساب الكوبونات في الموقع الخارجي. حفظ الكود هنا لا يفعّل الخصم في الموقع الخارجي بعد.</p>
+<div class="actions"><button type="submit" class="btn" id="save">💾 حفظ الكود</button><button type="button" class="btn secondary" id="cancel" style="display:none">إلغاء التعديل</button></div>
+</form>
+</section>
+<section class="panel"><h2>📋 الأكواد المحفوظة</h2><div class="counter" id="summary"><div><b>—</b><span class="muted">الأكواد</span></div><div><b>—</b><span class="muted">المحجوز</span></div><div><b>—</b><span class="muted">المكتمل</span></div></div><div style="margin:18px 0" class="filters" id="filters"><button class="active" data-filter="all">الكل</button><button data-filter="active">النشطة</button><button data-filter="expired">المنتهية</button><button data-filter="scheduled">لم تبدأ</button><button data-filter="paused">الموقوفة</button><button data-filter="fully_reserved">المحجوزة</button><button data-filter="exhausted">المستنفدة</button><button data-filter="archived">المؤرشفة</button></div><div class="tablewrap"><table><thead><tr><th>الكود</th><th>الخصم</th><th>الصلاحية</th><th>مكتمل</th><th>محجوز</th><th>المتاح</th><th>الحالة</th><th>الإجراء</th></tr></thead><tbody id="couponRows"><tr><td colspan="8" class="empty">جاري تحميل الأكواد…</td></tr></tbody></table></div></section>
+</main>
+<script src="config.js?v=4.9.0"></script><script src="auth.js?v=4.9.0"></script><script src="theme.js?v=5.0.0"></script>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id);let coupons=[],filter='all',editing=null;
+const names={active:'نشط',expired:'منتهي',scheduled:'لم يبدأ',paused:'موقوف',fully_reserved:'محجوز بالكامل',exhausted:'اكتمل الاستخدام',archived:'مؤرشف'};
+function message(text,bad=false){const n=$('notice');n.textContent=text;n.className='msg '+(bad?'bad':'good');}
+function h(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function isoLocal(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Riyadh',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
+function addDays(date,n){const d=new Date(date+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);}
+function monthAfter(date){const d=new Date(date+'T00:00:00Z');const y=d.getUTCFullYear(),m=d.getUTCMonth(),day=d.getUTCDate();const last=new Date(Date.UTC(y,m+2,0)).getUTCDate();return new Date(Date.UTC(y,m+1,Math.min(day,last))).toISOString().slice(0,10);}
+function durationFor(c){for(const n of [3,7,10,14])if(addDays(c.startDate,n)===c.expiresDate)return String(n);return monthAfter(c.startDate)===c.expiresDate?'month':null;}
+function reset(){editing=null;$('couponForm').reset();$('startDate').value=isoLocal();$('usage').value='unlimited';$('maxUses').style.display='none';$('formTitle').textContent='➕ إنشاء كود خصم';$('save').textContent='💾 حفظ الكود';$('cancel').style.display='none';$('code').placeholder='NOSHI20';}
+function render(){const items=coupons.filter(x=>filter==='all'||x.status===filter);$('summary').innerHTML=`<div><b>${coupons.length}</b><span class="muted">الأكواد</span></div><div><b>${coupons.reduce((n,c)=>n+Number(c.reservedUses||0),0)}</b><span class="muted">المحجوز</span></div><div><b>${coupons.reduce((n,c)=>n+Number(c.committedUses||0),0)}</b><span class="muted">المكتمل</span></div>`;$('couponRows').innerHTML=items.length?items.map(c=>`<tr><td><b dir="ltr">${h(c.code)}</b></td><td>${h(c.discountValue)}${c.discountType==='percent'?'%':' ر.س'}</td><td>${h(c.startDate)}<br><span class="muted">إلى ${h(c.expiresDate)} (غير شامل)</span></td><td>${Number(c.committedUses||0)}</td><td>${Number(c.reservedUses||0)}</td><td>${c.availableUses===null?'∞':Number(c.availableUses)}</td><td><span class="tag ${h(c.status)}">${h(names[c.status]||c.status)}</span></td><td><button class="btn secondary" data-edit="${Number(c.id)}">✏️ تعديل</button></td></tr>`).join(''):'<tr><td colspan="8" class="empty">لا توجد أكواد في هذا التصنيف</td></tr>';}
+async function load(){try{const r=await NoshiAuth.api('/api/coupons');coupons=r.coupons||[];render();}catch(e){message('تعذّر تحميل الأكواد: '+e.message,true);$('couponRows').innerHTML='<tr><td colspan="8" class="empty">تعذّر التحميل</td></tr>';}}
+function edit(c){const duration=durationFor(c);if(!duration){message('تاريخ انتهاء هذا الكود لا يطابق المدد المتاحة، لا يمكن تعديله من هذه الواجهة قبل مراجعة بياناته.',true);return;}editing=c.id;$('formTitle').textContent='✏️ تعديل كود '+c.code;$('code').value=c.code;$('type').value=c.discountType;$('value').value=c.discountValue;$('startDate').value=c.startDate;$('duration').value=duration;$('usage').value=c.maxUses===null?'unlimited':Number(c.maxUses)===1?'once':'limited';$('maxUses').style.display=$('usage').value==='limited'?'block':'none';$('maxUses').value=c.maxUses??'';$('stacking').checked=c.allowStacking;$('enabled').checked=c.isEnabled;$('archived').checked=c.isArchived;$('save').textContent='💾 حفظ التعديلات';$('cancel').style.display='inline-flex';$('formPanel').scrollIntoView({behavior:'smooth',block:'start'});}
+$('usage').addEventListener('change',()=>{$('maxUses').style.display=$('usage').value==='limited'?'block':'none';});
+$('generate').addEventListener('click',()=>{const b=new Uint8Array(5);crypto.getRandomValues(b);$('code').value='NOSHI'+[...b].map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase();});
+$('cancel').addEventListener('click',reset);$('refresh').addEventListener('click',load);
+$('filters').addEventListener('click',e=>{const b=e.target.closest('button[data-filter]');if(!b)return;filter=b.dataset.filter;document.querySelectorAll('#filters button').forEach(x=>x.classList.toggle('active',x===b));render();});
+$('couponRows').addEventListener('click',e=>{const b=e.target.closest('[data-edit]');if(!b)return;const c=coupons.find(x=>x.id===Number(b.dataset.edit));if(c)edit(c);});
+$('couponForm').addEventListener('submit',async e=>{e.preventDefault();const btn=$('save');let maxUses=null;if($('usage').value==='once')maxUses=1;if($('usage').value==='limited')maxUses=Number($('maxUses').value);const body={code:$('code').value.trim(),discountType:$('type').value,discountValue:Number($('value').value),startDate:$('startDate').value,duration:$('duration').value,maxUses,allowStacking:$('stacking').checked,isEnabled:$('enabled').checked,isArchived:$('archived').checked};btn.disabled=true;try{const response=await NoshiAuth.api(editing===null?'/api/coupons':'/api/coupons/'+editing,{method:editing===null?'POST':'PUT',body:JSON.stringify(body)});message((editing===null?'تم إنشاء الكود: ':'تم تعديل الكود: ')+response.code);reset();await load();}catch(err){message('لم يتم الحفظ: '+(err.data?.error||err.message),true);}finally{btn.disabled=false;}});
+(async()=>{try{const me=await NoshiAuth.guard();const role=me?.user?.role||me?.role;if(role&&role!=='ADMIN'){document.querySelector('main').innerHTML='<div class="panel">هذه الصفحة متاحة للإدارة فقط.</div>';return;}reset();await load();}catch(e){console.error('NOSHI coupon page auth error',e);}})();
+})();
+</script>
+</body></html>
