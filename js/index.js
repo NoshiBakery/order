@@ -934,8 +934,10 @@ async function approveOrder() {
     }
 
     // إذا كان الطلب قادمًا من الموقع الخارجي نحفظ معرفه لمنع التكرار لاحقًا في D1.
-    const incomingDraft = incomingCouponDraft;;
-    if (incomingDraft && incomingDraft.externalRequestId) {
+const incomingDraft = !editingOrder
+  ? await NoshiDB.get("incomingOrderDraft", null)
+  : null;
+	  if (incomingDraft && incomingDraft.externalRequestId) {
       orderData.externalRequestId = incomingDraft.externalRequestId;
       orderData.externalOrderNumber = incomingDraft.externalOrderNumber || incomingDraft.externalRequestId;
       orderData.source = "website";
@@ -1914,7 +1916,19 @@ li.innerHTML = `
   });
 
 // حساب خصم الكوبون حسب محتويات السلة الحالية
-const couponAmount = calculateActiveCouponDiscount();
+const couponDataMissing = Boolean(
+  activeCoupon &&
+  couponCartSignature() !== activeCoupon.originalSignature &&
+  (
+    !["percent", "fixed"].includes(activeCoupon.type) ||
+    !Number.isFinite(activeCoupon.value) ||
+    activeCoupon.value <= 0
+  )
+);
+
+const couponAmount = couponDataMissing
+  ? couponMoney(activeCoupon.originalDiscount)
+  : calculateActiveCouponDiscount();
 
 // إجمالي السلة بعد خصومات المنتجات والكوبون
 const displayedTotal = couponMoney(
