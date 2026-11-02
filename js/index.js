@@ -64,6 +64,7 @@
   let cart = [];
   let total = 0;
   let generalDiscount = 0;
+  let activeCoupon = null;
   let preparingCouponCode = "";
   let preparingCouponDiscount = 0;
   let paymentMethod = null;
@@ -145,7 +146,22 @@ document.addEventListener("DOMContentLoaded", async () => {
       customName: i.customName || "",
       img: i.img || ([...cakes, ...sweets, ...extras].find(p => p.name === (i.originalName || i.name))?.img || "")
     }));
-
+    activeCoupon = editingOrder.order.couponCode
+      ? {
+          code: String(editingOrder.order.couponCode),
+          type: String(editingOrder.order.couponDiscountType || ""),
+          value: Number(editingOrder.order.couponDiscountValue || 0),
+          allowStacking: Boolean(editingOrder.order.couponAllowStacking),
+          originalDiscount: Number(
+            editingOrder.order.couponOriginalDiscount ??
+            editingOrder.order.couponDiscount ??
+            0
+          ),
+          originalSignature: String(
+            editingOrder.order.couponOriginalSignature || ""
+          )
+        }
+      : null;
     // ✅ العميل + الدفع + المندوب
     clientSelect.value = editingOrder.order.client || "";
     paymentMethod = editingOrder.order.paymentMethod || null;
@@ -251,6 +267,20 @@ if (incomingBarText) {
         notes: i.notes || "", notesLocked: false, customName: i.customName || "",
         img: i.img || ([...cakes, ...sweets, ...extras].find(p => p.name === (i.originalName || i.name))?.img || "")
       }));
+	activeCoupon = incomingDraft.couponCode
+  ? {
+      code: String(incomingDraft.couponCode),
+      type: String(incomingDraft.couponDiscountType || ""),
+      value: Number(incomingDraft.couponDiscountValue || 0),
+      allowStacking: Boolean(incomingDraft.couponAllowStacking),
+      originalDiscount: Number(incomingDraft.couponDiscount || 0),
+      originalSignature: ""
+    }
+  : null;
+
+if (activeCoupon) {
+  activeCoupon.originalSignature = couponCartSignature();
+}	
       clientSelect.value = incomingDraft.clientName || "";
       const deliveryInput = document.getElementById("deliveryDateInput");
       if (deliveryInput && incomingDraft.deliveryDate) deliveryInput.value = String(incomingDraft.deliveryDate).replace(" ", "T");
@@ -818,31 +848,38 @@ async function approveOrder() {
     }
     const selectedMandoubObj = mandoubs.find(m => m.name === selectedMandoub);
 
+    
+
     // حساب المبالغ
     const originalTotal = calculateOriginalTotal();
-        // خصم الموقع الخارجي محفوظ مسبقًا في قاعدة الطلبات
-    const incomingCouponDraft = !editingOrder
-      ? await NoshiDB.get("incomingOrderDraft", null)
-      : null;
 
-    const couponCodeForOrder = editingOrder?.order
-      ? String(editingOrder.order.couponCode || "")
-      : String(incomingCouponDraft?.couponCode || "");
+    // نحدد كود الخصم للطلب
+    const couponCodeForOrder = activeCoupon?.code || "";
 
-    const couponDiscountForOrder = Math.max(
-      0,
-      Number(
-        editingOrder?.order
-          ? editingOrder.order.couponDiscount || 0
-          : incomingCouponDraft?.couponDiscount || 0
+    // حماية عند تعديل طلب عليه كوبون ناقص البيانات
+    if (
+      activeCoupon &&
+      couponCartSignature() !== activeCoupon.originalSignature &&
+      (
+        !["percent", "fixed"].includes(activeCoupon.type) ||
+        !Number.isFinite(activeCoupon.value) ||
+        activeCoupon.value <= 0
       )
-    );
+    ) {
+      alert(
+        "تعذر إعادة حساب الكوبون لأن شروطه الأصلية غير متوفرة. لا يمكن اعتماد الطلب بعد التعديل."
+      );
+      return;
+    }
 
-    // إجمالي cart يشمل خصومات المنتجات والمندوب،
-    // لكن لا يشمل الكوبون القادم من الموقع.
-    const totalAfterDiscounts = Math.max(
-      0,
-      Math.round((total - couponDiscountForOrder) * 100) / 100
+    // حساب الخصم حسب الكميات الحالية
+    const couponDiscountForOrder = activeCoupon
+      ? calculateActiveCouponDiscount()
+      : 0;
+
+    // الإجمالي بعد خصم الكوبون مرة واحدة
+    const totalAfterDiscounts = couponMoney(
+      Math.max(0, total - couponDiscountForOrder)
     );
 
     // ✅ جلب الملاحظة العامة من الخانة مباشرة (الأدق)
@@ -867,10 +904,19 @@ async function approveOrder() {
       paymentMethod: paymentMethod,
       transferred: editingOrder?.order?.transferred ?? false,
       cashReceived: editingOrder?.order?.cashReceived ?? false,
+
       generalDiscount: generalDiscount,
+
       couponCode: couponCodeForOrder,
-      couponDiscount: couponDiscountForOrder,	
+      couponDiscount: couponDiscountForOrder,
+      couponDiscountType: activeCoupon?.type || "",
+      couponDiscountValue: activeCoupon?.value || 0,
+      couponAllowStacking: activeCoupon?.allowStacking || false,
+      couponOriginalDiscount: activeCoupon?.originalDiscount || 0,
+      couponOriginalSignature: activeCoupon?.originalSignature || "",
+
       globalNote: savedGlobalNote,
+
       totalBefore: originalTotal.toFixed(2),
       totalAfter: totalAfterDiscounts.toFixed(2),
       status: editingOrder?.order?.status || "pending",
@@ -1612,6 +1658,7 @@ function calculateOriginalTotal() {
 
 function resetSystem() {
     cart = [];
+	activeCoupon = null;
     generalDiscount = 0;
     paymentMethod = null;
     selectedMandoub = null;
@@ -1714,6 +1761,86 @@ function calculateCartFinancials() {
   }, { before: 0, individualDiscount: 0, generalDiscount: 0, final: 0 });
 }
 
+function couponMoney(value) {
+  return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+}
+
+// وصف محتويات الطلب المالي، لمعرفة هل تغير منذ وصوله.
+function couponCartSignature() {
+  return JSON.stringify({
+    generalDiscount: Number(generalDiscount || 0),
+    items: cart.map(item => ({
+      name: String(item.originalName || item.name || ""),
+      price: Number(item.price || 0),
+      qty: Number(item.qty || 0),
+      discount: Number(item.discount || 0)
+    }))
+  });
+}
+
+// استثناء الإضافات غير المشمولة بالكوبون.
+function couponItemExcluded(item) {
+  const name = String(item.originalName || item.name || "")
+    .trim()
+    .replace(/\s+/g, " ");
+
+  return [
+    "صحن تقديم",
+    "صحن التقديم",
+    "شريط عبارة",
+    "شريط العبارة",
+    "مندوب"
+  ].includes(name);
+}
+
+// قيمة خصم الكوبون بعد التعديل.
+function calculateActiveCouponDiscount() {
+  if (!activeCoupon || !activeCoupon.code) return 0;
+
+  // لم تتغير محتويات الطلب: نحافظ على الخصم الأصلي.
+  if (
+    activeCoupon.originalSignature &&
+    couponCartSignature() === activeCoupon.originalSignature
+  ) {
+    return couponMoney(activeCoupon.originalDiscount);
+  }
+
+  // الطلب تغير: نعيد الحساب من شروط الكوبون الأصلية.
+  let eligibleHalalas = 0;
+
+  for (const item of cart) {
+    if (couponItemExcluded(item)) continue;
+
+    const financials = calculateItemFinancials(item);
+
+    if (!activeCoupon.allowStacking) {
+      const hasProductDiscount =
+        Number(item.discount || 0) > 0 ||
+        Number(generalDiscount || 0) > 0;
+
+      if (hasProductDiscount) continue;
+    }
+
+    eligibleHalalas += Math.max(0, financials.finalHalalas);
+  }
+
+  const eligibleSubtotal = eligibleHalalas / 100;
+  const value = Number(activeCoupon.value || 0);
+
+  if (activeCoupon.type === "percent") {
+    return couponMoney(
+      Math.min(eligibleSubtotal, eligibleSubtotal * value / 100)
+    );
+  }
+
+  if (activeCoupon.type === "fixed") {
+    return couponMoney(Math.min(eligibleSubtotal, value));
+  }
+
+  // إذا بيانات الكوبون ناقصة، لا نخمن نسبة الخصم.
+  return 0;
+}
+
 function updateCart() {
   cartList.innerHTML = "";
   total = 0;
@@ -1786,16 +1913,12 @@ li.innerHTML = `
     cartList.appendChild(li);
   });
 
-// إجمالي السلة بعد خصومات المنتجات
-const couponAmount = Math.min(
-  total,
-  preparingCouponDiscount
-);
+// حساب خصم الكوبون حسب محتويات السلة الحالية
+const couponAmount = calculateActiveCouponDiscount();
 
-// إجمالي العرض بعد خصم الكوبون
-const displayedTotal = Math.max(
-  0,
-  Math.round((total - couponAmount) * 100) / 100
+// إجمالي السلة بعد خصومات المنتجات والكوبون
+const displayedTotal = couponMoney(
+  Math.max(0, total - couponAmount)
 );
 
 totalElAmount.textContent = displayedTotal.toFixed(2);
@@ -1810,8 +1933,8 @@ discountDetailsEl.innerHTML = `
     : ""}
 
   ${couponAmount > 0
-    ? `🎟️ كود الخصم (${preparingCouponCode}):
-       −${couponAmount.toFixed(2)} ريال.<br>`
+? `🎟️ كود الخصم (${activeCoupon?.code || ""}):
+−${couponAmount.toFixed(2)} ريال.<br>`
     : ""}
 
   السعر قبل الخصومات: ${originalTotal.toFixed(2)} ريال.<br>
