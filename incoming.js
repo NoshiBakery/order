@@ -98,6 +98,8 @@
       deliveryDate:combineDeliveryDate(order),
       deliveryArea:deliveryAreaLabel(order.deliveryArea),
       deliveryFee:fee,
+      couponCode:String(order.couponCode || ""),
+      couponDiscount:Math.max(0, Number(order.couponDiscount || 0)),
       globalNote:String(order.notes ?? order.globalNote ?? "").trim().slice(0,1000),
       items
     };
