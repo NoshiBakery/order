@@ -64,6 +64,8 @@
   let cart = [];
   let total = 0;
   let generalDiscount = 0;
+  let preparingCouponCode = "";
+  let preparingCouponDiscount = 0;
   let paymentMethod = null;
   let currentEditIndex = null;
   let clients = [];
@@ -213,6 +215,11 @@ updateApproveButtonState();
   } else {
     // طلب مقبول من لوحة الموقع الخارجي: نعبّي النموذج فقط، ويبقى المندوب وطريقة الدفع للمستخدم.
     const incomingDraft = await NoshiDB.get("incomingOrderDraft", null);
+	  preparingCouponCode = String(incomingDraft?.couponCode || "");
+preparingCouponDiscount = Math.max(
+  0,
+  Number(incomingDraft?.couponDiscount || 0)
+);
     if (incomingDraft && Array.isArray(incomingDraft.items)) {
       const incomingBar=document.getElementById('incomingDraftBar');
       const incomingBarText=document.getElementById('incomingDraftBarText');
@@ -1779,18 +1786,37 @@ li.innerHTML = `
     cartList.appendChild(li);
   });
 
-  // تحديث الإجمالي
-  totalElAmount.textContent = total.toFixed(2);
+// إجمالي السلة بعد خصومات المنتجات
+const couponAmount = Math.min(
+  total,
+  preparingCouponDiscount
+);
+
+// إجمالي العرض بعد خصم الكوبون
+const displayedTotal = Math.max(
+  0,
+  Math.round((total - couponAmount) * 100) / 100
+);
+
+totalElAmount.textContent = displayedTotal.toFixed(2);
 
   // تفاصيل الخصم
   const discountDetailsEl = document.getElementById("discountDetails");
-  if (totalDiscountAmount > 0) {
-    discountDetailsEl.style.display = "block";
-    discountDetailsEl.innerHTML = `
-      تم تطبيق خصم: ${totalDiscountAmount.toFixed(2)} ريال.<br>
-      السعر قبل الخصم: ${originalTotal.toFixed(2)} ريال.<br>
-      السعر بعد الخصم: ${total.toFixed(2)} ريال.
-    `;
+if (totalDiscountAmount > 0 || couponAmount > 0) {
+	discountDetailsEl.style.display = "block";
+discountDetailsEl.innerHTML = `
+  ${totalDiscountAmount > 0
+    ? `خصومات المنتجات: −${totalDiscountAmount.toFixed(2)} ريال.<br>`
+    : ""}
+
+  ${couponAmount > 0
+    ? `🎟️ كود الخصم (${preparingCouponCode}):
+       −${couponAmount.toFixed(2)} ريال.<br>`
+    : ""}
+
+  السعر قبل الخصومات: ${originalTotal.toFixed(2)} ريال.<br>
+  الإجمالي بعد الخصومات: ${displayedTotal.toFixed(2)} ريال.
+`;
   } else {
     discountDetailsEl.style.display = "none";
   }
