@@ -806,7 +806,30 @@ async function approveOrder() {
 
     // حساب المبالغ
     const originalTotal = calculateOriginalTotal();
-    const totalAfterDiscounts = total;
+        // خصم الموقع الخارجي محفوظ مسبقًا في قاعدة الطلبات
+    const incomingCouponDraft = !editingOrder
+      ? await NoshiDB.get("incomingOrderDraft", null)
+      : null;
+
+    const couponCodeForOrder = editingOrder?.order
+      ? String(editingOrder.order.couponCode || "")
+      : String(incomingCouponDraft?.couponCode || "");
+
+    const couponDiscountForOrder = Math.max(
+      0,
+      Number(
+        editingOrder?.order
+          ? editingOrder.order.couponDiscount || 0
+          : incomingCouponDraft?.couponDiscount || 0
+      )
+    );
+
+    // إجمالي cart يشمل خصومات المنتجات والمندوب،
+    // لكن لا يشمل الكوبون القادم من الموقع.
+    const totalAfterDiscounts = Math.max(
+      0,
+      Math.round((total - couponDiscountForOrder) * 100) / 100
+    );
 
     // ✅ جلب الملاحظة العامة من الخانة مباشرة (الأدق)
     var globalNoteInputEl = document.getElementById("globalNoteInput");
@@ -831,6 +854,8 @@ async function approveOrder() {
       transferred: editingOrder?.order?.transferred ?? false,
       cashReceived: editingOrder?.order?.cashReceived ?? false,
       generalDiscount: generalDiscount,
+      couponCode: couponCodeForOrder,
+      couponDiscount: couponDiscountForOrder,	
       globalNote: savedGlobalNote,
       totalBefore: originalTotal.toFixed(2),
       totalAfter: totalAfterDiscounts.toFixed(2),
@@ -849,7 +874,7 @@ async function approveOrder() {
     }
 
     // إذا كان الطلب قادمًا من الموقع الخارجي نحفظ معرفه لمنع التكرار لاحقًا في D1.
-    const incomingDraft = !editingOrder ? await NoshiDB.get("incomingOrderDraft", null) : null;
+    const incomingDraft = incomingCouponDraft;;
     if (incomingDraft && incomingDraft.externalRequestId) {
       orderData.externalRequestId = incomingDraft.externalRequestId;
       orderData.externalOrderNumber = incomingDraft.externalOrderNumber || incomingDraft.externalRequestId;
