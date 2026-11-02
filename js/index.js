@@ -218,8 +218,15 @@ updateApproveButtonState();
       const incomingBarText=document.getElementById('incomingDraftBarText');
       if(incomingBar){
         incomingBar.hidden=false;
-        if(incomingBarText) incomingBarText.textContent=`#${incomingDraft.externalOrderNumber||incomingDraft.externalRequestId||''} · ${incomingDraft.clientName||''}`;
-      }
+if (incomingBarText) {
+  const couponAmount = Number(incomingDraft.couponDiscount || 0);
+  const couponInfo = couponAmount > 0
+    ? ` · 🎟️ كود ${incomingDraft.couponCode || "خصم"}: −${couponAmount.toFixed(2)} ر.س`
+    : "";
+
+  incomingBarText.textContent =
+    `#${incomingDraft.externalOrderNumber || incomingDraft.externalRequestId || ""} · ${incomingDraft.clientName || ""}${couponInfo}`;
+}      }
       const cancelIncomingBtn=document.getElementById('cancelIncomingDraftBtn');
       if(cancelIncomingBtn && !cancelIncomingBtn.dataset.bound){
         cancelIncomingBtn.dataset.bound='1';
