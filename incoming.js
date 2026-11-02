@@ -97,11 +97,20 @@
       clientName:client.name,
       deliveryDate:combineDeliveryDate(order),
       deliveryArea:deliveryAreaLabel(order.deliveryArea),
+
       deliveryFee:fee,
+
+      // بيانات الكوبون القادمة من Worker الداخلي
       couponCode:String(order.couponCode || ""),
       couponDiscount:Math.max(0, Number(order.couponDiscount || 0)),
+      couponDiscountType:String(order.couponDiscountType || ""),
+      couponDiscountValue:Number(order.couponDiscountValue || 0),
+      couponAllowStacking:order.couponAllowStacking === true ||
+        Number(order.couponAllowStacking) === 1,
+
       globalNote:String(order.notes ?? order.globalNote ?? "").trim().slice(0,1000),
       items
+
     };
   }
 
