@@ -2004,16 +2004,33 @@ function updateCountdown() {
   countdownDiv.style.color = "#27ae60"; // أخضر
 }
 
+
 function fillReceipt() {
-  if (!window.NoshiInvoice) throw new Error("invoice.js لم يتم تحميله");
+  if (!window.NoshiInvoice) {
+    throw new Error("invoice.js لم يتم تحميله");
+  }
+
+  const couponDiscount = activeCoupon
+    ? calculateActiveCouponDiscount()
+    : 0;
+
+  const totals = calculateCartFinancials();
+
   NoshiInvoice.render(document.getElementById("receipt"), {
     date: new Date().toISOString().split("T")[0],
     items: cart,
-    generalDiscount: Number(document.getElementById("discountInput")?.value || 0),
-    totalBefore: calculateCartFinancials().before / 100,
-    totalAfter: calculateCartFinancials().final / 100
+    generalDiscount: generalDiscount,
+
+    couponCode: activeCoupon?.code || "",
+    couponDiscount: couponDiscount,
+
+    totalBefore: totals.before / 100,
+    totalAfter: couponMoney(
+      Math.max(0, totals.final / 100 - couponDiscount)
+    )
   });
 }
+
 
 let preparedInvoiceBlob = null;
 
