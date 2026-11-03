@@ -45,7 +45,7 @@
     const y=d.getFullYear(), mo=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
     const weekday=d.toLocaleDateString('ar-SA-u-ca-gregory',{weekday:'long'});
     const h24=d.getHours(), h12=h24%12||12, mins=String(d.getMinutes()).padStart(2,'0'), period=h24>=12?'م':'ص';
-    return `${y}-${mo}-${day} (${weekday}) · ${h12}:${mins} ${period}`;
+    return `${y}/${mo}/${day} (${weekday}) · ⁦${period} ${h12}:${mins}⁩`;
   }
 
   function findClientByPhone(clients, phone){
