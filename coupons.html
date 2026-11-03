@@ -575,6 +575,17 @@
         color: var(--c-muted);
         font-weight: 600;
       }
+      .english-date {
+        direction: ltr;
+        unicode-bidi: isolate;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      #startDate {
+        direction: ltr;
+        text-align: left;
+        font-variant-numeric: tabular-nums;
+      }
       .action-block {
         display: flex;
         gap: 6px;
@@ -1323,7 +1334,7 @@
                     🎲 توليد
                   </button>
                 </div>
-                <div class="hint">اتركه فارغًا إذا تبي النظام يولّد الكود.</div>
+                <div class="hint">زر «توليد» ينشئ كودًا سهلًا مثل NOSHI58374. ويمكنك كتابة كود تختاره بنفسك.</div>
               </div>
               <div class="field">
                 <label for="type">نوع الخصم</label
@@ -1346,7 +1357,7 @@
               </div>
               <div class="field">
                 <label for="startDate">تاريخ بداية الصلاحية</label
-                ><input id="startDate" type="date" required />
+                ><input id="startDate" type="date" lang="en-CA" dir="ltr" required />
               </div>
               <div class="field">
                 <label for="duration">مدة الصلاحية</label
@@ -1437,13 +1448,13 @@
         <div class="confirm-icon" aria-hidden="true">🗑️</div>
         <h2 id="deleteTitle">حذف الكود؟</h2>
         <p id="deleteDescription">
-          هل أنت متأكد أنك تبي تحذف الكود نهائيًا؟ قد يمنع الخادم الحذف إذا كان
-          مرتبطًا باستخدامات أو حجوزات.
+          هل تريد حذف هذا الكود نهائيًا من النظام؟ لا يمكن التراجع عن الحذف.
+          إذا كان مرتبطًا بطلبات أو استخدامات فقد يرفض الخادم الحذف لحماية السجلات.
         </p>
         <b class="delete-code" id="deleteCode"></b>
         <div class="confirm-actions">
           <button type="button" class="c-btn danger" id="confirmDelete">
-            حذف الكود</button
+            تأكيد الحذف النهائي</button
           ><button type="button" class="c-btn subtle" id="cancelDelete">
             تراجع
           </button>
@@ -1506,7 +1517,7 @@
           );
         const numeric = (v) => (Number.isFinite(Number(v)) ? Number(v) : 0);
         const nfmt = (v) =>
-          new Intl.NumberFormat("ar-SA", {
+          new Intl.NumberFormat("en-US", {
             useGrouping: true,
             maximumFractionDigits: 2,
           }).format(numeric(v));
@@ -1557,7 +1568,7 @@
           if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value)))
             return String(value || "—");
           const [y, m, d] = value.split("-");
-          return `${d}/${m}/${y}`;
+          return `${y}/${m}/${d}`;
         }
         function notify(text, bad = false) {
           const el = $("toast");
@@ -1615,7 +1626,7 @@
    <div class="usage-line"><span>مكتمل: <b>${nfmt(completed)}</b></span><span>محجوز: <b>${nfmt(reserved)}</b></span></div>
    ${max !== null ? `<div class="usage-track" aria-hidden="true"><div class="usage-fill" style="width:${progress}%"></div></div>` : ""}</div>
    <div class="discount-block"><strong>${h(discount)}</strong><small>${c.discountType === "percent" ? "خصم بالنسبة المئوية" : "خصم ثابت بالريال"}</small></div>
-   <div class="date-block"><b><span>من:</span> ${h(formatDate(c.startDate))}</b><b><span>إلى:</span> ${h(formatDate(c.expiresDate))}</b><small>تاريخ النهاية غير شامل</small></div>
+   <div class="date-block"><b><span>من:</span> <bdi dir="ltr" class="english-date">${h(formatDate(c.startDate))}</bdi></b><b><span>إلى:</span> <bdi dir="ltr" class="english-date">${h(formatDate(c.expiresDate))}</bdi></b><small>تاريخ النهاية غير شامل</small></div>
    <div class="action-block"><button type="button" class="c-btn subtle slim" data-action="copy" data-id="${id}" aria-label="نسخ الكود ${code}">⧉ نسخ</button><button type="button" class="c-btn green slim" data-action="edit" data-id="${id}">✎ تعديل</button><button type="button" class="c-btn danger slim" data-action="delete" data-id="${id}">🗑 حذف</button></div>
  </article>`;
         }
@@ -1707,6 +1718,7 @@
           $("expiryPreview").textContent = expiry
             ? "ينتهي في " + formatDate(expiry) + " (غير شامل)"
             : "اختر تاريخ البداية ومدة الصلاحية.";
+          $("expiryPreview").style.fontVariantNumeric = "tabular-nums";
         }
         function showOverlay(id) {
           clearTimeout(state.toastTimer);
@@ -1921,8 +1933,8 @@
             showDeleteError(
               unsupported
                 ? "تعذّر الحذف: مسار DELETE غير متاح أو الكود غير موجود في الخادم. الحذف النهائي يحتاج دعمًا من Cloudflare Worker."
-                : `الخادم رفض الحذف: ${error.data?.error || error.message}` +
-                    (blocked ? " يمكنك أرشفة الكود بدل الحذف." : ""),
+                : `لم يُحذف الكود؛ الخادم رفض الحذف: ${error.data?.error || error.message}` +
+                    (blocked ? " الكود مرتبط بسجل محمي. يمكن إيقافه وأرشفته، لكن ذلك ليس حذفًا نهائيًا." : ""),
               mayArchive,
             );
             notify("لم يتم حذف الكود.", true);
@@ -2044,13 +2056,22 @@
           $("value").max = $("type").value === "percent" ? "100" : "";
         });
         $("generate").addEventListener("click", () => {
-          const b = new Uint8Array(5);
-          crypto.getRandomValues(b);
-          $("code").value =
-            "NOSHI" +
-            Array.from(b, (x) => x.toString(16).padStart(2, "0"))
-              .join("")
-              .toUpperCase();
+          // Five clear English digits; avoid 0 and 1, which are easily misread.
+          // Check already-loaded coupons. The server remains the final uniqueness authority.
+          const existing = new Set(state.coupons.map(c => String(c.code || "").toUpperCase()));
+          let candidate = "";
+          for (let attempt = 0; attempt < 30; attempt++) {
+            const bytes = new Uint8Array(5);
+            crypto.getRandomValues(bytes);
+            candidate = "NOSHI" + Array.from(bytes, b => String(2 + (b % 8))).join("");
+            if (!existing.has(candidate)) break;
+            candidate = "";
+          }
+          if (!candidate) {
+            notify("تعذّر توليد كود فريد. حاول مجددًا أو اكتب كودًا بنفسك.", true);
+            return;
+          }
+          $("code").value = candidate;
         });
         $("closeEditor").addEventListener("click", closeEditor);
         $("cancelEditor").addEventListener("click", closeEditor);
