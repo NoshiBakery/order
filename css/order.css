@@ -873,3 +873,24 @@ body.payment-modal-open {
   .order-sales-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .order-sales-summary-grid-two{grid-template-columns:1fr}
 }
+
+/* NOSHI: delete-order confirmation (visual only; deletion flow stays in js/order.js). */
+.noshi-delete-overlay{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(22,26,38,.66);padding:20px;backdrop-filter:blur(4px)}
+.noshi-delete-dialog{box-sizing:border-box;width:min(100%,400px);max-height:90vh;overflow:auto;background:#fff;color:#253046;border-radius:22px;padding:28px 24px;box-shadow:0 18px 65px rgba(0,0,0,.24);text-align:center;direction:rtl;font-family:'Cairo','Tajawal',sans-serif}
+.noshi-delete-icon{width:66px;height:66px;margin:0 auto 13px;display:grid;place-items:center;background:#fff0ed;border-radius:20px;font-size:30px}
+.noshi-delete-dialog h2{margin:0 0 6px;color:#a72d2d;font-size:1.4rem;font-weight:900}
+.noshi-delete-dialog p{margin:0 0 16px;font-size:.92rem;line-height:1.65;color:#626c7b}
+.noshi-delete-client{padding:14px 16px;border-radius:15px;background:#f7f8fb;border:1px solid #e7ebf0;display:grid;gap:6px;overflow-wrap:anywhere}
+.noshi-delete-client-label{color:#64748b;font-size:.8rem;font-weight:700}
+.noshi-delete-client strong{color:#172e4c;font-size:1.25rem;line-height:1.5;font-weight:900}
+.noshi-delete-dialog .noshi-delete-warning{color:#a33a2c;font-size:.82rem;margin:13px 0 17px}
+.noshi-delete-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.noshi-delete-actions button{border:0;border-radius:12px;padding:13px 12px;font:800 1rem 'Cairo','Tajawal',sans-serif;cursor:pointer;min-height:47px}
+.noshi-delete-actions #cancelBtn{background:#edf1f5;color:#364457}
+.noshi-delete-actions #confirmBtn{background:#c73935;color:#fff}
+.noshi-delete-actions button:focus-visible{outline:3px solid #d99e5b;outline-offset:3px}
+html[data-theme="dark"] .noshi-delete-dialog{background:#1b2431;color:#f4f5f7}
+html[data-theme="dark"] .noshi-delete-client{background:#263345;border-color:#394656}
+html[data-theme="dark"] .noshi-delete-client strong{color:#fff}
+html[data-theme="dark"] .noshi-delete-actions #cancelBtn{background:#344255;color:#fff}
+@media(max-width:380px){.noshi-delete-dialog{padding:23px 16px}.noshi-delete-dialog h2{font-size:1.18rem}}

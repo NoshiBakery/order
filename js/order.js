@@ -710,8 +710,8 @@ try {
         </div>
 <div class="delivery-time">
   <span class="delivery-time-label">موعد التسليم</span>
-  <strong>${deliveryDate.toLocaleDateString('ar-SA', { weekday:'long', year:'numeric', month:'long', day:'numeric' })}</strong>
-  <span class="delivery-time-clock">${deliveryDate.toLocaleTimeString('ar-SA', { hour:'numeric', minute:'2-digit', hour12:true })}</span>
+  <strong>${deliveryDate.toLocaleDateString('ar-SA-u-ca-gregory-nu-latn', { weekday:'long' })} <bdi dir="ltr">${deliveryDate.getFullYear()}/${String(deliveryDate.getMonth()+1).padStart(2,'0')}/${String(deliveryDate.getDate()).padStart(2,'0')}</bdi></strong>
+  <span class="delivery-time-clock"><bdi dir="ltr">${deliveryDate.getHours() >= 12 ? 'م' : 'ص'} ${deliveryDate.getHours() % 12 || 12}:${String(deliveryDate.getMinutes()).padStart(2,'0')}</bdi></span>
 </div>
       </div>
       
@@ -907,33 +907,31 @@ async function updatePaymentStatus(month, index, isChecked, event) {
   function deleteOrder(monthKey, orderIndex, event) {
     event.preventDefault();
     
+    const order = salesData[monthKey]?.[orderIndex];
+    if (!order) return;
     const confirmModal = document.createElement('div');
-    confirmModal.style.position = 'fixed';
-    confirmModal.style.top = '0';
-    confirmModal.style.left = '0';
-    confirmModal.style.right = '0';
-    confirmModal.style.bottom = '0';
-    confirmModal.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-    confirmModal.style.display = 'flex';
-    confirmModal.style.justifyContent = 'center';
-    confirmModal.style.alignItems = 'center';
-    confirmModal.style.zIndex = '10000';
-
+    confirmModal.className = 'noshi-delete-overlay';
+    confirmModal.setAttribute('role', 'presentation');
     confirmModal.innerHTML = `
-      <div style="background: white; padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; text-align: center;">
-        <h2 style="color: #e74c3c;">هل أنت متأكد أنك تريد حذف هذا الطلب؟</h2>
-        <div style="display: flex; justify-content: space-between; gap: 10px;">
-          <button id="cancelBtn" style="padding: 16px; background: #e74c3c; color: white; border: none; border-radius: 8px; cursor: pointer;">
-            إلغاء
-          </button>
-          <button id="confirmBtn" style="padding: 16px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer;">
-            تأكيد
-          </button>
+      <section class="noshi-delete-dialog" role="alertdialog" aria-modal="true" aria-labelledby="noshiDeleteTitle" aria-describedby="noshiDeleteDescription">
+        <div class="noshi-delete-icon" aria-hidden="true">🗑️</div>
+        <h2 id="noshiDeleteTitle">تأكيد حذف الطلب</h2>
+        <p id="noshiDeleteDescription">هل تريد حذف طلب العميل التالي؟</p>
+        <div class="noshi-delete-client">
+          <span class="noshi-delete-client-label">اسم العميل</span>
+          <strong id="noshiDeleteClientName"></strong>
         </div>
-      </div>
+        <p class="noshi-delete-warning">لا يمكن التراجع عن حذف الطلب.</p>
+        <div class="noshi-delete-actions">
+          <button id="cancelBtn" type="button">إلغاء</button>
+          <button id="confirmBtn" type="button">حذف الطلب</button>
+        </div>
+      </section>
     `;
 
     document.body.appendChild(confirmModal);
+    confirmModal.querySelector('#noshiDeleteClientName').textContent = String(order.client || "عميل غير محدد");
+    confirmModal.querySelector('#cancelBtn').focus();
 
     document.getElementById('cancelBtn').addEventListener('click', function() {
       document.body.removeChild(confirmModal);
