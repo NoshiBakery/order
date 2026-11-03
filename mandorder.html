@@ -1282,6 +1282,129 @@
           transition: none;
         }
       }
+
+      /* Visibility, date layout and time order specific to the driver portal. */
+      .date-input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 1 166px;
+        height: 44px;
+        min-width: 0;
+        border: 1px solid #e9dfe4;
+        border-radius: 13px;
+        background: #fff;
+        cursor: pointer;
+      }
+      .date-input-wrap:focus-within {
+        outline: 3px solid #b988c3;
+        outline-offset: 3px;
+      }
+      .date-display {
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 900;
+        color: var(--plum);
+        white-space: nowrap;
+        direction: ltr;
+        unicode-bidi: isolate;
+      }
+      .date-input-wrap .date-input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        max-width: none;
+        min-width: 0;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+      }
+      .order-card.own {
+        border: 2px solid #18815d;
+        background: #f3fbf6;
+        box-shadow: 0 8px 26px rgba(13, 112, 72, 0.12);
+      }
+      .order-card.own .order-card-top {
+        background: #e9f7ed;
+      }
+      .order-card.unassigned {
+        border: 2px solid #da8a32;
+        background: #fffaf0;
+        box-shadow: 0 8px 26px rgba(183, 119, 29, 0.09);
+      }
+      .order-card.unassigned .order-card-top {
+        background: #fff0d6;
+      }
+      .assignment-tag {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 8px;
+        padding: 4px 9px;
+        font-weight: 900;
+        font-size: 11px;
+      }
+      .assignment-tag.own-tag {
+        background: #137951;
+        color: white;
+      }
+      .assignment-tag.available-tag {
+        background: #b76617;
+        color: white;
+      }
+      .waiting-driver {
+        color: #a35f17;
+        font-weight: 900;
+      }
+      .delivery-time .clock {
+        display: inline-flex;
+        flex-direction: row;
+        direction: ltr;
+        align-items: baseline;
+        gap: 6px;
+        unicode-bidi: isolate;
+      }
+      .clock-period {
+        font-size: 0.75em;
+        font-weight: 900;
+        color: #854875;
+      }
+      .clock-digits {
+        direction: ltr;
+        unicode-bidi: isolate;
+        font-variant-numeric: tabular-nums;
+      }
+      .clock-date {
+        display: block;
+        font-size: 11px;
+        font-weight: 900;
+        color: #796b7d;
+        text-align: left;
+        direction: ltr;
+      }
+      .day-tab[data-future] small {
+        white-space: nowrap;
+      }
+      .scope-toggle {
+        max-width: 100%;
+        flex-wrap: wrap;
+      }
+      @media (max-width: 610px) {
+        .date-input-wrap {
+          flex: 1 1 auto;
+        }
+        .date-display {
+          font-size: 12px;
+        }
+        .assignment-tag {
+          font-size: 10px;
+        }
+        .day-tab[data-future] small {
+          font-size: 8px;
+        }
+      }
     </style>
   </head>
   <body class="auth-loading">
@@ -1322,7 +1445,7 @@
           <div class="hero-feature">
             <span class="sub">طلبات اليوم</span
             ><strong id="heroTodayCount">—</strong
-            ><span class="foot">جميع المناديب</span>
+            ><span class="foot">طلباتي وغير المعيّنة</span>
           </div>
         </div>
       </div>
@@ -1343,12 +1466,15 @@
               aria-label="اليوم السابق"
             >
               ‹</button
-            ><input
-              type="date"
-              id="datePicker"
-              class="date-input"
-              aria-label="اختر تاريخ التوصيل"
-            /><button
+            ><label class="date-input-wrap"
+              ><span class="date-display" id="dateDisplay" dir="ltr"
+                >YYYY/MM/DD</span
+              ><input
+                type="date"
+                id="datePicker"
+                class="date-input"
+                aria-label="اختر تاريخ التوصيل" /></label
+            ><button
               type="button"
               id="nextDay"
               class="square-btn"
@@ -1363,8 +1489,8 @@
             اليوم<small id="tabDate0">—</small></button
           ><button type="button" class="day-tab" data-day-offset="1">
             بكرا<small id="tabDate1">—</small></button
-          ><button type="button" class="day-tab" data-day-offset="2">
-            بعد بكرا<small id="tabDate2">—</small>
+          ><button type="button" class="day-tab" data-future>
+            الأيام القادمة<small id="tabDate2">—</small>
           </button>
         </div>
       </section>
@@ -1418,7 +1544,7 @@
           <div
             class="scope-toggle"
             id="scopeToggle"
-            aria-label="تصفية طلبات اليوم"
+            aria-label="تصفية طلبات التوصيل"
           >
             <button
               type="button"
@@ -1426,7 +1552,7 @@
               class="active"
               aria-pressed="true"
             >
-              كل الطلبات</button
+              طلباتي + غير المعيّنة</button
             ><button type="button" id="scopeMine" aria-pressed="false">
               طلباتي فقط
             </button>
@@ -1522,9 +1648,9 @@
           <div class="info-card">
             <h3>✦ معلومة سريعة</h3>
             <p>
-              تظهر جميع طلبات المناديب في جدول اليوم. أما الأيام السابقة
-              والقادمة فتُعرض منها طلباتك أنت فقط، وفق البيانات المتاحة لحسابك.
-              طلباتك مميزة بلون دافئ.
+              تظهر طلباتك باللون الأخضر، والطلبات التي تنتظر تعيين مندوب باللون
+              البرتقالي. طلبات المناديب الآخرين لا تظهر، والإحصائيات تخص طلباتك
+              أنت فقط.
             </p>
           </div>
         </aside>
@@ -1571,20 +1697,6 @@
       (function () {
         "use strict";
         const $ = (id) => document.getElementById(id);
-        const monthNames = [
-          "يناير",
-          "فبراير",
-          "مارس",
-          "أبريل",
-          "مايو",
-          "يونيو",
-          "يوليو",
-          "أغسطس",
-          "سبتمبر",
-          "أكتوبر",
-          "نوفمبر",
-          "ديسمبر",
-        ];
         const money = (value) => {
           const n = Number(value);
           return (Number.isFinite(n) ? n : 0).toLocaleString("en-US", {
@@ -1632,30 +1744,30 @@
           const p = (type) => parts.find((x) => x.type === type)?.value;
           return `${p("year")}-${p("month")}-${p("day")}`;
         }
+        const formatDateKey = (key) =>
+          enNum(
+            String(key || "")
+              .slice(0, 10)
+              .replace(/-/g, "/"),
+          );
         const labelDate = (key) =>
           new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn", {
             weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
             timeZone: "UTC",
           }).format(new Date(key + "T12:00:00Z"));
-        const shortDate = (key) =>
-          new Intl.DateTimeFormat("ar-SA-u-ca-gregory-nu-latn", {
-            day: "numeric",
-            month: "short",
-            timeZone: "UTC",
-          }).format(new Date(key + "T12:00:00Z"));
-        const labelMonth = (key) =>
-          `${monthNames[Number(key.slice(5, 7)) - 1]} ${key.slice(0, 4)}`;
+        const shortDate = formatDateKey;
+        const labelMonth = (key) => enNum(String(key || "").replace("-", "/"));
         function timeLabel(value) {
           const m = String(value || "").match(
             /^\d{4}-\d{1,2}-\d{1,2}[ T](\d{1,2}):(\d{2})/,
           );
-          if (!m) return "—";
+          if (!m) return { digits: "—", period: "" };
           const hour = +m[1];
-          if (hour > 23 || +m[2] > 59) return "—";
-          return `${hour % 12 || 12}:${m[2]} ${hour >= 12 ? "م" : "ص"}`;
+          if (hour > 23 || +m[2] > 59) return { digits: "—", period: "" };
+          return {
+            digits: `${hour % 12 || 12}:${m[2]}`,
+            period: hour >= 12 ? "م" : "ص",
+          };
         }
         function sourceAndNumber(o) {
           const website = Boolean(
@@ -1718,17 +1830,29 @@
         let currentDriver = "",
           myOrders = [],
           todayOrders = [],
+          unassignedOrders = [],
           selectedDay = todayKey(),
           monthKey = selectedDay.slice(0, 7),
           historyMonth = monthKey,
           scope = "all",
+          futureMode = false,
           loaded = false;
         let dayRows = [],
           historyRows = [];
+        function assignedName(o) {
+          return String(o.deliveryPerson || o.mandoub || "").trim();
+        }
+        function unassigned(o) {
+          return [
+            "",
+            "__UNASSIGNED__",
+            "غير محدد",
+            "لم يتم تحديد المندوب",
+            "بدون مندوب",
+          ].includes(assignedName(o));
+        }
         function mine(o) {
-          return (
-            String(o.deliveryPerson || o.mandoub || "").trim() === currentDriver
-          );
+          return assignedName(o) === currentDriver;
         }
         function ownFeeRows() {
           return myOrders.filter((o) => mine(o) && deliveryAmount(o) > 0);
@@ -1749,8 +1873,11 @@
           showStats("all", summarize(own));
         }
         function renderDaySummary() {
-          const own = ownFeeRows().filter(
-            (o) => deliveryKey(o) === selectedDay,
+          const start = shiftDay(todayKey(), 2);
+          const own = ownFeeRows().filter((o) =>
+            futureMode
+              ? deliveryKey(o) >= start
+              : deliveryKey(o) === selectedDay,
           );
           const s = summarize(own);
           $("dayOrders").textContent = enNum(s.count);
@@ -1764,46 +1891,81 @@
           const id = sourceAndNumber(o),
             pm = payMethod(o),
             products = productLines(o),
-            own = mine(o);
-          return `<article class="order-card ${own ? "own" : ""}"><div class="order-card-top"><div class="order-identity"><div class="identity-top"><span class="order-number" dir="ltr">#${esc(enNum(id.number))}</span><span class="source-pill ${id.website ? "" : "internal"}">${id.website ? "◉" : "◆"} ${esc(id.label)}</span>${own ? '<span class="own-tag">★ طلبي</span>' : ""}</div><div class="order-sub">رقم الطلب</div></div><div class="delivery-time"><span class="clock">${esc(timeLabel(o.deliveryDate || o.date))}</span><span class="clock-label">موعد التوصيل</span></div></div><div class="order-card-body"><div class="customer-row"><div class="customer-meta"><div class="customer-label">اسم العميل</div><div class="customer-name">${esc(o.client || o.customer || "—")}</div><div class="driver-name">🚚 ${esc(o.deliveryPerson || o.mandoub || "لم يحدد المندوب")}</div></div><div class="fee"><strong class="number">${money(deliveryAmount(o))}</strong><span class="label">مستحق المندوب · ر.س</span></div></div><div class="items-box"><div class="items-label">محتويات الطلب</div><div class="item-list">${products.length ? products.map((p) => `<div class="item-line"><span>${esc(p.name)}</span><strong>× ${esc(p.qty)}</strong></div>`).join("") : '<div class="item-empty">لا توجد منتجات ظاهرة</div>'}</div></div><div class="order-footer"><div class="badges"><span class="pill ${pm.kind}">${esc(pm.text)}</span><span class="pill ${o.deliveryPaid === true ? "paid" : "unpaid"}">${o.deliveryPaid === true ? "✓ تم سداد المستحق" : "○ المستحق غير مسدّد"}</span></div>${own ? `<button class="details-btn" type="button" data-order-index="${i}">عرض الفاتورة</button>` : ""}</div></div></article>`;
+            own = mine(o),
+            available = unassigned(o),
+            time = timeLabel(o.deliveryDate || o.date);
+          return `<article class="order-card ${own ? "own" : "unassigned"}">
+      <div class="order-card-top"><div class="order-identity"><div class="identity-top">
+        <span class="order-number" dir="ltr">#${esc(enNum(id.number))}</span>
+        <span class="source-pill ${id.website ? "" : "internal"}">${id.website ? "◉" : "◆"} ${esc(id.label)}</span>
+        <span class="assignment-tag ${own ? "own-tag" : "available-tag"}">${own ? "✓ طلبي" : "◌ بدون مندوب"}</span>
+      </div><div class="order-sub">رقم الطلب</div></div>
+      <div class="delivery-time"><span class="clock" dir="ltr"><span class="clock-period">${esc(time.period)}</span><span class="clock-digits">${esc(enNum(time.digits))}</span></span>
+        <span class="clock-label">موعد التوصيل</span>${futureMode ? `<bdi class="clock-date" dir="ltr">${esc(formatDateKey(deliveryKey(o)))}</bdi>` : ""}
+      </div></div>
+      <div class="order-card-body"><div class="customer-row"><div class="customer-meta">
+        <div class="customer-label">اسم العميل</div><div class="customer-name">${esc(o.client || o.customer || "—")}</div>
+        <div class="driver-name ${available ? "waiting-driver" : ""}">🚚 ${available ? "بانتظار تعيين مندوب" : esc(assignedName(o))}</div>
+      </div><div class="fee"><strong class="number">${money(deliveryAmount(o))}</strong><span class="label">مستحق المندوب · ر.س</span></div></div>
+      <div class="items-box"><div class="items-label">محتويات الطلب</div><div class="item-list">
+      ${products.length ? products.map((p) => `<div class="item-line"><span>${esc(p.name)}</span><strong>× ${esc(p.qty)}</strong></div>`).join("") : '<div class="item-empty">لا توجد منتجات ظاهرة</div>'}</div></div>
+      <div class="order-footer"><div class="badges"><span class="pill ${pm.kind}">${esc(pm.text)}</span>
+        <span class="pill ${o.deliveryPaid === true ? "paid" : "unpaid"}">${o.deliveryPaid === true ? "✓ تم سداد المستحق" : "○ المستحق غير مسدّد"}</span>
+      </div>${own ? `<button class="details-btn" type="button" data-order-index="${i}">عرض الفاتورة</button>` : ""}</div></div>
+    </article>`;
         }
         function renderSchedule() {
-          const today = selectedDay === todayKey();
+          const today = selectedDay === todayKey(),
+            futureStart = shiftDay(todayKey(), 2);
           $("datePicker").value = selectedDay;
-          $("selectedDateLabel").textContent = labelDate(selectedDay);
-          $("selectedDayTitle").textContent = today
-            ? "طلبات اليوم"
-            : selectedDay === shiftDay(todayKey(), 1)
-              ? "طلبات بكرا"
-              : selectedDay === shiftDay(todayKey(), 2)
-                ? "طلبات بعد بكرا"
+          $("dateDisplay").textContent = formatDateKey(selectedDay);
+          $("selectedDateLabel").innerHTML = futureMode
+            ? `من <bdi dir="ltr">${formatDateKey(futureStart)}</bdi> فصاعدًا`
+            : `${labelDate(selectedDay)} · <bdi dir="ltr">${formatDateKey(selectedDay)}</bdi>`;
+          $("selectedDayTitle").textContent = futureMode
+            ? "طلبات الأيام القادمة"
+            : today
+              ? "طلبات اليوم"
+              : selectedDay === shiftDay(todayKey(), 1)
+                ? "طلبات بكرا"
                 : "طلبات يوم التوصيل";
-          $("ordersHeading").textContent = today
-            ? "طلبات اليوم"
-            : "طلبات " + shortDate(selectedDay);
+          $("ordersHeading").textContent = futureMode
+            ? "جميع الأيام القادمة"
+            : today
+              ? "طلبات اليوم"
+              : "طلبات " + shortDate(selectedDay);
           document.querySelectorAll("[data-day-offset]").forEach((btn) => {
             const active =
+              !futureMode &&
               selectedDay ===
-              shiftDay(todayKey(), Number(btn.dataset.dayOffset));
+                shiftDay(todayKey(), Number(btn.dataset.dayOffset));
             btn.classList.toggle("active", active);
             btn.setAttribute("aria-pressed", String(active));
           });
-          $("scopeToggle").hidden = !today;
+          const futureTab = document.querySelector("[data-future]");
+          futureTab.classList.toggle("active", futureMode);
+          futureTab.setAttribute("aria-pressed", String(futureMode));
+          $("scopeToggle").hidden = false;
           $("scopeAll").classList.toggle("active", scope === "all");
           $("scopeMine").classList.toggle("active", scope === "mine");
           $("scopeAll").setAttribute("aria-pressed", String(scope === "all"));
           $("scopeMine").setAttribute("aria-pressed", String(scope === "mine"));
-          $("ordersHint").textContent = today
-            ? scope === "all"
-              ? "جميع المناديب · مرتبة حسب الموعد"
-              : "طلباتك فقط · مرتبة حسب الموعد"
-            : "طلباتك لهذا اليوم · مرتبة حسب الموعد";
-          const source = today && scope === "all" ? todayOrders : myOrders;
+          $("ordersHint").textContent =
+            (scope === "all" ? "طلباتي والطلبات غير المعيّنة" : "طلباتي فقط") +
+            " · مرتبة حسب الموعد";
+          const source =
+            scope === "mine"
+              ? myOrders
+              : today && !futureMode
+                ? todayOrders
+                : [...myOrders, ...unassignedOrders];
           dayRows = ordered(
             source.filter(
               (o) =>
-                deliveryKey(o) === selectedDay &&
-                ((today && scope === "all") || mine(o)),
+                (futureMode
+                  ? deliveryKey(o) >= futureStart
+                  : deliveryKey(o) === selectedDay) &&
+                (mine(o) || (scope === "all" && unassigned(o))),
             ),
           );
           $("ordersCount").textContent =
@@ -1817,10 +1979,8 @@
             : dayRows.length
               ? dayRows.map(renderCard).join("")
               : emptyMessage(
-                  "لا توجد طلبات في هذا اليوم",
-                  today
-                    ? "لا توجد طلبات توصيل مسجلة اليوم."
-                    : "لا توجد لك طلبات مسجلة في هذا التاريخ.",
+                  "لا توجد طلبات في الفترة المحددة",
+                  "لا توجد طلبات مناسبة للتصفية التي اخترتها.",
                 );
           renderDaySummary();
         }
@@ -1836,7 +1996,7 @@
               ? historyRows
                   .map((o, i) => {
                     const id = sourceAndNumber(o);
-                    return `<div class="history-row"><div class="history-identity"><div class="history-customer">${esc(o.client || o.customer || "—")}</div><div class="history-caption">${esc(id.label)} · <b dir="ltr">#${esc(enNum(id.number))}</b></div></div><div class="history-value-block"><div class="history-value">${money(deliveryAmount(o))} ر.س</div><div class="history-caption">المندوب: ${esc(o.deliveryPerson || o.mandoub || "—")}</div></div><div class="history-status"><span class="pill ${o.deliveryPaid === true ? "paid" : "unpaid"}">${o.deliveryPaid === true ? "✓ تم الدفع" : "○ لم يُدفع"}</span></div><div class="history-actions"><button class="details-btn" type="button" data-history-index="${i}">التفاصيل</button></div><div class="history-date">${esc(deliveryKey(o))}</div></div>`;
+                    return `<div class="history-row"><div class="history-identity"><div class="history-customer">${esc(o.client || o.customer || "—")}</div><div class="history-caption">${esc(id.label)} · <b dir="ltr">#${esc(enNum(id.number))}</b></div></div><div class="history-value-block"><div class="history-value">${money(deliveryAmount(o))} ر.س</div><div class="history-caption">المندوب: ${esc(o.deliveryPerson || o.mandoub || "—")}</div></div><div class="history-status"><span class="pill ${o.deliveryPaid === true ? "paid" : "unpaid"}">${o.deliveryPaid === true ? "✓ تم الدفع" : "○ لم يُدفع"}</span></div><div class="history-actions"><button class="details-btn" type="button" data-history-index="${i}">التفاصيل</button></div><div class="history-date"><bdi dir="ltr">${esc(formatDateKey(deliveryKey(o)))}</bdi></div></div>`;
                   })
                   .join("")
               : emptyMessage(
@@ -1849,17 +2009,28 @@
           renderSchedule();
           renderHistory();
           $("heroTodayCount").textContent = enNum(
-            todayOrders.filter((o) => deliveryKey(o) === todayKey()).length,
+            todayOrders.filter(
+              (o) =>
+                deliveryKey(o) === todayKey() && (mine(o) || unassigned(o)),
+            ).length,
           );
         }
         function setDay(key) {
           if (!isDateKey(key)) return;
           selectedDay = key;
+          futureMode = false;
           renderSchedule();
         }
         function openInvoice(o) {
-          if (o && window.NoshiInvoice?.open)
-            NoshiInvoice.open(o._parent || o, { showDeliveryInfo: true });
+          if (!o || !window.NoshiInvoice?.open) return;
+          const parent = o._parent || o;
+          const deliveries = Array.isArray(parent.deliveries)
+            ? parent.deliveries.filter((slot) => mine(slot) || unassigned(slot))
+            : parent.deliveries;
+          NoshiInvoice.open(
+            { ...parent, deliveryDate: o.deliveryDate, deliveries },
+            { showDeliveryInfo: true },
+          );
         }
         async function loadDashboard() {
           $("refreshButton").disabled = true;
@@ -1872,6 +2043,9 @@
             myOrders = Array.isArray(data?.myOrders) ? data.myOrders : [];
             todayOrders = Array.isArray(data?.todayOrders)
               ? data.todayOrders
+              : [];
+            unassignedOrders = Array.isArray(data?.unassignedOrders)
+              ? data.unassignedOrders
               : [];
             loaded = true;
             renderAll();
@@ -1951,6 +2125,13 @@
               setDay(shiftDay(todayKey(), Number(btn.dataset.dayOffset))),
             ),
           );
+        document
+          .querySelector("[data-future]")
+          .addEventListener("click", () => {
+            futureMode = true;
+            selectedDay = shiftDay(todayKey(), 2);
+            renderSchedule();
+          });
         $("scopeAll").addEventListener("click", () => {
           scope = "all";
           renderSchedule();
@@ -1987,8 +2168,9 @@
           if (currentDriver) loadDashboard();
         });
         const baseToday = todayKey();
-        for (let i = 0; i < 3; i++)
+        for (let i = 0; i < 2; i++)
           $("tabDate" + i).textContent = shortDate(shiftDay(baseToday, i));
+        $("tabDate2").textContent = "من " + shortDate(shiftDay(baseToday, 2));
         boot();
       })();
     </script>
