@@ -1,72 +1,2089 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="no-referrer">
-<title>نوشي بيكري - أكواد الخصم</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/tab.css?v=4.9.0">
-<style id="noshi-auth-cloak">body{visibility:hidden!important}html{background:#f6f1ec!important;min-height:100%;color-scheme:light}html::before{content:"🔐 جاري التحقق من الجلسة…";visibility:visible!important;position:fixed;z-index:2147483647;inset:0;display:grid;place-items:center;background:#f6f1ec;color:#3b302c;font:800 16px Cairo,Tahoma,sans-serif}</style>
-<style>
-:root{color-scheme:light;--ink:#29332e;--line:#e5e8e5;--green:#21835b;--bg:#f6f7f5}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Cairo,Tahoma,Arial,sans-serif}main{max-width:1100px;margin:0 auto;padding:20px 16px 50px}.tabs{margin:16px auto!important}h1{text-align:center;font-size:25px;margin:23px 0 12px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 0}.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:18px;box-shadow:0 3px 18px #182d2310}h2{font-size:19px;margin:0 0 14px}.muted{font-size:12px;color:#6e7d74}.btn{font-family:inherit;background:#245b45;color:white;border:0;border-radius:10px;padding:10px 16px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;justify-content:center;align-items:center}.btn.secondary{background:#eaf2ed;color:#245b45}.btn.red{background:#a94343}.btn:disabled{opacity:.6;cursor:not-allowed}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:13px;font-weight:800}input,select{width:100%;min-height:43px;padding:9px 11px;border:1px solid #ced9d1;border-radius:9px;font:inherit;background:white;color:#25382e}input[type=checkbox]{min-height:auto;width:19px;height:19px}.check{display:flex;align-items:center;gap:9px;font-weight:700}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.filters{display:flex;gap:7px;flex-wrap:wrap}.filters button{background:#edf2ef;color:#3b5948;border:0;border-radius:9px;padding:8px 12px;cursor:pointer;font:inherit;font-weight:700}.filters button.active{background:#245b45;color:white}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:740px;font-size:12px}th,td{text-align:right;padding:12px;border-bottom:1px solid var(--line)}th{background:#f5f8f6}td .btn{padding:5px 10px;font-size:11px}.tag{display:inline-block;padding:4px 10px;border-radius:99px;background:#eef1f0;color:#4a6456;font-weight:800}.tag.active{background:#e4f6ed;color:#137244}.tag.fully_reserved,.tag.exhausted{background:#fff1dc;color:#96600a}.msg{padding:12px;border-radius:10px;margin:12px 0;background:#eef5fa;color:#34577b;display:none}.msg.bad{display:block;background:#fff0f0;color:#ac3333}.msg.good{display:block;background:#e9f8ed;color:#17633c}.counter{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.counter>div{background:#f6f9f7;border-radius:11px;padding:12px;text-align:center}.counter b{display:block;font-size:21px}.empty{text-align:center;padding:27px;color:#789087}@media(max-width:650px){.grid{grid-template-columns:1fr}.counter{grid-template-columns:repeat(3,minmax(0,1fr))}h1{font-size:21px}} 
-</style>
-<link rel="stylesheet" href="css/dark-theme.css?v=5.2.0">
-</head>
-<body>
-<h1>🎟️ إدارة أكواد الخصم</h1>
-<div class="tabs">
-<button onclick="location.href='index.html'" class="tab-btn">🛍️ المنتجات</button>
-<a href="dashboard.html" class="tab-btn">🌐 طلبات الموقع</a>
-<button onclick="location.href='order.html'" class="tab-btn">📦 الطلبيات</button>
-<button onclick="location.href='client.html'" class="tab-btn">👥 العملاء</button>
-<button onclick="location.href='mandoubs.html'" class="tab-btn">🚚 المناديب</button>
-<button onclick="location.href='sales.html'" class="tab-btn">📊 الاحصائيات</button>
-<button onclick="location.href='expenses.html'" class="tab-btn">💳 المصروفات</button>
-<button onclick="location.href='client-products.html'" class="tab-btn">⏰ تسليم الطلبات</button>
-</div>
-<main>
-<div class="top"><a class="btn secondary" href="client.html">↩ العودة للعملاء</a><button class="btn secondary" id="refresh" type="button">↻ تحديث القائمة</button></div>
-<div id="notice" class="msg" role="status" aria-live="polite"></div>
-<section class="panel" id="formPanel">
-<h2 id="formTitle">➕ إنشاء كود خصم</h2>
-<form id="couponForm">
-<div class="grid">
-<div class="field"><label for="code">كود الخصم (اتركه فارغًا للتوليد التلقائي)</label><input id="code" maxlength="32" autocomplete="off" placeholder="NOSHI20"><button type="button" id="generate" class="btn secondary">🎲 توليد رمز</button></div>
-<div class="field"><label for="type">نوع الخصم</label><select id="type"><option value="percent">نسبة مئوية (%)</option><option value="fixed">مبلغ ثابت (ريال)</option></select></div>
-<div class="field"><label for="value">قيمة الخصم</label><input id="value" type="number" min="0.01" step="0.01" required placeholder="20"></div>
-<div class="field"><label for="startDate">تاريخ البداية</label><input id="startDate" type="date" required></div>
-<div class="field"><label for="duration">مدة الصلاحية</label><select id="duration"><option value="3">3 أيام</option><option value="7" selected>أسبوع</option><option value="10">10 أيام</option><option value="14">أسبوعين</option><option value="month">شهر</option></select></div>
-<div class="field"><label for="usage">حد الاستخدامات</label><select id="usage"><option value="unlimited">غير محدود</option><option value="once">استخدام واحد</option><option value="limited">عدد محدد</option></select><input id="maxUses" type="number" min="1" step="1" placeholder="أدخل العدد" style="display:none"></div>
-</div>
-<div class="actions"><label class="check"><input type="checkbox" id="stacking"> يسمح بالخصم على المنتجات المخفضة مسبقًا</label><label class="check"><input type="checkbox" id="enabled" checked> الكود مفعّل</label><label class="check"><input type="checkbox" id="archived"> مؤرشف</label></div>
-<p class="muted">صحن التقديم وشريط العبارة والمندوب مستثناة دائمًا عند تفعيل حساب الكوبونات في الموقع الخارجي. حفظ الكود هنا لا يفعّل الخصم في الموقع الخارجي بعد.</p>
-<div class="actions"><button type="submit" class="btn" id="save">💾 حفظ الكود</button><button type="button" class="btn secondary" id="cancel" style="display:none">إلغاء التعديل</button></div>
-</form>
-</section>
-<section class="panel"><h2>📋 الأكواد المحفوظة</h2><div class="counter" id="summary"><div><b>—</b><span class="muted">الأكواد</span></div><div><b>—</b><span class="muted">المحجوز</span></div><div><b>—</b><span class="muted">المكتمل</span></div></div><div style="margin:18px 0" class="filters" id="filters"><button class="active" data-filter="all">الكل</button><button data-filter="active">النشطة</button><button data-filter="expired">المنتهية</button><button data-filter="scheduled">لم تبدأ</button><button data-filter="paused">الموقوفة</button><button data-filter="fully_reserved">المحجوزة</button><button data-filter="exhausted">المستنفدة</button><button data-filter="archived">المؤرشفة</button></div><div class="tablewrap"><table><thead><tr><th>الكود</th><th>الخصم</th><th>الصلاحية</th><th>مكتمل</th><th>محجوز</th><th>المتاح</th><th>الحالة</th><th>الإجراء</th></tr></thead><tbody id="couponRows"><tr><td colspan="8" class="empty">جاري تحميل الأكواد…</td></tr></tbody></table></div></section>
-</main>
-<script src="config.js?v=4.9.0"></script><script src="auth.js?v=4.9.0"></script><script src="theme.js?v=5.0.0"></script>
-<script>
-(()=>{'use strict';
-const $=id=>document.getElementById(id);let coupons=[],filter='all',editing=null;
-const names={active:'نشط',expired:'منتهي',scheduled:'لم يبدأ',paused:'موقوف',fully_reserved:'محجوز بالكامل',exhausted:'اكتمل الاستخدام',archived:'مؤرشف'};
-function message(text,bad=false){const n=$('notice');n.textContent=text;n.className='msg '+(bad?'bad':'good');}
-function h(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function isoLocal(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Riyadh',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
-function addDays(date,n){const d=new Date(date+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);}
-function monthAfter(date){const d=new Date(date+'T00:00:00Z');const y=d.getUTCFullYear(),m=d.getUTCMonth(),day=d.getUTCDate();const last=new Date(Date.UTC(y,m+2,0)).getUTCDate();return new Date(Date.UTC(y,m+1,Math.min(day,last))).toISOString().slice(0,10);}
-function durationFor(c){for(const n of [3,7,10,14])if(addDays(c.startDate,n)===c.expiresDate)return String(n);return monthAfter(c.startDate)===c.expiresDate?'month':null;}
-function reset(){editing=null;$('couponForm').reset();$('startDate').value=isoLocal();$('usage').value='unlimited';$('maxUses').style.display='none';$('formTitle').textContent='➕ إنشاء كود خصم';$('save').textContent='💾 حفظ الكود';$('cancel').style.display='none';$('code').placeholder='NOSHI20';}
-function render(){const items=coupons.filter(x=>filter==='all'||x.status===filter);$('summary').innerHTML=`<div><b>${coupons.length}</b><span class="muted">الأكواد</span></div><div><b>${coupons.reduce((n,c)=>n+Number(c.reservedUses||0),0)}</b><span class="muted">المحجوز</span></div><div><b>${coupons.reduce((n,c)=>n+Number(c.committedUses||0),0)}</b><span class="muted">المكتمل</span></div>`;$('couponRows').innerHTML=items.length?items.map(c=>`<tr><td><b dir="ltr">${h(c.code)}</b></td><td>${h(c.discountValue)}${c.discountType==='percent'?'%':' ر.س'}</td><td>${h(c.startDate)}<br><span class="muted">إلى ${h(c.expiresDate)} (غير شامل)</span></td><td>${Number(c.committedUses||0)}</td><td>${Number(c.reservedUses||0)}</td><td>${c.availableUses===null?'∞':Number(c.availableUses)}</td><td><span class="tag ${h(c.status)}">${h(names[c.status]||c.status)}</span></td><td><button class="btn secondary" data-edit="${Number(c.id)}">✏️ تعديل</button></td></tr>`).join(''):'<tr><td colspan="8" class="empty">لا توجد أكواد في هذا التصنيف</td></tr>';}
-async function load(){try{const r=await NoshiAuth.api('/api/coupons');coupons=r.coupons||[];render();}catch(e){message('تعذّر تحميل الأكواد: '+e.message,true);$('couponRows').innerHTML='<tr><td colspan="8" class="empty">تعذّر التحميل</td></tr>';}}
-function edit(c){const duration=durationFor(c);if(!duration){message('تاريخ انتهاء هذا الكود لا يطابق المدد المتاحة، لا يمكن تعديله من هذه الواجهة قبل مراجعة بياناته.',true);return;}editing=c.id;$('formTitle').textContent='✏️ تعديل كود '+c.code;$('code').value=c.code;$('type').value=c.discountType;$('value').value=c.discountValue;$('startDate').value=c.startDate;$('duration').value=duration;$('usage').value=c.maxUses===null?'unlimited':Number(c.maxUses)===1?'once':'limited';$('maxUses').style.display=$('usage').value==='limited'?'block':'none';$('maxUses').value=c.maxUses??'';$('stacking').checked=c.allowStacking;$('enabled').checked=c.isEnabled;$('archived').checked=c.isArchived;$('save').textContent='💾 حفظ التعديلات';$('cancel').style.display='inline-flex';$('formPanel').scrollIntoView({behavior:'smooth',block:'start'});}
-$('usage').addEventListener('change',()=>{$('maxUses').style.display=$('usage').value==='limited'?'block':'none';});
-$('generate').addEventListener('click',()=>{const b=new Uint8Array(5);crypto.getRandomValues(b);$('code').value='NOSHI'+[...b].map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase();});
-$('cancel').addEventListener('click',reset);$('refresh').addEventListener('click',load);
-$('filters').addEventListener('click',e=>{const b=e.target.closest('button[data-filter]');if(!b)return;filter=b.dataset.filter;document.querySelectorAll('#filters button').forEach(x=>x.classList.toggle('active',x===b));render();});
-$('couponRows').addEventListener('click',e=>{const b=e.target.closest('[data-edit]');if(!b)return;const c=coupons.find(x=>x.id===Number(b.dataset.edit));if(c)edit(c);});
-$('couponForm').addEventListener('submit',async e=>{e.preventDefault();const btn=$('save');let maxUses=null;if($('usage').value==='once')maxUses=1;if($('usage').value==='limited')maxUses=Number($('maxUses').value);const body={code:$('code').value.trim(),discountType:$('type').value,discountValue:Number($('value').value),startDate:$('startDate').value,duration:$('duration').value,maxUses,allowStacking:$('stacking').checked,isEnabled:$('enabled').checked,isArchived:$('archived').checked};btn.disabled=true;try{const response=await NoshiAuth.api(editing===null?'/api/coupons':'/api/coupons/'+editing,{method:editing===null?'POST':'PUT',body:JSON.stringify(body)});message((editing===null?'تم إنشاء الكود: ':'تم تعديل الكود: ')+response.code);reset();await load();}catch(err){message('لم يتم الحفظ: '+(err.data?.error||err.message),true);}finally{btn.disabled=false;}});
-(async()=>{try{const me=await NoshiAuth.guard();const role=me?.user?.role||me?.role;if(role&&role!=='ADMIN'){document.querySelector('main').innerHTML='<div class="panel">هذه الصفحة متاحة للإدارة فقط.</div>';return;}reset();await load();}catch(e){console.error('NOSHI coupon page auth error',e);}})();
-})();
-</script>
-</body></html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="robots" content="noindex,nofollow,noarchive,nosnippet" />
+    <meta name="referrer" content="no-referrer" />
+    <title>أكواد الخصم | نوشي بيكري</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/tab.css?v=4.9.0" />
+    <style id="noshi-auth-cloak">
+      body {
+        visibility: hidden !important;
+      }
+      html {
+        background: #fff8f0 !important;
+        min-height: 100%;
+        color-scheme: light;
+      }
+      html::before {
+        content: "🔐 جاري التحقق من الجلسة…";
+        visibility: visible !important;
+        position: fixed;
+        z-index: 2147483647;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: 22px;
+        background: #fff8f0;
+        color: #6b3a19;
+        font:
+          800 16px Cairo,
+          Tahoma,
+          sans-serif;
+      }
+      html[data-auth-state="slow"]::before {
+        content: "⏳ التحقق من الجلسة أخذ وقتًا أطول من المعتاد…";
+      }
+      html[data-auth-state="error"]::before {
+        content: "⚠️ تعذّر التحقق من الجلسة، اضغط لإعادة المحاولة";
+        background: #fff1ed;
+        color: #963c28;
+      }
+      html[data-theme="dark"] {
+        background: #0b1016 !important;
+      }
+      html[data-theme="dark"]::before {
+        background: #0b1016;
+        color: #f4f7fb;
+      }
+    </style>
+    <script>
+      (function () {
+        window.__noshiAuthSlowTimer = setTimeout(function () {
+          if (document.getElementById("noshi-auth-cloak"))
+            document.documentElement.dataset.authState = "slow";
+        }, 6000);
+        window.__noshiAuthFailTimer = setTimeout(function () {
+          if (!document.getElementById("noshi-auth-cloak")) return;
+          document.documentElement.dataset.authState = "error";
+          document.documentElement.addEventListener(
+            "click",
+            function () {
+              location.reload();
+            },
+            { once: true },
+          );
+        }, 18000);
+      })();
+    </script>
+    <link rel="stylesheet" href="css/dark-theme.css?v=5.2.0" />
+    <style>
+      /* This page is intentionally self-contained. Keep cloud/auth/theme/nav files shared. */
+      * {
+        box-sizing: border-box;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: #fff8f0;
+        color: #302c2a;
+        font-family: Cairo, Tahoma, Arial, sans-serif;
+        -webkit-text-size-adjust: 100%;
+      }
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+      }
+      button:focus-visible,
+      a:focus-visible,
+      input:focus-visible,
+      select:focus-visible {
+        outline: 3px solid #f0b572;
+        outline-offset: 2px;
+      }
+      :root {
+        --c-bg: #fff8f0;
+        --c-surface: #fff;
+        --c-surface2: #fffaf6;
+        --c-border: #f0e2d5;
+        --c-text: #322b27;
+        --c-muted: #87786d;
+        --c-orange: #d76822;
+        --c-orange-dark: #a84b17;
+        --c-orange-soft: #fff0df;
+        --c-green: #218752;
+        --c-red: #c64b43;
+        --c-shadow: 0 8px 27px rgba(114, 62, 25, 0.065);
+      }
+      .coupon-app {
+        color: var(--c-text);
+        max-width: 1170px;
+        padding: 18px 22px 70px;
+        margin: auto;
+      }
+      html[data-theme="dark"] {
+        --c-bg: #0b1016;
+        --c-surface: #141c25;
+        --c-surface2: #19232e;
+        --c-border: #2e3b47;
+        --c-text: #f1f4f6;
+        --c-muted: #a8b4bf;
+        --c-orange: #efa15b;
+        --c-orange-dark: #ffbe83;
+        --c-orange-soft: #392517;
+        --c-green: #67d99b;
+        --c-red: #ff8982;
+        --c-shadow: 0 9px 28px rgba(0, 0, 0, 0.22);
+      }
+      .coupon-app h1,
+      .coupon-app h2,
+      .coupon-app h3,
+      .coupon-app p {
+        margin-top: 0;
+      }
+      .brand-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 6px 0 2px;
+      }
+      .brand-bar img {
+        height: 61px;
+        max-width: 180px;
+        object-fit: contain;
+      }
+      .page-intro {
+        text-align: center;
+        margin: 7px 0 16px;
+      }
+      .page-intro h1 {
+        font-size: clamp(23px, 3vw, 31px);
+        line-height: 1.6;
+        color: var(--c-orange-dark);
+        margin: 0;
+        font-weight: 900;
+      }
+      .page-intro p {
+        font-size: 13px;
+        color: var(--c-muted);
+        margin: 1px 0 0;
+      }
+      .tabs.coupon-nav {
+        margin: 12px auto 20px !important;
+      }
+      .hero {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding: 20px 22px;
+        background: var(--c-surface);
+        border: 1px solid var(--c-border);
+        border-radius: 20px;
+        box-shadow: var(--c-shadow);
+        border-right: 5px solid #e67e22;
+      }
+      .hero-text {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .hero-icon {
+        width: 51px;
+        height: 51px;
+        display: grid;
+        place-items: center;
+        border-radius: 15px;
+        background: var(--c-orange-soft);
+        font-size: 27px;
+        flex-shrink: 0;
+      }
+      .hero h2 {
+        font-size: 20px;
+        line-height: 1.5;
+        margin: 0 0 2px;
+        font-weight: 900;
+      }
+      .hero p {
+        font-size: 12px;
+        color: var(--c-muted);
+        margin: 0;
+      }
+      .hero-actions,
+      .inline-actions {
+        display: flex;
+        gap: 9px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .c-btn {
+        border: 1px solid transparent;
+        border-radius: 11px;
+        min-height: 43px;
+        padding: 9px 15px;
+        font-size: 13px;
+        font-weight: 800;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 7px;
+        white-space: nowrap;
+        text-decoration: none;
+        transition:
+          transform 0.13s,
+          background-color 0.13s,
+          border-color 0.13s;
+      }
+      .c-btn:hover:not(:disabled) {
+        transform: translateY(-1px);
+      }
+      .c-btn:active:not(:disabled) {
+        transform: scale(0.985);
+      }
+      .c-btn.primary {
+        background: #d96a25;
+        color: white;
+        box-shadow: 0 4px 11px #d96a252c;
+      }
+      .c-btn.primary:hover {
+        background: #be561b;
+      }
+      .c-btn.subtle {
+        background: var(--c-surface2);
+        color: var(--c-text);
+        border-color: var(--c-border);
+      }
+      .c-btn.danger {
+        background: #fff1ef;
+        color: #b83c35;
+        border-color: #f6d7d1;
+      }
+      .c-btn.green {
+        background: #e9f7ef;
+        color: #16764a;
+        border-color: #cfebdb;
+      }
+      .c-btn.slim {
+        min-height: 36px;
+        padding: 6px 11px;
+        border-radius: 9px;
+        font-size: 12px;
+      }
+      .c-btn.icon-only {
+        min-width: 43px;
+        padding: 8px 12px;
+      }
+      .c-btn .symbol {
+        font-size: 16px;
+        line-height: 1;
+      }
+      html[data-theme="dark"] .coupon-app .hero {
+        background: var(--c-surface) !important;
+        color: var(--c-text) !important;
+      }
+      html[data-theme="dark"] .coupon-app .c-btn.danger {
+        background: #432426;
+        color: #ffaaa5;
+        border-color: #6d3b3d;
+      }
+      html[data-theme="dark"] .coupon-app .c-btn.green {
+        background: #1c372d;
+        color: #8be2b0;
+        border-color: #315946;
+      }
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin: 15px 0 20px;
+      }
+      .stat {
+        background: var(--c-surface);
+        border: 1px solid var(--c-border);
+        border-radius: 16px;
+        padding: 15px 17px;
+        box-shadow: var(--c-shadow);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+      .stat-icon {
+        border-radius: 13px;
+        background: var(--c-orange-soft);
+        display: grid;
+        place-items: center;
+        font-size: 21px;
+        width: 43px;
+        height: 43px;
+        flex-shrink: 0;
+      }
+      .stat:nth-child(2) .stat-icon {
+        background: #e5f7ee;
+      }
+      .stat:nth-child(3) .stat-icon {
+        background: #eaf5ff;
+      }
+      .stat:nth-child(4) .stat-icon {
+        background: #f6ecff;
+      }
+      html[data-theme="dark"] .stat:nth-child(n) .stat-icon {
+        background: var(--c-orange-soft);
+      }
+      .stat b {
+        display: block;
+        font-size: 25px;
+        line-height: 1.3;
+        font-weight: 900;
+        font-variant-numeric: tabular-nums;
+      }
+      .stat small {
+        display: block;
+        font-size: 11px;
+        color: var(--c-muted);
+        font-weight: 700;
+      }
+      .list-section {
+        background: var(--c-surface);
+        border: 1px solid var(--c-border);
+        border-radius: 20px;
+        box-shadow: var(--c-shadow);
+        padding: 20px;
+      }
+      .list-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+      }
+      .list-heading {
+        display: flex;
+        gap: 9px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .list-heading h2 {
+        font-size: 19px;
+        margin: 0;
+        font-weight: 900;
+      }
+      .pill-total {
+        font-size: 11px;
+        font-weight: 800;
+        border-radius: 20px;
+        background: var(--c-orange-soft);
+        color: var(--c-orange-dark);
+        padding: 3px 9px;
+      }
+      .searchbox {
+        position: relative;
+        max-width: 350px;
+        width: 100%;
+      }
+      .searchbox input {
+        width: 100%;
+        height: 44px;
+        border: 1px solid var(--c-border);
+        border-radius: 12px;
+        padding: 10px 41px 10px 12px;
+        background: var(--c-surface2);
+        color: var(--c-text);
+        font-size: 13px;
+        outline: none;
+      }
+      .searchbox input:focus {
+        border-color: #e0a16f;
+        box-shadow: 0 0 0 3px #df9b651e;
+      }
+      .searchbox > span {
+        position: absolute;
+        right: 14px;
+        top: 10px;
+        font-size: 16px;
+        pointer-events: none;
+      }
+      .filter-scroll {
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scrollbar-width: thin;
+        margin: 0 -2px 14px;
+        padding: 2px 2px 8px;
+      }
+      .filters {
+        display: flex;
+        gap: 7px;
+        width: max-content;
+        max-width: none;
+      }
+      .filter-chip {
+        min-height: 35px;
+        border: 1px solid var(--c-border);
+        background: var(--c-surface2);
+        color: var(--c-muted);
+        padding: 6px 13px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+      .filter-chip.active {
+        background: #d96a25;
+        border-color: #d96a25;
+        color: #fff;
+        box-shadow: 0 3px 8px #d96a2523;
+      }
+      .list-status {
+        font-size: 12px;
+        color: var(--c-muted);
+        margin-bottom: 12px;
+      }
+      .coupon-list {
+        display: grid;
+        gap: 10px;
+      }
+      .coupon-item {
+        border: 1px solid var(--c-border);
+        background: var(--c-surface);
+        border-radius: 15px;
+        padding: 16px 18px;
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(130px, 0.65fr) minmax(
+            150px,
+            0.9fr
+          ) auto;
+        align-items: center;
+        gap: 16px;
+        transition:
+          border-color 0.12s,
+          box-shadow 0.12s;
+      }
+      .coupon-item:hover {
+        border-color: #ecc29e;
+        box-shadow: 0 3px 15px rgba(149, 94, 46, 0.075);
+      }
+      .code-block {
+        min-width: 0;
+      }
+      .code-line {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 7px;
+      }
+      .coupon-code {
+        font-family: Cairo, Arial, sans-serif;
+        font-size: 16px;
+        font-weight: 900;
+        direction: ltr;
+        unicode-bidi: isolate;
+        letter-spacing: 0.6px;
+        word-break: break-word;
+        line-height: 1.4;
+      }
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+        font-size: 10px;
+        font-weight: 800;
+        border-radius: 30px;
+        padding: 5px 8px;
+        background: #eff0ef;
+        color: #656763;
+      }
+      .tag::before {
+        content: "";
+        height: 6px;
+        width: 6px;
+        display: block;
+        background: currentColor;
+        border-radius: 50%;
+      }
+      .tag.active {
+        background: #e5f7eb;
+        color: #158043;
+      }
+      .tag.scheduled {
+        background: #e8f1ff;
+        color: #396ab2;
+      }
+      .tag.expired,
+      .tag.paused {
+        background: #f3ede6;
+        color: #876b51;
+      }
+      .tag.fully_reserved,
+      .tag.exhausted {
+        background: #fff0d8;
+        color: #a56915;
+      }
+      .tag.archived {
+        background: #f1edf6;
+        color: #7f638b;
+      }
+      html[data-theme="dark"] .tag {
+        background: #273440;
+        color: #cbd6e0;
+      }
+      .coupon-hint {
+        font-size: 11px;
+        color: var(--c-muted);
+        margin-top: 4px;
+      }
+      .discount-block strong {
+        display: block;
+        font-size: 19px;
+        font-weight: 900;
+        color: var(--c-orange-dark);
+        direction: ltr;
+        text-align: right;
+        line-height: 1.4;
+      }
+      .discount-block small,
+      .date-block small {
+        display: block;
+        color: var(--c-muted);
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1.85;
+      }
+      .date-block b {
+        display: block;
+        font-size: 12px;
+        font-weight: 800;
+        line-height: 1.7;
+      }
+      .date-block b span {
+        color: var(--c-muted);
+        font-weight: 600;
+      }
+      .action-block {
+        display: flex;
+        gap: 6px;
+        justify-content: flex-end;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .usage-line {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 11px;
+        font-weight: 700;
+        margin-top: 5px;
+        flex-wrap: wrap;
+      }
+      .usage-line span {
+        color: var(--c-muted);
+      }
+      .usage-track {
+        height: 4px;
+        background: var(--c-border);
+        border-radius: 10px;
+        max-width: 170px;
+        margin-top: 8px;
+        overflow: hidden;
+      }
+      .usage-fill {
+        height: 100%;
+        background: #d96a25;
+        border-radius: 10px;
+      }
+      .blank {
+        padding: 44px 16px;
+        text-align: center;
+        background: var(--c-surface2);
+        border-radius: 14px;
+        border: 1px dashed var(--c-border);
+      }
+      .blank .emoji {
+        font-size: 35px;
+        display: block;
+        margin-bottom: 8px;
+      }
+      .blank h3 {
+        font-size: 16px;
+        margin: 0 0 5px;
+      }
+      .blank p {
+        font-size: 12px;
+        color: var(--c-muted);
+        margin: 0 auto 15px;
+        max-width: 340px;
+      }
+      .skeleton {
+        height: 92px;
+        background: linear-gradient(
+          105deg,
+          var(--c-surface2),
+          var(--c-border),
+          var(--c-surface2)
+        );
+        background-size: 220% 100%;
+        border: 1px solid var(--c-border);
+        border-radius: 14px;
+        animation: shimmer 1.5s infinite;
+      }
+      @keyframes shimmer {
+        to {
+          background-position: -220% 0;
+        }
+      }
+      .toast {
+        position: fixed;
+        z-index: 10050;
+        bottom: calc(22px + env(safe-area-inset-bottom));
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: min(92vw, 550px);
+        min-width: 220px;
+        padding: 12px 18px;
+        border-radius: 13px;
+        background: #26352c;
+        color: #fff;
+        box-shadow: 0 14px 35px #0003;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 800;
+        line-height: 1.8;
+      }
+      .toast.bad {
+        background: #9d3530;
+      }
+      /* Sheet editor and deletion confirmation */
+      .overlay {
+        position: fixed;
+        z-index: 10010;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(29, 20, 14, 0.52);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+      }
+      .sheet {
+        background: var(--c-surface);
+        color: var(--c-text);
+        border: 1px solid var(--c-border);
+        border-radius: 22px;
+        box-shadow: 0 26px 75px #0004;
+        width: min(100%, 685px);
+        max-height: min(92dvh, 850px);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .sheet-head {
+        padding: 20px 23px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        border-bottom: 1px solid var(--c-border);
+      }
+      .sheet-head h2 {
+        font-size: 19px;
+        font-weight: 900;
+        margin: 0 0 2px;
+      }
+      .sheet-head p {
+        font-size: 11px;
+        color: var(--c-muted);
+        margin: 0;
+      }
+      .sheet-body {
+        overflow-y: auto;
+        padding: 19px 23px 10px;
+        overscroll-behavior: contain;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px 14px;
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        min-width: 0;
+      }
+      .field label {
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--c-text);
+      }
+      .field input,
+      .field select {
+        width: 100%;
+        height: 46px;
+        border: 1px solid var(--c-border);
+        border-radius: 11px;
+        padding: 9px 12px;
+        background: var(--c-surface2);
+        color: var(--c-text);
+        outline: none;
+        min-width: 0;
+        direction: rtl;
+        font-size: 14px;
+      }
+      .field input:focus,
+      .field select:focus {
+        border-color: #e4a26f;
+        box-shadow: 0 0 0 3px #d96a251a;
+      }
+      .field input[type="number"],
+      .field input[type="date"] {
+        font-variant-numeric: tabular-nums;
+      }
+      .field .hint {
+        font-size: 10.5px;
+        color: var(--c-muted);
+        line-height: 1.75;
+      }
+      .input-with-action {
+        display: flex;
+        gap: 7px;
+      }
+      .input-with-action input {
+        min-width: 0;
+        flex: 1;
+        direction: ltr;
+        text-align: left;
+        letter-spacing: 0.5px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+      .input-with-action .c-btn {
+        min-height: 46px;
+      }
+      .form-subtitle {
+        grid-column: 1/-1;
+        margin: 1px 0 -6px;
+        font-size: 13px;
+        font-weight: 900;
+        color: var(--c-orange-dark);
+      }
+      .switch-group {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        margin-top: 16px;
+      }
+      .switch-row {
+        border: 1px solid var(--c-border);
+        border-radius: 12px;
+        padding: 11px 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 13px;
+        cursor: pointer;
+        background: var(--c-surface2);
+      }
+      .switch-row .switch-text {
+        display: block;
+        font-size: 12px;
+        font-weight: 800;
+        line-height: 1.7;
+      }
+      .switch-row small {
+        display: block;
+        color: var(--c-muted);
+        font-size: 10.5px;
+        font-weight: 500;
+        line-height: 1.5;
+      }
+      .switch-row input {
+        appearance: none;
+        -webkit-appearance: none;
+        flex: 0 0 auto;
+        width: 42px;
+        height: 24px;
+        border-radius: 15px;
+        background: #d2c8bf;
+        border: 1px solid #bfb5ac;
+        position: relative;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .switch-row input::before {
+        content: "";
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: white;
+        top: 2px;
+        right: 2px;
+        box-shadow: 0 1px 3px #0002;
+        transition: transform 0.15s;
+      }
+      .switch-row input:checked {
+        background: #23935b;
+        border-color: #23935b;
+      }
+      .switch-row input:checked::before {
+        transform: translateX(-18px);
+      }
+      .form-note {
+        font-size: 11px;
+        color: var(--c-muted);
+        background: var(--c-surface2);
+        border: 1px dashed var(--c-border);
+        border-radius: 11px;
+        padding: 11px 12px;
+        line-height: 1.85;
+        margin: 14px 0 0;
+      }
+      .form-alert {
+        font-size: 11px;
+        color: #a14b20;
+        background: #fff3e8;
+        border: 1px solid #f7cfaa;
+        border-radius: 10px;
+        padding: 10px;
+        margin-top: 10px;
+      }
+      html[data-theme="dark"] .form-alert {
+        background: #392718;
+        color: #ffc48c;
+        border-color: #67462a;
+      }
+      .sheet-footer {
+        padding: 14px 23px calc(15px + env(safe-area-inset-bottom));
+        border-top: 1px solid var(--c-border);
+        display: flex;
+        gap: 9px;
+        justify-content: flex-start;
+        background: var(--c-surface);
+      }
+      .sheet-footer .primary {
+        flex: 1;
+        max-width: 235px;
+      }
+      .confirm-sheet {
+        max-width: 440px;
+        padding: 25px 24px;
+      }
+      .confirm-icon {
+        height: 52px;
+        width: 52px;
+        border-radius: 16px;
+        background: #fff0ec;
+        color: #b73d32;
+        display: grid;
+        place-items: center;
+        font-size: 27px;
+        margin: 0 auto 12px;
+      }
+      .confirm-sheet h2 {
+        text-align: center;
+        font-size: 20px;
+        font-weight: 900;
+        margin: 0 0 7px;
+      }
+      .confirm-sheet p {
+        text-align: center;
+        font-size: 12px;
+        line-height: 1.95;
+        color: var(--c-muted);
+        margin: 0 0 14px;
+      }
+      .delete-code {
+        display: block;
+        background: var(--c-surface2);
+        border: 1px solid var(--c-border);
+        border-radius: 10px;
+        font-weight: 900;
+        font-size: 17px;
+        text-align: center;
+        direction: ltr;
+        padding: 10px;
+        letter-spacing: 1px;
+        word-break: break-all;
+        margin-bottom: 15px;
+      }
+      .confirm-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .confirm-actions .c-btn {
+        flex: 1;
+      }
+      .delete-error {
+        margin-top: 13px;
+        padding: 10px;
+        border-radius: 11px;
+        background: var(--c-surface2);
+        border: 1px solid var(--c-border);
+        font-size: 12px;
+        line-height: 1.8;
+        color: var(--c-red);
+        text-align: center;
+      }
+      .meta-footer {
+        text-align: center;
+        color: var(--c-muted);
+        font-size: 11px;
+        padding: 18px 0 0;
+      }
+      @media (max-width: 1020px) {
+        .coupon-item {
+          grid-template-columns: minmax(0, 1fr) minmax(120px, 0.7fr) minmax(
+              155px,
+              1fr
+            );
+          gap: 13px;
+        }
+        .action-block {
+          grid-column: 1/-1;
+          border-top: 1px solid var(--c-border);
+          padding-top: 9px;
+          justify-content: flex-start;
+        }
+      }
+      @media (max-width: 760px) {
+        .coupon-app {
+          padding: 11px 12px 55px;
+        }
+        .brand-bar img {
+          height: 49px;
+        }
+        .stat-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 8px;
+          margin: 12px 0 15px;
+        }
+        .stat {
+          padding: 11px 12px;
+          gap: 9px;
+        }
+        .stat b {
+          font-size: 22px;
+        }
+        .stat-icon {
+          width: 38px;
+          height: 38px;
+          font-size: 18px;
+        }
+        .hero {
+          padding: 15px;
+          border-radius: 16px;
+        }
+        .hero h2 {
+          font-size: 17px;
+        }
+        .hero-text {
+          gap: 9px;
+        }
+        .hero-icon {
+          width: 43px;
+          height: 43px;
+          font-size: 23px;
+        }
+        .list-section {
+          padding: 15px 12px;
+        }
+        .list-top {
+          align-items: stretch;
+        }
+        .searchbox {
+          max-width: none;
+        }
+        .coupon-item {
+          grid-template-columns: minmax(0, 1fr) auto;
+          gap: 9px 10px;
+          padding: 14px;
+        }
+        .code-block {
+          grid-column: 1/-1;
+        }
+        .discount-block {
+          grid-column: 1;
+        }
+        .date-block {
+          grid-column: 2;
+          text-align: left;
+        }
+        .date-block b {
+          font-size: 11px;
+        }
+        .discount-block strong {
+          font-size: 19px;
+        }
+        .action-block {
+          grid-column: 1/-1;
+        }
+        .sheet {
+          max-height: 94dvh;
+        }
+        .sheet-head {
+          padding: 17px;
+        }
+        .sheet-body {
+          padding: 16px 17px 8px;
+        }
+        .sheet-footer {
+          padding: 12px 17px calc(14px + env(safe-area-inset-bottom));
+        }
+      }
+      @media (max-width: 520px) {
+        .hero-actions {
+          width: 100%;
+          display: grid;
+          grid-template-columns: 1fr auto auto;
+        }
+        .hero-actions .primary {
+          width: 100%;
+        }
+        .hero-actions .subtle span.optional {
+          display: none;
+        }
+        .hero-actions .icon-only {
+          min-width: 43px;
+        }
+        .page-intro h1 {
+          font-size: 24px;
+        }
+        .form-grid {
+          grid-template-columns: 1fr;
+          gap: 13px;
+        }
+        .form-subtitle {
+          margin-bottom: -3px;
+        }
+        .overlay {
+          padding: 0;
+          align-items: flex-end;
+        }
+        .sheet {
+          width: 100%;
+          max-height: 94dvh;
+          border-radius: 22px 22px 0 0;
+        }
+        .confirm-sheet {
+          width: calc(100% - 26px);
+          border-radius: 20px;
+          margin: 0 13px 14px;
+          max-height: 90dvh;
+        }
+        .sheet-footer .primary {
+          max-width: none;
+        }
+        .coupon-code {
+          font-size: 16px;
+        }
+        .tag {
+          font-size: 10px;
+        }
+        .c-btn.slim {
+          padding: 7px 10px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="coupon-app" id="app">
+      <div class="brand-bar">
+        <a href="index.html" aria-label="الرئيسية"
+          ><img src="images/Noshi.webp" alt="نوشي بيكري" loading="eager"
+        /></a>
+      </div>
+      <div class="page-intro">
+        <h1>إدارة أكواد الخصم</h1>
+        <p>كل كوبونات نوشي في مكان واحد، بشكل سريع وواضح.</p>
+      </div>
+      <nav class="tabs coupon-nav" aria-label="التنقل الرئيسي">
+        <a class="tab-btn" href="index.html">🛍️ المنتجات</a>
+        <a class="tab-btn" href="dashboard.html">🌐 طلبات الموقع</a>
+        <a class="tab-btn" href="order.html">📦 الطلبيات</a>
+        <a class="tab-btn active" href="client.html">👥 العملاء</a>
+        <a class="tab-btn" href="mandoubs.html">🚚 المناديب</a>
+        <a class="tab-btn" href="sales.html">📊 الإحصائيات</a>
+        <a class="tab-btn" href="expenses.html">💳 المصروفات</a>
+        <a class="tab-btn" href="client-products.html">⏰ تسليم الطلبات</a>
+      </nav>
+      <section class="hero" aria-label="خيارات الأكواد">
+        <div class="hero-text">
+          <span class="hero-icon" aria-hidden="true">🎟️</span>
+          <div>
+            <h2>أكواد الخصم</h2>
+            <p>أنشئ الكود وعدّله وراجع استخداماته بسهولة.</p>
+          </div>
+        </div>
+        <div class="hero-actions">
+          <button class="c-btn primary" id="addCoupon" type="button">
+            <span class="symbol">＋</span> كود جديد
+          </button>
+          <button
+            class="c-btn subtle icon-only"
+            id="refresh"
+            type="button"
+            aria-label="تحديث الأكواد"
+            title="تحديث الأكواد"
+          >
+            <span class="symbol">↻</span><span class="optional"> تحديث</span>
+          </button>
+          <button
+            class="c-btn subtle icon-only"
+            id="themeToggle"
+            type="button"
+            aria-label="تغيير المظهر"
+            title="تغيير المظهر"
+          >
+            ◐
+          </button>
+        </div>
+      </section>
+      <section class="stat-grid" aria-label="ملخص الأكواد">
+        <div class="stat">
+          <span class="stat-icon">🎟️</span>
+          <div><b id="statAll">—</b><small>إجمالي الأكواد</small></div>
+        </div>
+        <div class="stat">
+          <span class="stat-icon">✅</span>
+          <div><b id="statActive">—</b><small>أكواد نشطة</small></div>
+        </div>
+        <div class="stat">
+          <span class="stat-icon">🔖</span>
+          <div><b id="statReserved">—</b><small>استخدامات محجوزة</small></div>
+        </div>
+        <div class="stat">
+          <span class="stat-icon">📦</span>
+          <div><b id="statCommitted">—</b><small>استخدامات مكتملة</small></div>
+        </div>
+      </section>
+      <section class="list-section" aria-labelledby="listHeading">
+        <div class="list-top">
+          <div class="list-heading">
+            <h2 id="listHeading">الأكواد المحفوظة</h2>
+            <span class="pill-total" id="visibleCount">—</span>
+          </div>
+          <label class="searchbox"
+            ><span aria-hidden="true">⌕</span
+            ><input
+              id="search"
+              type="search"
+              placeholder="ابحث باسم الكود…"
+              aria-label="البحث في الأكواد"
+              autocomplete="off"
+          /></label>
+        </div>
+        <div class="filter-scroll">
+          <div
+            class="filters"
+            id="filters"
+            role="group"
+            aria-label="تصفية الأكواد"
+          >
+            <button
+              type="button"
+              class="filter-chip active"
+              data-filter="all"
+              aria-pressed="true"
+            >
+              الكل
+            </button>
+            <button
+              type="button"
+              class="filter-chip"
+              data-filter="active"
+              aria-pressed="false"
+            >
+              النشطة
+            </button>
+            <button
+              type="button"
+              class="filter-chip"
+              data-filter="scheduled"
+              aria-pressed="false"
+            >
+              لم تبدأ
+            </button>
+            <button
+              type="button"
+              class="filter-chip"
+              data-filter="paused"
+              aria-pressed="false"
+            >
+              الموقوفة
+            </button>
+            <button
+              type="button"
+              class="filter-chip"
+              data-filter="expired"
+              aria-pressed="false"
+            >
+              المنتهية
+            </button>
+            <button
+              type="button"
+              class="filter-chip"
+              data-filter="fully_reserved"
+              aria-pressed="false"
+            >
+              المحجوزة
+            </button>
+            <button
+              type="button"
+              class="filter-chip"
+              data-filter="exhausted"
+              aria-pressed="false"
+            >
+              المستنفدة
+            </button>
+            <button
+              type="button"
+              class="filter-chip"
+              data-filter="archived"
+              aria-pressed="false"
+            >
+              المؤرشفة
+            </button>
+          </div>
+        </div>
+        <div class="list-status" id="listStatus" aria-live="polite">
+          جاري تحميل الأكواد…
+        </div>
+        <div class="coupon-list" id="couponList" aria-live="polite">
+          <div class="skeleton"></div>
+          <div class="skeleton"></div>
+          <div class="skeleton"></div>
+        </div>
+      </section>
+      <div class="meta-footer">
+        هذه الصفحة متصلة بالنظام الداخلي عبر Cloudflare وفق صلاحيات حسابك.
+      </div>
+    </main>
+
+    <!-- Editor: all API payload fields intentionally match existing coupons.html -->
+    <div class="overlay" id="editor" hidden aria-hidden="true">
+      <div
+        class="sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="editorTitle"
+      >
+        <div class="sheet-head">
+          <div>
+            <h2 id="editorTitle">إنشاء كود خصم</h2>
+            <p id="editorSubtitle">بيانات بسيطة وتكون جاهزة للحفظ.</p>
+          </div>
+          <button
+            type="button"
+            class="c-btn subtle icon-only"
+            id="closeEditor"
+            aria-label="إغلاق"
+          >
+            ✕
+          </button>
+        </div>
+        <form id="couponForm" autocomplete="off" style="display: contents">
+          <div class="sheet-body">
+            <div class="form-grid">
+              <div class="field">
+                <label for="code">كود الخصم</label>
+                <div class="input-with-action">
+                  <input
+                    id="code"
+                    maxlength="32"
+                    placeholder="NOSHI20"
+                    spellcheck="false"
+                    autocapitalize="characters"
+                  /><button type="button" class="c-btn subtle" id="generate">
+                    🎲 توليد
+                  </button>
+                </div>
+                <div class="hint">اتركه فارغًا إذا تبي النظام يولّد الكود.</div>
+              </div>
+              <div class="field">
+                <label for="type">نوع الخصم</label
+                ><select id="type">
+                  <option value="percent">نسبة مئوية (%)</option>
+                  <option value="fixed">مبلغ ثابت (ريال)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="value">قيمة الخصم</label
+                ><input
+                  id="value"
+                  type="number"
+                  inputmode="decimal"
+                  min="0.01"
+                  step="0.01"
+                  placeholder="20"
+                  required
+                />
+              </div>
+              <div class="field">
+                <label for="startDate">تاريخ بداية الصلاحية</label
+                ><input id="startDate" type="date" required />
+              </div>
+              <div class="field">
+                <label for="duration">مدة الصلاحية</label
+                ><select id="duration" required>
+                  <option value="3">3 أيام</option>
+                  <option value="7" selected>أسبوع</option>
+                  <option value="10">10 أيام</option>
+                  <option value="14">أسبوعين</option>
+                  <option value="month">شهر</option>
+                </select>
+                <div class="hint" id="expiryPreview">
+                  يُحسب تاريخ الانتهاء تلقائيًا.
+                </div>
+              </div>
+              <div class="field">
+                <label for="usage">حد الاستخدامات</label
+                ><select id="usage">
+                  <option value="unlimited">غير محدود</option>
+                  <option value="once">مرة واحدة</option>
+                  <option value="limited">عدد محدد</option></select
+                ><input
+                  id="maxUses"
+                  type="number"
+                  inputmode="numeric"
+                  min="1"
+                  step="1"
+                  placeholder="عدد مرات الاستخدام"
+                  hidden
+                />
+                <div class="hint" id="usageHelp">
+                  يمكن استخدامه دون حد محدد.
+                </div>
+              </div>
+            </div>
+            <div id="legacyExpiryWarning" class="form-alert" hidden>
+              تنبيه: تاريخ انتهاء هذا الكود لا يطابق المدد الموجودة. اختر مدة
+              جديدة بنفسك قبل الحفظ؛ لن نغيّر التاريخ تلقائيًا.
+            </div>
+            <div class="switch-group">
+              <label class="switch-row"
+                ><span
+                  ><span class="switch-text">الكود مفعّل</span
+                  ><small
+                    >إيقافه يمنع الاستخدام الجديد حسب قواعد الموقع.</small
+                  ></span
+                ><input id="enabled" type="checkbox" checked
+              /></label>
+              <label class="switch-row"
+                ><span
+                  ><span class="switch-text">يسمح بالخصم فوق العروض</span
+                  ><small>يشمل المنتجات المخفضة مسبقًا.</small></span
+                ><input id="stacking" type="checkbox"
+              /></label>
+              <label class="switch-row"
+                ><span
+                  ><span class="switch-text">أرشفة الكود</span
+                  ><small
+                    >إخفاؤه من الأكواد النشطة دون حذفه نهائيًا.</small
+                  ></span
+                ><input id="archived" type="checkbox"
+              /></label>
+            </div>
+            <p class="form-note">
+              صحن التقديم وشريط العبارة والمندوب مستثناة دائمًا عند تطبيق
+              الكوبونات في الموقع الخارجي. حفظ الكود هنا لا يُفعّل الخصم في
+              الموقع الخارجي تلقائيًا.
+            </p>
+          </div>
+          <div class="sheet-footer">
+            <button type="submit" class="c-btn primary" id="save">
+              💾 حفظ الكود</button
+            ><button type="button" class="c-btn subtle" id="cancelEditor">
+              إلغاء
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="overlay" id="deleteOverlay" hidden aria-hidden="true">
+      <div
+        class="sheet confirm-sheet"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="deleteTitle"
+        aria-describedby="deleteDescription"
+      >
+        <div class="confirm-icon" aria-hidden="true">🗑️</div>
+        <h2 id="deleteTitle">حذف الكود؟</h2>
+        <p id="deleteDescription">
+          هل أنت متأكد أنك تبي تحذف الكود نهائيًا؟ قد يمنع الخادم الحذف إذا كان
+          مرتبطًا باستخدامات أو حجوزات.
+        </p>
+        <b class="delete-code" id="deleteCode"></b>
+        <div class="confirm-actions">
+          <button type="button" class="c-btn danger" id="confirmDelete">
+            حذف الكود</button
+          ><button type="button" class="c-btn subtle" id="cancelDelete">
+            تراجع
+          </button>
+        </div>
+        <div id="deleteError" class="delete-error" hidden>
+          <div id="deleteErrorText"></div>
+          <button
+            type="button"
+            class="c-btn subtle"
+            id="archiveInstead"
+            style="margin-top: 8px"
+            hidden
+          >
+            أرشفة وإيقاف الكود بدل الحذف
+          </button>
+        </div>
+      </div>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <script src="config.js?v=4.9.0"></script>
+    <script src="auth.js?v=4.9.0"></script>
+    <script src="theme.js?v=5.0.0"></script>
+    <script>
+      (function () {
+        "use strict";
+        const $ = (id) => document.getElementById(id);
+        const statusNames = {
+          active: "نشط",
+          expired: "منتهي",
+          scheduled: "لم يبدأ",
+          paused: "موقوف",
+          fully_reserved: "محجوز بالكامل",
+          exhausted: "مستنفد",
+          archived: "مؤرشف",
+        };
+        const state = {
+          coupons: [],
+          filter: "all",
+          search: "",
+          editing: null,
+          deleting: null,
+          loading: false,
+          saving: false,
+          deletingBusy: false,
+          requestSeq: 0,
+          toastTimer: null,
+          previousFocus: null,
+        };
+        const h = (value) =>
+          String(value ?? "").replace(
+            /[&<>"']/g,
+            (c) =>
+              ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;",
+              })[c],
+          );
+        const numeric = (v) => (Number.isFinite(Number(v)) ? Number(v) : 0);
+        const nfmt = (v) =>
+          new Intl.NumberFormat("ar-SA", {
+            useGrouping: true,
+            maximumFractionDigits: 2,
+          }).format(numeric(v));
+        const safeId = (v) => (/^\d+$/.test(String(v)) ? String(v) : null);
+        function todayRiyadh() {
+          const parts = Object.fromEntries(
+            new Intl.DateTimeFormat("en-US", {
+              timeZone: "Asia/Riyadh",
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+            })
+              .formatToParts(new Date())
+              .filter((x) => x.type !== "literal")
+              .map((x) => [x.type, x.value]),
+          );
+          return `${parts.year}-${parts.month}-${parts.day}`;
+        }
+        function addDays(date, count) {
+          const d = new Date(`${date}T00:00:00Z`);
+          if (isNaN(d.getTime())) return "";
+          d.setUTCDate(d.getUTCDate() + count);
+          return d.toISOString().slice(0, 10);
+        }
+        function monthAfter(date) {
+          const d = new Date(`${date}T00:00:00Z`);
+          if (isNaN(d.getTime())) return "";
+          const y = d.getUTCFullYear(),
+            m = d.getUTCMonth(),
+            day = d.getUTCDate();
+          const last = new Date(Date.UTC(y, m + 2, 0)).getUTCDate();
+          return new Date(Date.UTC(y, m + 1, Math.min(day, last)))
+            .toISOString()
+            .slice(0, 10);
+        }
+        function durationFor(c) {
+          for (const n of [3, 7, 10, 14])
+            if (addDays(c.startDate, n) === c.expiresDate) return String(n);
+          return monthAfter(c.startDate) === c.expiresDate ? "month" : null;
+        }
+        function expiryFor(date, duration) {
+          if (!date || !duration) return "";
+          return duration === "month"
+            ? monthAfter(date)
+            : addDays(date, Number(duration));
+        }
+        function formatDate(value) {
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value)))
+            return String(value || "—");
+          const [y, m, d] = value.split("-");
+          return `${d}/${m}/${y}`;
+        }
+        function notify(text, bad = false) {
+          const el = $("toast");
+          el.textContent = text;
+          el.className = "toast" + (bad ? " bad" : "");
+          el.hidden = false;
+          clearTimeout(state.toastTimer);
+          state.toastTimer = setTimeout(() => {
+            el.hidden = true;
+          }, 5000);
+        }
+        function lockScroll(locked) {
+          document.documentElement.style.overflow = locked ? "hidden" : "";
+        }
+        function updateCount() {
+          const c = state.coupons;
+          $("statAll").textContent = nfmt(c.length);
+          $("statActive").textContent = nfmt(
+            c.filter((x) => x.status === "active").length,
+          );
+          $("statReserved").textContent = nfmt(
+            c.reduce((v, x) => v + numeric(x.reservedUses), 0),
+          );
+          $("statCommitted").textContent = nfmt(
+            c.reduce((v, x) => v + numeric(x.committedUses), 0),
+          );
+        }
+        function renderItem(c) {
+          const code = h(c.code),
+            id = safeId(c.id);
+          if (!id) return "";
+          const status = Object.hasOwn(statusNames, c.status)
+            ? c.status
+            : "unknown";
+          const max =
+            c.maxUses === null || c.maxUses === undefined
+              ? null
+              : numeric(c.maxUses);
+          const completed = Math.max(0, numeric(c.committedUses));
+          const reserved = Math.max(0, numeric(c.reservedUses));
+          const available =
+            c.availableUses === null || c.availableUses === undefined
+              ? "∞"
+              : nfmt(c.availableUses);
+          const progress =
+            max && max > 0
+              ? Math.max(0, Math.min(100, ((completed + reserved) / max) * 100))
+              : 0;
+          const discount =
+            nfmt(c.discountValue) +
+            (c.discountType === "percent" ? "%" : " ر.س");
+          return `<article class="coupon-item" data-coupon-id="${id}">
+   <div class="code-block"><div class="code-line"><b class="coupon-code" dir="ltr">${code}</b><span class="tag ${status}">${h(statusNames[c.status] || c.status || "غير معروف")}</span></div>
+   <div class="coupon-hint">${max === null ? "استخدامات غير محدودة" : "الحد " + nfmt(max) + " استخدام"} · المتاح ${available}</div>
+   <div class="usage-line"><span>مكتمل: <b>${nfmt(completed)}</b></span><span>محجوز: <b>${nfmt(reserved)}</b></span></div>
+   ${max !== null ? `<div class="usage-track" aria-hidden="true"><div class="usage-fill" style="width:${progress}%"></div></div>` : ""}</div>
+   <div class="discount-block"><strong>${h(discount)}</strong><small>${c.discountType === "percent" ? "خصم بالنسبة المئوية" : "خصم ثابت بالريال"}</small></div>
+   <div class="date-block"><b><span>من:</span> ${h(formatDate(c.startDate))}</b><b><span>إلى:</span> ${h(formatDate(c.expiresDate))}</b><small>تاريخ النهاية غير شامل</small></div>
+   <div class="action-block"><button type="button" class="c-btn subtle slim" data-action="copy" data-id="${id}" aria-label="نسخ الكود ${code}">⧉ نسخ</button><button type="button" class="c-btn green slim" data-action="edit" data-id="${id}">✎ تعديل</button><button type="button" class="c-btn danger slim" data-action="delete" data-id="${id}">🗑 حذف</button></div>
+ </article>`;
+        }
+        function render() {
+          updateCount();
+          const search = state.search.trim().toLowerCase();
+          const visible = state.coupons.filter(
+            (c) =>
+              (state.filter === "all" || c.status === state.filter) &&
+              (!search ||
+                String(c.code || "")
+                  .toLowerCase()
+                  .includes(search) ||
+                String(statusNames[c.status] || "").includes(search)),
+          );
+          $("visibleCount").textContent = nfmt(visible.length) + " كود";
+          $("listStatus").textContent =
+            visible.length === state.coupons.length
+              ? "جميع الأكواد"
+              : `عرض ${nfmt(visible.length)} من أصل ${nfmt(state.coupons.length)} كود`;
+          if (!visible.length) {
+            $("couponList").innerHTML =
+              `<div class="blank"><span class="emoji">🎟️</span><h3>${state.coupons.length ? "ما فيه أكواد مطابقة" : "ما عندك أكواد بعد"}</h3><p>${state.coupons.length ? "غيّر البحث أو التصنيف لعرض أكواد أخرى." : "ابدأ بإضافة كود خصم جديد؛ بتظهر الأكواد هنا."}</p><button type="button" class="c-btn ${state.coupons.length ? "subtle" : "primary"}" data-action="${state.coupons.length ? "clear" : "add"}">${state.coupons.length ? "مسح التصفية" : "＋ إضافة أول كود"}</button></div>`;
+            return;
+          }
+          $("couponList").innerHTML = visible.map(renderItem).join("");
+        }
+        async function load() {
+          const seq = ++state.requestSeq;
+          state.loading = true;
+          $("refresh").disabled = true;
+          if (!state.coupons.length) {
+            $("listStatus").textContent = "جاري تحميل الأكواد…";
+            $("couponList").innerHTML =
+              '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
+          }
+          try {
+            const response = await NoshiAuth.api("/api/coupons");
+            if (seq !== state.requestSeq) return;
+            if (!Array.isArray(response.coupons))
+              throw new Error("استجابة غير متوقعة من الخادم");
+            state.coupons = response.coupons;
+            render();
+          } catch (err) {
+            if (seq !== state.requestSeq) return;
+            $("listStatus").textContent = "تعذّر تحميل الأكواد";
+            $("couponList").innerHTML =
+              '<div class="blank"><span class="emoji">⚠️</span><h3>تعذّر الاتصال بالخادم</h3><p>تأكد من الشبكة أو صلاحية الجلسة ثم حاول مرة ثانية.</p><button type="button" class="c-btn primary" data-action="retry">إعادة المحاولة</button></div>';
+            notify(
+              "تعذّر تحميل الأكواد: " + (err.message || "خطأ غير معروف"),
+              true,
+            );
+          } finally {
+            if (seq === state.requestSeq) {
+              state.loading = false;
+              $("refresh").disabled = false;
+            }
+          }
+        }
+        function resetForm() {
+          state.editing = null;
+          $("couponForm").reset();
+          $("code").value = "";
+          $("type").value = "percent";
+          $("value").value = "";
+          $("startDate").value = todayRiyadh();
+          $("duration").value = "7";
+          $("usage").value = "unlimited";
+          $("maxUses").value = "";
+          $("enabled").checked = true;
+          $("stacking").checked = false;
+          $("archived").checked = false;
+          $("legacyExpiryWarning").hidden = true;
+          updateUsage();
+          updatePreview();
+        }
+        function updateUsage() {
+          const limited = $("usage").value === "limited";
+          $("maxUses").hidden = !limited;
+          $("maxUses").required = limited;
+          $("usageHelp").textContent = limited
+            ? "أدخل عددًا صحيحًا أكبر من صفر."
+            : $("usage").value === "once"
+              ? "الكود صالح لمرة واحدة فقط."
+              : "يمكن استخدامه دون حد محدد.";
+        }
+        function updatePreview() {
+          const expiry = expiryFor($("startDate").value, $("duration").value);
+          $("expiryPreview").textContent = expiry
+            ? "ينتهي في " + formatDate(expiry) + " (غير شامل)"
+            : "اختر تاريخ البداية ومدة الصلاحية.";
+        }
+        function showOverlay(id) {
+          clearTimeout(state.toastTimer);
+          $("toast").hidden = true;
+          state.previousFocus = document.activeElement;
+          $(id).hidden = false;
+          $(id).setAttribute("aria-hidden", "false");
+          lockScroll(true);
+        }
+        function hideOverlay(id) {
+          $(id).hidden = true;
+          $(id).setAttribute("aria-hidden", "true");
+          lockScroll(false);
+          if (state.previousFocus?.isConnected)
+            state.previousFocus.focus({ preventScroll: true });
+          state.previousFocus = null;
+        }
+        function openEditor(c = null) {
+          resetForm();
+          if (c) {
+            state.editing = safeId(c.id);
+            if (!state.editing) {
+              notify("معرّف الكود غير صالح", true);
+              return;
+            }
+            $("code").value = c.code ?? "";
+            $("type").value = c.discountType === "fixed" ? "fixed" : "percent";
+            $("value").value = c.discountValue ?? "";
+            $("startDate").value = c.startDate || todayRiyadh();
+            const d = durationFor(c);
+            if (d) $("duration").value = d;
+            else {
+              $("duration").insertAdjacentHTML(
+                "afterbegin",
+                '<option value="" disabled selected>اختر مدة جديدة</option>',
+              );
+              $("legacyExpiryWarning").hidden = false;
+            }
+            $("usage").value =
+              c.maxUses === null || c.maxUses === undefined
+                ? "unlimited"
+                : numeric(c.maxUses) === 1
+                  ? "once"
+                  : "limited";
+            $("maxUses").value = c.maxUses ?? "";
+            $("stacking").checked = Boolean(c.allowStacking);
+            $("enabled").checked = Boolean(c.isEnabled);
+            $("archived").checked = Boolean(c.isArchived);
+            $("editorTitle").textContent = "تعديل كود الخصم";
+            $("editorSubtitle").textContent = "التعديل على " + c.code;
+            $("save").textContent = "💾 حفظ التعديلات";
+          } else {
+            $("editorTitle").textContent = "إضافة كود خصم";
+            $("editorSubtitle").textContent = "أنشئ كوبون جديد بخطوات بسيطة.";
+            $("save").textContent = "💾 حفظ الكود";
+          }
+          // Remove any temporary invalid-duration option created by an earlier edit.
+          updateUsage();
+          updatePreview();
+          showOverlay("editor");
+          setTimeout(() => $("code").focus({ preventScroll: true }), 30);
+        }
+        function closeEditor() {
+          if (state.saving) return;
+          hideOverlay("editor");
+          $("duration").querySelector('option[value=""]')?.remove();
+        }
+        function getFormPayload() {
+          const discountValue = Number($("value").value);
+          const kind = $("type").value;
+          if (!(discountValue > 0) || !Number.isFinite(discountValue))
+            throw new Error("أدخل قيمة خصم صحيحة أكبر من صفر.");
+          if (kind === "percent" && discountValue > 100)
+            throw new Error("نسبة الخصم ما تقدر تتجاوز 100%.");
+          if (!/^\d{4}-\d{2}-\d{2}$/.test($("startDate").value))
+            throw new Error("اختر تاريخ البداية.");
+          if (!["3", "7", "10", "14", "month"].includes($("duration").value))
+            throw new Error("اختر مدة الصلاحية قبل الحفظ.");
+          let maxUses = null;
+          if ($("usage").value === "once") maxUses = 1;
+          else if ($("usage").value === "limited") {
+            maxUses = Number($("maxUses").value);
+            if (!Number.isSafeInteger(maxUses) || maxUses < 1)
+              throw new Error("أدخل عدد استخدامات صحيح أكبر من صفر.");
+          }
+          return {
+            code: $("code").value.trim(),
+            discountType: kind,
+            discountValue,
+            startDate: $("startDate").value,
+            duration: $("duration").value,
+            maxUses,
+            allowStacking: $("stacking").checked,
+            isEnabled: $("enabled").checked,
+            isArchived: $("archived").checked,
+          };
+        }
+        async function saveCoupon(event) {
+          event.preventDefault();
+          if (state.saving) return;
+          let payload;
+          try {
+            payload = getFormPayload();
+          } catch (error) {
+            notify(error.message, true);
+            return;
+          }
+          const isEdit = state.editing !== null;
+          state.saving = true;
+          $("save").disabled = true;
+          $("cancelEditor").disabled = true;
+          $("closeEditor").disabled = true;
+          try {
+            const response = await NoshiAuth.api(
+              isEdit
+                ? "/api/coupons/" + encodeURIComponent(state.editing)
+                : "/api/coupons",
+              {
+                method: isEdit ? "PUT" : "POST",
+                body: JSON.stringify(payload),
+              },
+            );
+            const savedName =
+              response.code || response.coupon?.code || payload.code || "الكود";
+            closeEditorAfterSave();
+            notify((isEdit ? "تم تحديث" : "تم إنشاء") + " الكود: " + savedName);
+            await load();
+          } catch (error) {
+            notify(
+              "تعذّر حفظ الكود: " + (error.data?.error || error.message),
+              true,
+            );
+          } finally {
+            state.saving = false;
+            $("save").disabled = false;
+            $("cancelEditor").disabled = false;
+            $("closeEditor").disabled = false;
+          }
+        }
+        function closeEditorAfterSave() {
+          hideOverlay("editor");
+          $("duration").querySelector('option[value=""]')?.remove();
+          state.editing = null;
+        }
+        function openDelete(c) {
+          const id = safeId(c.id);
+          if (!id) {
+            notify("معرّف الكود غير صالح", true);
+            return;
+          }
+          state.deleting = id;
+          $("deleteCode").textContent = c.code || "";
+          $("deleteError").hidden = true;
+          $("archiveInstead").hidden = true;
+          $("confirmDelete").disabled = false;
+          showOverlay("deleteOverlay");
+          $("cancelDelete").focus({ preventScroll: true });
+        }
+        function closeDelete() {
+          if (state.deletingBusy) return;
+          hideOverlay("deleteOverlay");
+          state.deleting = null;
+        }
+        function payloadFromCoupon(c) {
+          const d = durationFor(c);
+          if (!d) return null;
+          return {
+            code: c.code,
+            discountType: c.discountType,
+            discountValue: numeric(c.discountValue),
+            startDate: c.startDate,
+            duration: d,
+            maxUses: c.maxUses ?? null,
+            allowStacking: Boolean(c.allowStacking),
+            isEnabled: false,
+            isArchived: true,
+          };
+        }
+        function showDeleteError(message, allowArchive) {
+          $("deleteError").hidden = false;
+          $("deleteErrorText").textContent = message;
+          $("archiveInstead").hidden = !allowArchive;
+        }
+        async function deleteCoupon() {
+          if (state.deletingBusy || state.deleting === null) return;
+          const c = state.coupons.find((x) => safeId(x.id) === state.deleting);
+          if (!c) {
+            closeDelete();
+            notify("الكود غير موجود في القائمة؛ حدّث الصفحة.", true);
+            return;
+          }
+          state.deletingBusy = true;
+          $("confirmDelete").disabled = true;
+          $("cancelDelete").disabled = true;
+          try {
+            await NoshiAuth.api(
+              "/api/coupons/" + encodeURIComponent(state.deleting),
+              { method: "DELETE" },
+            );
+            state.deletingBusy = false;
+            $("cancelDelete").disabled = false;
+            closeDelete();
+            notify("تم حذف الكود نهائيًا: " + c.code);
+            await load();
+          } catch (error) {
+            const unsupported = [404, 405, 501].includes(error.status);
+            const blocked = [409, 422].includes(error.status);
+            const mayArchive =
+              (unsupported || blocked) &&
+              !c.isArchived &&
+              Boolean(payloadFromCoupon(c));
+            showDeleteError(
+              unsupported
+                ? "تعذّر الحذف: مسار DELETE غير متاح أو الكود غير موجود في الخادم. الحذف النهائي يحتاج دعمًا من Cloudflare Worker."
+                : `الخادم رفض الحذف: ${error.data?.error || error.message}` +
+                    (blocked ? " يمكنك أرشفة الكود بدل الحذف." : ""),
+              mayArchive,
+            );
+            notify("لم يتم حذف الكود.", true);
+          } finally {
+            state.deletingBusy = false;
+            $("confirmDelete").disabled = false;
+            $("cancelDelete").disabled = false;
+          }
+        }
+        async function archiveInstead() {
+          if (state.deletingBusy || state.deleting === null) return;
+          const c = state.coupons.find((x) => safeId(x.id) === state.deleting);
+          if (!c) return;
+          const payload = payloadFromCoupon(c);
+          if (!payload) {
+            showDeleteError(
+              "تاريخ صلاحية هذا الكود مخصص، ولا يمكن أرشفته بأمان من هنا دون تعديل المدة. افتح التعديل واختر المدة المناسبة.",
+              false,
+            );
+            return;
+          }
+          state.deletingBusy = true;
+          $("archiveInstead").disabled = true;
+          $("cancelDelete").disabled = true;
+          try {
+            await NoshiAuth.api(
+              "/api/coupons/" + encodeURIComponent(state.deleting),
+              { method: "PUT", body: JSON.stringify(payload) },
+            );
+            state.deletingBusy = false;
+            $("cancelDelete").disabled = false;
+            closeDelete();
+            notify("تم إيقاف الكود وأرشفته (ولم يُحذف نهائيًا).");
+            await load();
+          } catch (error) {
+            showDeleteError(
+              "تعذّرت الأرشفة: " + (error.data?.error || error.message),
+              true,
+            );
+          } finally {
+            state.deletingBusy = false;
+            $("archiveInstead").disabled = false;
+            $("cancelDelete").disabled = false;
+          }
+        }
+        async function copyCode(code) {
+          try {
+            if (navigator.clipboard?.writeText)
+              await navigator.clipboard.writeText(code);
+            else {
+              const field = document.createElement("textarea");
+              field.value = code;
+              field.style.cssText = "position:fixed;left:-9999px;top:0";
+              document.body.appendChild(field);
+              field.select();
+              if (!document.execCommand("copy")) throw new Error("copy_failed");
+              field.remove();
+            }
+            notify("تم نسخ الكود: " + code);
+          } catch (_) {
+            notify(
+              "ما قدرنا ننسخ تلقائيًا؛ اضغط مطولًا على الكود لنسخه.",
+              true,
+            );
+          }
+        }
+        function clearFilters() {
+          state.filter = "all";
+          state.search = "";
+          $("search").value = "";
+          document.querySelectorAll("#filters [data-filter]").forEach((btn) => {
+            const active = btn.dataset.filter === "all";
+            btn.classList.toggle("active", active);
+            btn.setAttribute("aria-pressed", String(active));
+          });
+          render();
+        }
+        $("addCoupon").addEventListener("click", () => openEditor());
+        $("refresh").addEventListener("click", () => load());
+        $("themeToggle").addEventListener("click", () => {
+          if (window.NoshiTheme) NoshiTheme.toggle();
+        });
+        $("filters").addEventListener("click", (event) => {
+          const chip = event.target.closest("[data-filter]");
+          if (!chip) return;
+          state.filter = chip.dataset.filter;
+          document.querySelectorAll("#filters [data-filter]").forEach((btn) => {
+            const active = btn === chip;
+            btn.classList.toggle("active", active);
+            btn.setAttribute("aria-pressed", String(active));
+          });
+          render();
+        });
+        $("search").addEventListener("input", (event) => {
+          state.search = event.target.value;
+          render();
+        });
+        $("couponList").addEventListener("click", (event) => {
+          const button = event.target.closest("[data-action]");
+          if (!button) return;
+          const act = button.dataset.action;
+          if (act === "add") return openEditor();
+          if (act === "retry") return load();
+          if (act === "clear") return clearFilters();
+          const id = button.dataset.id;
+          const c = state.coupons.find((x) => safeId(x.id) === id);
+          if (!c) return;
+          if (act === "edit") openEditor(c);
+          else if (act === "copy") copyCode(String(c.code || ""));
+          else if (act === "delete") openDelete(c);
+        });
+        $("usage").addEventListener("change", updateUsage);
+        $("startDate").addEventListener("change", updatePreview);
+        $("duration").addEventListener("change", () => {
+          $("legacyExpiryWarning").hidden = true;
+          updatePreview();
+        });
+        $("type").addEventListener("change", () => {
+          $("value").max = $("type").value === "percent" ? "100" : "";
+        });
+        $("generate").addEventListener("click", () => {
+          const b = new Uint8Array(5);
+          crypto.getRandomValues(b);
+          $("code").value =
+            "NOSHI" +
+            Array.from(b, (x) => x.toString(16).padStart(2, "0"))
+              .join("")
+              .toUpperCase();
+        });
+        $("closeEditor").addEventListener("click", closeEditor);
+        $("cancelEditor").addEventListener("click", closeEditor);
+        $("couponForm").addEventListener("submit", saveCoupon);
+        $("confirmDelete").addEventListener("click", deleteCoupon);
+        $("cancelDelete").addEventListener("click", closeDelete);
+        $("archiveInstead").addEventListener("click", archiveInstead);
+        $("editor").addEventListener("click", (event) => {
+          if (event.target === $("editor")) closeEditor();
+        });
+        $("deleteOverlay").addEventListener("click", (event) => {
+          if (event.target === $("deleteOverlay")) closeDelete();
+        });
+        document.addEventListener("keydown", (event) => {
+          if (event.key !== "Escape") return;
+          if (!$("deleteOverlay").hidden) closeDelete();
+          else if (!$("editor").hidden) closeEditor();
+        });
+        (async () => {
+          try {
+            const me = await NoshiAuth.guard();
+            const role = me?.user?.role || me?.role;
+            if (role && role !== "ADMIN") {
+              $("app").innerHTML =
+                '<div class="blank"><h2>هذه الصفحة متاحة للإدارة فقط</h2><p>حسابك ليس لديه صلاحية إدارة الأكواد.</p><a class="c-btn subtle" href="client.html">العودة للعملاء</a></div>';
+              return;
+            }
+            await load();
+          } catch (err) {
+            console.error("NOSHI coupon page auth error:", err);
+          }
+        })();
+      })();
+    </script>
+  </body>
+</html>
