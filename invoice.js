@@ -44,7 +44,7 @@
     const period = hour24 >= 12 ? "م" : "ص";
     const hour12 = hour24 % 12 || 12;
     const weekday = d.toLocaleDateString("ar-SA", { weekday: "long" });
-    return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()} الساعة ${hour12}:${minute} ${period}، يوم ${weekday}`;
+    return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")} الساعة ⁦${period} ${hour12}:${minute}⁩، يوم ${weekday}`;
   }
 
   function financials(order) {
