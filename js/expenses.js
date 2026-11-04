@@ -64,6 +64,31 @@
     const noteInput = document.getElementById('noteInput');
     const addExpenseBtn = document.getElementById('addExpenseBtn');
     const clearFormBtn = document.getElementById('clearFormBtn');
+    const createExpenseModal = document.getElementById('createExpenseModal');
+    const openCreateExpenseBtn = document.getElementById('openCreateExpenseModal');
+    const closeCreateExpenseBtn = document.getElementById('closeCreateExpenseModal');
+    const cancelCreateExpenseBtn = document.getElementById('cancelCreateExpenseModal');
+    const createExpenseBackdrop = document.getElementById('createExpenseBg');
+    function closeCreateExpense(){
+      document.body.classList.remove('show-create-expense-modal');
+      createExpenseModal.removeAttribute('aria-hidden');
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+      openCreateExpenseBtn.focus();
+    }
+    function openCreateExpense(){
+      document.body.classList.add('show-create-expense-modal');
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      itemSelect.focus();
+    }
+    openCreateExpenseBtn.addEventListener('click',openCreateExpense);
+    [closeCreateExpenseBtn,cancelCreateExpenseBtn,createExpenseBackdrop].forEach(el=>el.addEventListener('click',closeCreateExpense));
+    document.addEventListener('keydown',e=>{
+      if(e.key==='Escape' && document.body.classList.contains('show-create-expense-modal') &&
+         !document.body.classList.contains('show-add-item-modal') &&
+         !document.body.classList.contains('show-delete-item-modal')) closeCreateExpense();
+    });
     const monthTitle = document.getElementById('monthTitle');
     const prevMonthBtn = document.getElementById('prevMonth');
     const nextMonthBtn = document.getElementById('nextMonth');
@@ -423,7 +448,7 @@ const cancelDeleteExpense =
     }
 
     function lockScroll(){ document.documentElement.style.overflow='hidden'; document.body.style.overflow='hidden'; }
-    function unlockScroll(){ document.documentElement.style.overflow=''; document.body.style.overflow=''; }
+    function unlockScroll(){ if(!bodyEl.classList.contains('show-create-expense-modal')){ document.documentElement.style.overflow=''; document.body.style.overflow=''; } }
 
     function openEdit(row){
       // أغلق جميع المودالات أولاً
@@ -741,6 +766,7 @@ confirmDeleteExpense.addEventListener('click', async () => {
         await replaceExpensesData(nextExpensesData);
         showToast(`✅ تم إضافة المصروف: "${item}" بنجاح!`);
         clearForm(false);
+        closeCreateExpense();
         refreshUI();
       } catch(error) {
         console.error("فشل إضافة المصروف إلى IndexedDB:", error);

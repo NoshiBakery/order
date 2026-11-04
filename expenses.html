@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@600;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <!-- NOSHI: styles for this exact position live in css/expenses.css. -->
-<link rel="stylesheet" href="css/expenses.css?v=4.9.1">
+<link rel="stylesheet" href="css/expenses.css?v=4.9.2">
   <style id="noshi-auth-cloak">
 body{visibility:hidden!important}
 html{background:#f6f1ec!important;min-height:100%;color-scheme:light}
@@ -101,12 +101,14 @@ html[data-theme="dark"][data-auth-state="error"]::before{background:#160f12;colo
         <div class="summary-grid">
           <div class="summary-item sales-kpi"><div class="kpi-icon">↗</div><div class="label">صافي المبيعات</div><div class="value" id="salesSum">0</div></div>
           <div class="summary-item expense-kpi"><div class="kpi-icon">↘</div><div class="label">إجمالي المصروفات</div><div class="value" id="expensesSum">0</div></div>
-          <div class="summary-item profit-kpi"><div class="kpi-icon">◎</div><div class="label">صافي الربح</div><div class="value" id="netProfit">0</div></div>
+          <div class="summary-item profit-kpi"><div class="kpi-icon">💰</div><div class="label">صافي الربح</div><div class="value" id="netProfit">0</div></div>
         </div>
       </section>
 
-      <section class="card create-card" aria-labelledby="createTitle">
-        <div class="section-heading"><div><span class="eyebrow">إدارة المصروفات</span><h2 id="createTitle">إضافة مصروف جديد</h2><p>سجّل المبلغ والتاريخ والتصنيف بسهولة.</p></div><span class="heading-symbol" aria-hidden="true">＋</span></div>
+      <div class="expense-create-launch"><button type="button" class="btn primary open-expense-create" id="openCreateExpenseModal" aria-haspopup="dialog" aria-controls="createExpenseModal">＋ إضافة مصروف</button></div>
+      <div class="create-expense-backdrop" id="createExpenseBg"></div>
+      <section class="card create-card" id="createExpenseModal" role="dialog" aria-modal="true" aria-labelledby="createTitle">
+        <div class="section-heading"><div><span class="eyebrow">إدارة المصروفات</span><h2 id="createTitle">إضافة مصروف جديد</h2><p>سجّل المبلغ والتاريخ والتصنيف بسهولة.</p></div><button type="button" class="create-expense-close" id="closeCreateExpenseModal" aria-label="إغلاق نافذة إضافة المصروف">×</button></div>
         <div class="expense-form-grid">
           <div class="field item-field"><label for="itemSelect">البند</label><select id="itemSelect" aria-label="اختيار البند"></select>
             <div class="item-tools"><button type="button" id="openNewItemModal" class="btn subtle">＋ إضافة بند</button><button type="button" id="openDeleteItemModal" class="btn subtle danger-text">حذف بند</button></div></div>
@@ -115,7 +117,7 @@ html[data-theme="dark"][data-auth-state="error"]::before{background:#160f12;colo
           <div class="field"><label for="dateInput">التاريخ</label><div class="noshi-date-control"><span class="noshi-date-visible" id="dateInputVisible" dir="ltr" aria-hidden="true">YYYY/MM/DD</span><span class="noshi-date-icon" aria-hidden="true">▦</span><input id="dateInput" type="date" lang="en-US" dir="ltr" aria-label="تاريخ المصروف" /></div></div>
           <div class="field note-field"><label for="noteInput">ملاحظة</label><input id="noteInput" placeholder="اختياري" autocomplete="off" /></div>
         </div>
-        <div class="actions-line"><button class="btn primary" id="addExpenseBtn" type="button">＋ حفظ المصروف</button><button class="btn ghost" id="clearFormBtn" type="button">مسح الحقول</button></div>
+        <div class="actions-line"><button class="btn primary" id="addExpenseBtn" type="button">＋ حفظ المصروف</button><button class="btn ghost" id="clearFormBtn" type="button">مسح الحقول</button><button class="btn ghost" id="cancelCreateExpenseModal" type="button">إلغاء</button></div>
       </section>
 
       <section class="card records-card" aria-labelledby="recordsTitle">
@@ -244,7 +246,7 @@ html[data-theme="dark"][data-auth-state="error"]::before{background:#160f12;colo
 <script src="./db.js?v=4.9.0"></script>
 
 <!-- NOSHI: original inline script #1; same execution position, now external. -->
-<script src="js/expenses.js?v=4.9.1"></script>
+<script src="js/expenses.js?v=4.9.2"></script>
   
 <script src="config.js?v=4.9.0"></script><script src="auth.js?v=4.9.0"></script><script src="theme.js?v=5.0.0"></script><!-- NOSHI: original inline script #2; same execution position, now external. -->
 <script src="js/expenses.part2.js?v=4.9.0"></script>

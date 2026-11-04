@@ -199,3 +199,33 @@ body{background:var(--ex-bg)}
 html[data-theme="dark"] .summary-item{color:#263139}
 html[data-theme="dark"] .summary-item .value{color:#263139}
 html[data-theme="dark"] .sheet .cell{color:#34404a}
+
+/* 2026-11-04: expense actions requested by owner; no backend changes. */
+:root{--ex-bg:#fff8f0}
+html,body{background-color:#fff8f0}
+.expense-kpi{background:#f7dfe0;border-color:#e4b5b8}
+.expense-kpi .kpi-icon{background:#edc7cb;color:#a42e3b}
+.expense-kpi .label{color:#81363f}
+.expense-kpi .value{color:#9a2b35}
+.expense-create-launch{display:flex;justify-content:center;margin:6px 0 21px}
+.open-expense-create{font-size:15px;min-width:min(100%,270px);min-height:49px;box-shadow:0 8px 20px rgba(125,69,37,.16)}
+.create-expense-backdrop{position:fixed;inset:0;z-index:21030;background:rgba(25,28,35,.62);visibility:hidden;opacity:0;transition:opacity .16s,visibility .16s}
+#createExpenseModal{position:fixed!important;inset:auto!important;top:50%!important;left:50%!important;right:auto!important;bottom:auto!important;z-index:21031;box-sizing:border-box;width:min(540px,calc(100vw - 28px))!important;max-width:calc(100vw - 28px)!important;max-height:calc(100dvh - 28px)!important;overflow-y:auto;overscroll-behavior:contain;margin:0!important;padding:24px!important;background:#f3e7da;border:1px solid #d5bca6;border-radius:23px;box-shadow:0 25px 80px rgba(31,24,20,.26);transform:translate(-50%,-47%) scale(.98);visibility:hidden;opacity:0;transition:opacity .16s,transform .16s,visibility .16s;direction:rtl}
+body.show-create-expense-modal .create-expense-backdrop,body.show-create-expense-modal #createExpenseModal{visibility:visible;opacity:1}
+body.show-create-expense-modal #createExpenseModal{transform:translate(-50%,-50%) scale(1)}
+#createExpenseModal .section-heading{margin-bottom:20px}
+#createExpenseModal .section-heading h2{margin:0}
+#createExpenseModal .create-expense-close{width:36px;height:36px;flex-shrink:0;border:1px solid #d6baa6;border-radius:11px;background:#ead6c5;color:#703f2d;font-size:24px;line-height:1;cursor:pointer}
+#createExpenseModal .expense-form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#createExpenseModal .item-field,#createExpenseModal .note-field{grid-column:1/-1}
+#createExpenseModal .actions-line{position:sticky;bottom:-24px;background:#f3e7da;padding:15px 0 0;flex-wrap:wrap;z-index:1;border-top-color:#dec9b9}
+#createExpenseModal .actions-line .btn{flex:1;min-width:0}
+/* Additional item dialogs appear over the create-expense dialog when invoked from it. */
+body.show-create-expense-modal.show-add-item-modal #newItemBg,body.show-create-expense-modal.show-delete-item-modal #deleteItemBg{z-index:21040}
+body.show-create-expense-modal.show-add-item-modal #newItemModal,body.show-create-expense-modal.show-delete-item-modal #deleteItemModal{z-index:21041}
+@media(max-width:600px){#createExpenseModal{padding:17px!important;width:calc(100vw - 24px)!important;max-width:calc(100vw - 24px)!important;max-height:calc(100dvh - 24px)!important}#createExpenseModal .expense-form-grid{grid-template-columns:1fr;gap:10px}#createExpenseModal .expense-form-grid .field{grid-column:1/-1}#createExpenseModal .actions-line{bottom:-17px;padding-top:12px}#createExpenseModal .actions-line .btn{flex:1 1 125px}.expense-create-launch .btn{width:100%}}
+html[data-theme="dark"] body{background:var(--dt-bg,#111821)}
+html[data-theme="dark"] .expense-kpi{background:#4f2931!important;border-color:#a25b65!important}
+html[data-theme="dark"] .expense-kpi .label,html[data-theme="dark"] .expense-kpi .value{color:#ffe0e4!important}
+html[data-theme="dark"] #createExpenseModal{background:var(--dt-surface,#1e2935)!important;color:var(--dt-text,#eef0f3);border-color:var(--dt-border,#435364)}
+html[data-theme="dark"] #createExpenseModal .actions-line{background:var(--dt-surface,#1e2935)}
