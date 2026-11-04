@@ -71,7 +71,50 @@
     while (walker.nextNode()) nodes.push(walker.currentNode);
     nodes.forEach(formatNode);
   }
+  // Native date controls use the browser's own locale (Arabic on some iPhones).
+  // Mirror only opted-in controls for a stable visible YYYY/MM/DD, retaining the
+  // original type=date, value (YYYY-MM-DD), form validation and OS date picker.
+  function syncDateInputs() {
+    document.querySelectorAll('input[type="date"][data-noshi-date-display]').forEach(input => {
+      const shown = input.parentElement?.querySelector(':scope > .noshi-date-readable');
+      if (!shown) return;
+      const match = input.value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      shown.textContent = match ? `${match[1]}/${match[2]}/${match[3]}` : 'YYYY/MM/DD';
+    });
+  }
+  function initDateInputs() {
+    const inputs = document.querySelectorAll('input[type="date"][data-noshi-date-display]');
+    if (!inputs.length) return;
+    if (!document.getElementById('noshi-date-display-css')) {
+      const style = document.createElement('style');
+      style.id = 'noshi-date-display-css';
+      style.textContent = `
+        .noshi-date-shell { position:relative; display:block; width:100%; min-width:0; }
+        .noshi-date-shell > input[type="date"] { width:100%; direction:ltr!important; color:transparent!important; -webkit-text-fill-color:transparent!important; }
+        .noshi-date-shell > input[type="date"]::-webkit-datetime-edit { opacity:0; }
+        .noshi-date-readable { position:absolute; inset:0 44px 0 12px; display:flex; align-items:center; justify-content:flex-start; direction:ltr; unicode-bidi:isolate; text-align:left; font:inherit; font-variant-numeric:tabular-nums; color:#28313c; white-space:nowrap; pointer-events:none; z-index:2; }
+        html[data-theme="dark"] .noshi-date-readable { color:#f5e9dc; }
+        .noshi-date-shell:focus-within { border-radius:12px; outline:2px solid #dd8243; outline-offset:2px; }
+      `;
+      document.head.appendChild(style);
+    }
+    for (const input of inputs) {
+      if (input.parentElement?.classList.contains('noshi-date-shell')) continue;
+      const wrapper = document.createElement('span');
+      wrapper.className = 'noshi-date-shell';
+      const readable = document.createElement('span');
+      readable.className = 'noshi-date-readable';
+      readable.setAttribute('aria-hidden', 'true');
+      input.parentNode.insertBefore(wrapper, input);
+      wrapper.append(input, readable);
+      input.addEventListener('input', syncDateInputs);
+      input.addEventListener('change', syncDateInputs);
+      input.addEventListener('focus', syncDateInputs);
+    }
+    syncDateInputs();
+  }
   function init() {
+    initDateInputs();
     scan(document.body);
     const observer = new MutationObserver(records => {
       for (const rec of records) {
@@ -87,5 +130,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
   else init();
   // Explicit helper for future render paths; not used for storage or APIs.
-  window.NoshiDisplay = Object.freeze({ western, formatPiece });
+  window.NoshiDisplay = Object.freeze({ western, formatPiece, syncDateInputs });
 })();

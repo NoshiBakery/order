@@ -9,7 +9,7 @@ const PRODUCT_IMAGES = {
     };
     let clients=[], salesData={}, currentClient=null, currentOrders=[];
     const $ = id => document.getElementById(id);
-    const money = n => `${safe(n).toFixed(2)} ريال`;
+    const money = n => `<span class="noshi-history-money" dir="ltr"><span dir="rtl">ريال</span> ${safe(n).toFixed(2)}</span>`;
     const safe = v => { const n=parseFloat(v); return isNaN(n)?0:n; };
     const esc = v => String(v ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
     const params = new URLSearchParams(location.search);
@@ -52,7 +52,7 @@ const PRODUCT_IMAGES = {
       const box = $("clientPicker");
       if(!clients.length){ box.innerHTML = `<div class="fatal">لا توجد بيانات عملاء. استورد النسخة أولًا.</div>`; }
       else{
-        box.innerHTML = clients.map(c => `<button class="client-pick" onclick="location.href='client-history-v2.html?id=${encodeURIComponent(c.id)}'">👤 ${esc(c.name)}<span>${esc(c.phone || 'بدون رقم')} • ${esc(c.date || 'بدون تاريخ')}</span></button>`).join("");
+        box.innerHTML = clients.map(c => `<button class="client-pick" onclick="location.href='client-history-v2.html?id=${encodeURIComponent(c.id)}'">👤 ${esc(c.name)}<span>${esc(c.phone || 'بدون رقم')} • ${esc(c.date ? fmtDate(c.date) : 'بدون تاريخ')}</span></button>`).join("");
       }
       $("picker").classList.remove("hide");
     }
@@ -113,13 +113,28 @@ function payment(order){
   };
 }
     function imgFor(name){ return PRODUCT_IMAGES[name] || PRODUCT_IMAGES[String(name||"").replace(/\s+\d+$/,'')] || "images/thumbs/extra.webp"; }
-    function fmtDate(v){ return v ? String(v).replace("T"," ").slice(0,16) : "—"; }
+    function fmtDate(v){
+      if (!v) return "—";
+      const raw = String(v).trim().replace(/[٠-٩۰-۹]/g, d => {
+        const digits = "٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹";
+        return String(digits.indexOf(d) % 10);
+      });
+      // Keep stored date/time untouched. Interpret local timestamps exactly as stored,
+      // without shifting a delivery appointment across timezones.
+      const m = raw.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[T ](\d{1,2}):(\d{2})(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?)?$/i);
+      if (!m) return raw;
+      const date = `${m[1]}/${m[2].padStart(2,"0")}/${m[3].padStart(2,"0")}`;
+      if (m[4] === undefined) return date;
+      const hour = Number(m[4]), minute = Number(m[5]);
+      if (hour > 23 || minute > 59) return raw;
+      return `${date} · ${hour >= 12 ? "م" : "ص"} ${hour % 12 || 12}:${m[5]}`;
+    }
 
     function renderAll(){
       const name = currentClient.name || "عميل";
       $("clientName").textContent = name;
       $("avatar").textContent = name.trim().slice(0,1) || "ع";
-      $("clientMeta").textContent = `📞 ${currentClient.phone || 'بدون رقم'} • 📅 انضم: ${currentClient.date || 'غير محدد'}`;
+      $("clientMeta").textContent = `📞 ${currentClient.phone || 'بدون رقم'} • 📅 انضم: ${currentClient.date ? fmtDate(currentClient.date) : 'غير محدد'}`;
       renderStats(); renderCircles(); renderSmart(); renderProducts(); renderOrders();
       ["searchInput","statusFilter","sortFilter"].forEach(id => $(id).addEventListener("input", renderOrders));
       $("statusFilter").addEventListener("change", renderOrders); $("sortFilter").addEventListener("change", renderOrders);
@@ -143,7 +158,7 @@ function payment(order){
       const rows=[
         ["📦","عدد الطلبات",s.orders,"accent-purple"],["🧁","إجمالي المنتجات",s.qty,"accent-cyan"],["💰","قبل الخصم",money(s.before),""],["🏷️","إجمالي الخصم",money(s.discount),"accent-red"],["✅","الصافي",money(s.after),"accent-green"],["💎","أعلى فاتورة",money(s.highest),"accent-blue"],["📊","متوسط الطلب",money(s.avg),"accent-gold"],["🚚","مدفوع للمندوب",money(s.del),"accent-purple"],["🟢","طلبات مدفوعة",s.paid,"accent-green"],["🔴","طلبات معلقة",s.unpaid,"accent-red"],["🕒","أول طلب",fmtDate(s.first),"accent-blue"],["🆕","آخر طلب",fmtDate(s.last),"accent-cyan"]
       ];
-      $("statsGrid").innerHTML = rows.map(r=>`<div class="card stat ${r[3]}"><div class="icon">${r[0]}</div><div class="label">${r[1]}</div><div class="value">${r[2]}</div></div>`).join("");
+      $("statsGrid").innerHTML = rows.map(r=>`<div class="card stat ${r[3]}"><div class="icon">${r[0]}</div><div class="label">${r[1]}</div><div class="value">${r[1] === "أول طلب" || r[1] === "آخر طلب" ? `<bdi dir="ltr">${esc(r[2])}</bdi>` : r[2]}</div></div>`).join("");
     }
     function productStats(){
       const map={};
@@ -233,5 +248,5 @@ function renderSmart(){
         const name=it.originalName||it.name||"منتج", qty=safe(it.qty), price=safe(it.price), total=itemAfter(it,o);
         return `<div class="line"><div class="thumb"><img src="${imgFor(name)}" alt="${esc(name)}" loading="lazy" decoding="async" onerror="this.remove();this.parentElement.classList.add('no-image')"></div><div><div class="line-name">${esc(name)}</div><div class="line-meta">الكمية: ${qty} • السعر: ${money(price)}${safe(it.discount)?` • خصم المنتج: ${safe(it.discount)}%`:''}</div></div><div class="line-total">${money(total)}</div></div>`;
       }).join("");
-      return `<article class="card order ${paidClass}"><div class="order-head"><div class="order-num">طلب #${i+1}</div><div style="font-weight:900;color:#555">${fmtDate(o.date)}</div></div><div><span class="badge ${pay.methodClass}">💳 ${pay.method}</span><span class="badge ${pay.paid?'b-green':'b-red'}">${pay.paid?'✅':'⏳'} ${pay.status}</span><span class="badge b-gray">🚚 ${esc(o.deliveryPerson||o.mandoub||'غير محدد')}</span>${o.deliveryDate?`<span class="badge b-blue">🕒 ${esc(o.deliveryDate)}</span>`:''}</div><div class="order-products">${items || '<div class="empty">لا توجد منتجات محفوظة</div>'}</div><div class="order-total"><div class="total-box"><small>قبل الخصم</small><b>${money(before)}</b></div><div class="total-box"><small>الخصم</small><b>${money(disc)}</b></div><div class="total-box"><small>الصافي</small><b>${money(after)}</b></div><div class="total-box"><small>المندوب</small><b>${money(deliveryTotal(o))}</b></div></div>${o.globalNote?`<div class="note">📝 ${esc(o.globalNote)}</div>`:''}</article>`;
+      return `<article class="card order ${paidClass}"><div class="order-head"><div class="order-num">طلب #${i+1}</div><div style="font-weight:900;color:#555"><bdi dir="ltr">${esc(fmtDate(o.date))}</bdi></div></div><div><span class="badge ${pay.methodClass}">💳 ${pay.method}</span><span class="badge ${pay.paid?'b-green':'b-red'}">${pay.paid?'✅':'⏳'} ${pay.status}</span><span class="badge b-gray">🚚 ${esc(o.deliveryPerson||o.mandoub||'غير محدد')}</span>${o.deliveryDate?`<span class="badge b-blue">🕒 <bdi dir="ltr">${esc(fmtDate(o.deliveryDate))}</bdi></span>`:''}</div><div class="order-products">${items || '<div class="empty">لا توجد منتجات محفوظة</div>'}</div><div class="order-total"><div class="total-box"><small>قبل الخصم</small><b>${money(before)}</b></div><div class="total-box"><small>الخصم</small><b>${money(disc)}</b></div><div class="total-box"><small>الصافي</small><b>${money(after)}</b></div><div class="total-box"><small>المندوب</small><b>${money(deliveryTotal(o))}</b></div></div>${o.globalNote?`<div class="note">📝 ${esc(o.globalNote)}</div>`:''}</article>`;
     }

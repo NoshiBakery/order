@@ -130,6 +130,7 @@
       renderItemOptions();
       // التاريخ اليوم
       dateInput.valueAsDate = new Date();
+      window.NoshiDisplay?.syncDateInputs?.();
 
       addExpenseBtn.addEventListener('click', onAddExpense);
       clearFormBtn.addEventListener('click', clearForm);
@@ -402,6 +403,7 @@ const cancelDeleteExpense =
       editCat.value = row.category||'أخرى';
       editAmount.value = row.amount||'';
       editDate.value = row.date||'';
+      window.NoshiDisplay?.syncDateInputs?.();
       editNote.value = row.note||'';
       
       // استخدم الكلاس الجديد الخاص بالتعديل
