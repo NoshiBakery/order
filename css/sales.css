@@ -1065,10 +1065,15 @@
 </div>
 
 /* خيارات ترتيب مبيعات الشهور مع وضوح صف الإجمالي. */
-.months-sort-control { position: relative; }
-.months-sort-choices { position: absolute; z-index: 5; top: calc(100% + 7px); left: 0; background: #fff; color: #234; padding: 10px; border: 1px solid #cbded4; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.16); min-width: 155px; text-align: center; }
-.months-sort-choices[hidden] { display: none; }
-.months-sort-choices span { display: block; font-size: .8em; margin-bottom: 7px; }
-.months-sort-choices button { display: block; width: 100%; border: none; background: #edf7f2; color: #175b40; padding: 8px; border-radius: 7px; margin-top: 5px; cursor: pointer; font-weight: 700; }
-.months-sort-choices button:hover { background: #d7ede2; }
+/* Centered sort selection dialog — independent from clipped table/card layout. */
+.months-sort-control { position:static; }
+.months-sort-modal { position:fixed; inset:0; z-index:10050; background:rgba(13,31,30,.58); display:flex; align-items:center; justify-content:center; padding:16px; }
+.months-sort-modal[hidden] { display:none; }
+.months-sort-dialog { width:min(100%,390px); max-height:calc(100dvh - 32px); overflow:auto; background:#fff; color:#273a34; border-radius:20px; padding:22px 18px; box-shadow:0 18px 55px rgba(0,0,0,.3); text-align:center; }
+.months-sort-dialog h3 { font-size:1.15rem; margin:0 0 8px; color:#147359; }
+.months-sort-dialog p { font-size:.92rem; margin:0 0 18px; color:#596d64; }
+.months-sort-dialog button { display:block; width:100%; padding:13px; margin:9px 0; border:1px solid #c5dfd1; background:#e9f6ef; color:#175b40; border-radius:11px; font-size:1rem; font-weight:750; cursor:pointer; }
+.months-sort-dialog button:focus-visible { outline:3px solid #32a380; }
+.months-sort-dialog button.months-sort-reset { background:#f1f4f2; color:#334c43; }
+.months-sort-dialog button.months-sort-cancel { background:#fff; color:#555; border-color:#ddd; margin-bottom:0; }
 .monthly-stats-table .month-total-row td { background: #e1f0e8; }

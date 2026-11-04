@@ -586,6 +586,12 @@
         text-align: center;
         font-variant-numeric: tabular-nums;
       }
+      /* Show a stable English-numeral date while keeping the native picker and its stored value. */
+      .noshi-date-control { position:relative; min-height:45px; display:flex; align-items:center; justify-content:center; background:var(--c-surface2); border:1px solid var(--c-border); border-radius:11px; overflow:hidden; }
+      .noshi-date-visible { font:700 15px/1.4 system-ui,sans-serif; direction:ltr; unicode-bidi:isolate; color:var(--c-text); font-variant-numeric:tabular-nums; }
+      .noshi-date-icon { position:absolute; right:12px; pointer-events:none; }
+      .noshi-date-control input[type=date] { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+      .noshi-date-control:focus-within { outline:2px solid #e4a26f; outline-offset:2px; }
       .action-block {
         display: flex;
         gap: 6px;
@@ -1357,7 +1363,7 @@
               </div>
               <div class="field">
                 <label for="startDate">تاريخ بداية الصلاحية</label
-                ><input id="startDate" type="date" lang="en-CA" dir="ltr" required />
+                ><div class="noshi-date-control"><span id="startDateVisible" class="noshi-date-visible" dir="ltr" aria-hidden="true">YYYY/MM/DD</span><span class="noshi-date-icon" aria-hidden="true">📅</span><input id="startDate" type="date" lang="en-US" dir="ltr" aria-label="تاريخ بداية الصلاحية" required /></div>
               </div>
               <div class="field">
                 <label for="duration">مدة الصلاحية</label
@@ -1713,7 +1719,12 @@
               ? "الكود صالح لمرة واحدة فقط."
               : "يمكن استخدامه دون حد محدد.";
         }
+        function updateStartDateVisible() {
+          const value = $("startDate").value;
+          $("startDateVisible").textContent = /^\d{4}-\d{2}-\d{2}$/.test(value) ? value.replace(/-/g, "/") : "YYYY/MM/DD";
+        }
         function updatePreview() {
+          updateStartDateVisible();
           const expiry = expiryFor($("startDate").value, $("duration").value);
           $("expiryPreview").textContent = expiry
             ? "ينتهي في " + formatDate(expiry) + " (غير شامل)"

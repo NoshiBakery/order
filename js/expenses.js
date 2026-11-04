@@ -125,12 +125,18 @@
     }
 
     // ====== دوال واجهة ======
+    function syncExpenseDate(input) {
+      const label = document.getElementById(input.id + 'Visible');
+      if (label) label.textContent = /^\d{4}-\d{2}-\d{2}$/.test(input.value) ? input.value.replace(/-/g, '/') : 'YYYY/MM/DD';
+    }
     function initForm(){
       // تعبئة القائمة
       renderItemOptions();
       // التاريخ اليوم
       dateInput.valueAsDate = new Date();
-      window.NoshiDisplay?.syncDateInputs?.();
+      syncExpenseDate(dateInput);
+      dateInput.addEventListener('change', () => syncExpenseDate(dateInput));
+      editDate.addEventListener('change', () => syncExpenseDate(editDate));
 
       addExpenseBtn.addEventListener('click', onAddExpense);
       clearFormBtn.addEventListener('click', clearForm);
@@ -403,7 +409,7 @@ const cancelDeleteExpense =
       editCat.value = row.category||'أخرى';
       editAmount.value = row.amount||'';
       editDate.value = row.date||'';
-      window.NoshiDisplay?.syncDateInputs?.();
+      syncExpenseDate(editDate);
       editNote.value = row.note||'';
       
       // استخدم الكلاس الجديد الخاص بالتعديل

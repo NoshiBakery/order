@@ -483,26 +483,38 @@ document.addEventListener("DOMContentLoaded", function() {
 const sortBtn = document.getElementById('sortMonthsBtn');
 const sortChoices = document.getElementById('sortMonthsChoices');
 if (sortBtn && sortChoices) {
-  sortBtn.addEventListener('click', function() {
-    if (monthsSortMode !== 'original') {
-      monthsSortMode = 'original';
-      sortBtn.textContent = '🔽 ترتيب حسب الأعلى';
-      sortChoices.hidden = true;
-      sortBtn.setAttribute('aria-expanded', 'false');
-      loadMonthlySalesStats();
-      return;
-    }
-    sortChoices.hidden = !sortChoices.hidden;
-    sortBtn.setAttribute('aria-expanded', String(!sortChoices.hidden));
+  const closeButton = document.getElementById('sortMonthsClose');
+  let previousFocus = null;
+  function closeSortModal() {
+    sortChoices.hidden = true;
+    sortBtn.setAttribute('aria-expanded', 'false');
+    (previousFocus || sortBtn).focus();
+  }
+  sortBtn.addEventListener('click', () => {
+    previousFocus = document.activeElement;
+    sortChoices.hidden = false;
+    sortBtn.setAttribute('aria-expanded', 'true');
+    sortChoices.querySelector('[data-sort="amount"]').focus();
   });
   sortChoices.querySelectorAll('[data-sort]').forEach(choice => {
     choice.addEventListener('click', () => {
       monthsSortMode = choice.dataset.sort;
-      sortBtn.textContent = '🔼 ترتيب أصلي (' + (monthsSortMode === 'amount' ? 'المبلغ' : 'عدد الطلبات') + ')';
-      sortChoices.hidden = true;
-      sortBtn.setAttribute('aria-expanded', 'false');
+      sortBtn.textContent = monthsSortMode === 'original'
+        ? '🔽 ترتيب حسب الأعلى'
+        : '🔽 ترتيب: ' + (monthsSortMode === 'amount' ? 'المبلغ' : 'عدد الطلبات');
+      closeSortModal();
       loadMonthlySalesStats();
     });
+  });
+  closeButton.addEventListener('click', closeSortModal);
+  sortChoices.addEventListener('click', event => { if (event.target === sortChoices) closeSortModal(); });
+  sortChoices.addEventListener('keydown', event => {
+    if (event.key === 'Escape') { event.preventDefault(); closeSortModal(); }
+    if (event.key === 'Tab') {
+      const buttons = Array.from(sortChoices.querySelectorAll('button'));
+      if (event.shiftKey && document.activeElement === buttons[0]) { event.preventDefault(); buttons[buttons.length-1].focus(); }
+      else if (!event.shiftKey && document.activeElement === buttons[buttons.length-1]) { event.preventDefault(); buttons[0].focus(); }
+    }
   });
 }
   // تحديث الإحصائيات عند تغيير الفلتر
