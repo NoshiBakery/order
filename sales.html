@@ -291,11 +291,16 @@ html[data-theme="dark"][data-auth-state="error"]::before{background:#160f12;colo
 
   <div id="sortMonthsChoices" class="months-sort-modal" hidden role="dialog" aria-modal="true" aria-labelledby="sortMonthsTitle">
     <div class="months-sort-dialog" dir="rtl">
-      <h3 id="sortMonthsTitle">ترتيب مبيعات الشهور</h3>
-      <p>كيف تود ترتيب الشهور من الأعلى إلى الأقل؟</p>
-      <button type="button" data-sort="amount">💰 حسب المبلغ</button>
-      <button type="button" data-sort="orders">📦 حسب عدد الطلبات</button>
-      <button type="button" data-sort="original" class="months-sort-reset">📅 الترتيب الأصلي</button>
+      <div class="months-sort-heading">
+        <span class="months-sort-symbol" aria-hidden="true">↕</span>
+        <h3 id="sortMonthsTitle">ترتيب مبيعات الشهور</h3>
+        <p>اختر الطريقة المناسبة لعرض النتائج من الأعلى إلى الأقل</p>
+      </div>
+      <div class="months-sort-options">
+        <button type="button" data-sort="amount"><span class="months-sort-option-icon" aria-hidden="true">💰</span><span class="months-sort-option-label">حسب المبلغ<small>الأعلى في صافي المبيعات أولًا</small></span><span class="months-sort-chevron" aria-hidden="true">‹</span></button>
+        <button type="button" data-sort="orders"><span class="months-sort-option-icon" aria-hidden="true">📦</span><span class="months-sort-option-label">حسب عدد الطلبات<small>الأكثر طلبات أولًا</small></span><span class="months-sort-chevron" aria-hidden="true">‹</span></button>
+        <button type="button" data-sort="original" class="months-sort-reset"><span class="months-sort-option-icon" aria-hidden="true">📅</span><span class="months-sort-option-label">الترتيب الأصلي<small>عرض الشهور حسب ترتيبها المعتاد</small></span><span class="months-sort-chevron" aria-hidden="true">‹</span></button>
+      </div>
       <button type="button" id="sortMonthsClose" class="months-sort-cancel">إلغاء</button>
     </div>
   </div>
