@@ -553,6 +553,7 @@ html += `
         // إعادة تعيين حالة الفلترة
         if (showingOnlyUnpaidMonthly) {
           showingOnlyUnpaidMonthly = false;
+          document.getElementById("openBulkPayModalBtn")?.removeAttribute("hidden");
           // إعادة تعيين نص الزر
           filterBtn.innerHTML = "⚠️ عرض الطلبات غير المحولة (<span id=\"unpaidCountText\" style=\"color:#ffeb3b; font-weight:bold;\">0</span>)";
           filterBtn.style.background = "#c0392b";
@@ -845,6 +846,15 @@ async function toggleDeliveryStatus(monthKey, index, isDelivered, deliveryIndex 
 }
 
   function changeMonth(offset) {
+    if (showingOnlyUnpaidMonthly) {
+      showingOnlyUnpaidMonthly = false;
+      document.getElementById("openBulkPayModalBtn")?.removeAttribute("hidden");
+      const filterBtn = document.getElementById("filterUnpaidBtn");
+      if (filterBtn) {
+        filterBtn.innerHTML = '⚠️ عرض الطلبات غير المحولة (<span id="unpaidCountText" style="color:#ffeb3b; font-weight:bold;">0</span>)';
+        filterBtn.style.background = "#e74c3c";
+      }
+    }
     autoUpdateEnabled = false;
     
     currentDisplayMonth += offset;
@@ -1528,7 +1538,8 @@ function updateTodayDateText() {
   var month = String(d.getMonth() + 1).padStart(2, "0");
   var year = d.getFullYear();
 
-  el.textContent = day + " / " + month + " / " + year;
+  el.textContent = year + "/" + month + "/" + day;
+  el.dir = "ltr";
 
   var label = document.getElementById("summaryDayLabel");
   if (label) {
@@ -1603,12 +1614,14 @@ function resetSummaryDay() {
       btn.innerHTML = "↩️ عرض جميع الطلبات";
       btn.style.background = "#27ae60";
       showingOnlyUnpaidMonthly = true;
+      document.getElementById("openBulkPayModalBtn")?.setAttribute("hidden", "");
       
     } else {
       loadData();
       btn.innerHTML = "⚠️ عرض الطلبات غير المحولة (<span id=\"unpaidCountText\" style=\"color:#ffeb3b; font-weight:bold;\">0</span>)";
       btn.style.background = "#e74c3c";
       showingOnlyUnpaidMonthly = false;
+      document.getElementById("openBulkPayModalBtn")?.removeAttribute("hidden");
     }
     
     updateUnpaidOrdersCount();
@@ -2637,7 +2650,7 @@ async function undoBulkPayCore() {
 
     if (!entry) {
       undoBtn.style.display = "none";
-      hint.textContent = `الشهر الحالي: ${monthKey}`;
+      hint.textContent = `الشهر الحالي: ${monthKey.replace("-", "/")}`;
       return;
     }
 
@@ -2646,13 +2659,13 @@ async function undoBulkPayCore() {
     if (remaining <= 0) {
       await removeEntry(monthKey);
       undoBtn.style.display = "none";
-      hint.textContent = `الشهر الحالي: ${monthKey} — انتهت مدة التراجع.`;
+      hint.textContent = `الشهر الحالي: ${monthKey.replace("-", "/")} — انتهت مدة التراجع.`;
       return;
     }
 
     const days = Math.ceil(remaining / (24 * 60 * 60 * 1000));
     undoBtn.style.display = "block";
-    hint.textContent = `الشهر الحالي: ${monthKey} — التراجع متاح لمدة ${days} يوم/أيام (متبقي ${count} عملية).`;
+    hint.textContent = `الشهر الحالي: ${monthKey.replace("-", "/")} — التراجع متاح لمدة ${days} يوم/أيام (متبقي ${count} عملية).`;
   }
 
   openBtn.addEventListener("click", () => {

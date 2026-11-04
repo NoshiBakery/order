@@ -9,7 +9,7 @@
   <title>سجل الطلبات - نوشي بيكري</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700&family=Cairo:wght@700&display=swap" rel="stylesheet" />
   <!-- NOSHI: styles for this exact position live in css/order.css. -->
-<link rel="stylesheet" href="css/order.css?v=5.2.0">
+<link rel="stylesheet" href="css/order.css?v=5.2.1">
   <style id="noshi-auth-cloak">
 body{visibility:hidden!important}
 html{background:#f6f1ec!important;min-height:100%;color-scheme:light}
@@ -83,7 +83,7 @@ html[data-theme="dark"][data-auth-state="error"]::before{background:#160f12;colo
     </div>
     
     <!-- زر ضبط حجم الخط -->
-    <div style="margin-top: 10px;">
+    <div style="margin-top: 10px; display:flex; justify-content:center;">
       <button onclick="openFontSizeModal()" 
               style="font-size:1.1em; padding:10px 20px; background:#9b59b6; color:white; border:none; border-radius:8px; cursor:pointer; min-width:150px; display:flex; align-items:center; justify-content:center; gap:8px;">
         📝 ضبط حجم الخط
@@ -143,7 +143,7 @@ html[data-theme="dark"][data-auth-state="error"]::before{background:#160f12;colo
     <button type="button" onclick="changeSummaryDay(-1)" style="border:0;background:#f3eee9;border-radius:9px;padding:4px 9px;cursor:pointer;">‹</button>
     📅 <span id="summaryDayLabel">طلبات اليوم</span> :- <span id="todayDateText"></span>
     <button type="button" onclick="changeSummaryDay(1)" style="border:0;background:#f3eee9;border-radius:9px;padding:4px 9px;cursor:pointer;">›</button>
-    <button type="button" onclick="resetSummaryDay()" style="border:0;background:transparent;color:#27ae60;font-weight:800;cursor:pointer;">اليوم</button>
+    <button type="button" onclick="resetSummaryDay()" style="border:1px solid #a3dfbe;background:#e6f7ec;color:#11683a;font-weight:900;cursor:pointer;border-radius:8px;padding:5px 11px;">اليوم</button>
   </div>
 
   <div style="
@@ -199,13 +199,13 @@ html[data-theme="dark"][data-auth-state="error"]::before{background:#160f12;colo
   <!-- عناصر التحكم تبقى هنا (خارج الـ container) -->
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
     <button id="prevMonthBtn" style="padding: 8px 15px; background: #e67e22; color: white; border: none; border-radius: 8px; cursor: pointer;">
-      ◀ الشهر السابق
+      ▶ الشهر السابق
     </button>
     
     <h2 id="currentMonthTitle" style="margin: 0; color: #d35400; font-size: 1.3em;"></h2>
     
     <button id="nextMonthBtn" style="padding: 8px 15px; background: #e67e22; color: white; border: none; border-radius: 8px; cursor: pointer;">
-      الشهر التالي ▶
+      الشهر التالي ◀
     </button>
   </div>
   
@@ -257,7 +257,7 @@ html[data-theme="dark"][data-auth-state="error"]::before{background:#160f12;colo
       border:none; border-radius:10px; cursor:pointer; margin-bottom:10px;
       font-family:'Cairo', sans-serif; font-size:1.05em;
     ">
-      سداد جميع الطلبيات باستثناء الغير محوله من العميل
+      سداد الطلبات المحوله فقط
     </button>
 
     <button id="bulkPayUndoBtn" style="
@@ -333,7 +333,7 @@ html[data-theme="dark"][data-auth-state="error"]::before{background:#160f12;colo
 <script src="./db.js?v=4.9.0"></script>
 
 <!-- NOSHI: original inline script #1; same execution position, now external. -->
-<script src="js/order.js?v=5.2.0"></script>
+<script src="js/order.js?v=5.2.1"></script>
 
 <script src="invoice.js?v=4.9.0"></script>
 <!-- NOSHI: original inline script #2; same execution position, now external. -->

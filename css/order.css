@@ -894,3 +894,29 @@ html[data-theme="dark"] .noshi-delete-client{background:#263345;border-color:#39
 html[data-theme="dark"] .noshi-delete-client strong{color:#fff}
 html[data-theme="dark"] .noshi-delete-actions #cancelBtn{background:#344255;color:#fff}
 @media(max-width:380px){.noshi-delete-dialog{padding:23px 16px}.noshi-delete-dialog h2{font-size:1.18rem}}
+
+/* مقاس مريح لمودال تعديل الدفع على الشاشات الصغيرة والكبيرة. */
+.payment-simple-modal { width: min(100%, 440px); max-width: 440px; border-radius: 16px; }
+.payment-simple-header { padding: 13px 16px; border-radius: 16px 16px 0 0; }
+.payment-simple-header h2 { font-size: 1.12rem; }
+.payment-simple-close { top: 9px; left: 10px; width: 30px; height: 30px; font-size: 1.25rem; }
+.payment-simple-body { padding: 14px 16px 16px; }
+.payment-client-box { flex-wrap: wrap; gap: 9px; padding: 12px; }
+.payment-client-label, .payment-amount-label { font-size: 0.78rem; }
+.payment-client-name, .payment-amount-value { font-size: 0.95rem; }
+.payment-order-number { font-size: 0.8rem; padding: 3px 9px; }
+.payment-amount-box { padding: 5px 9px; }
+.payment-simple-field { margin-top: 12px; }
+.payment-simple-field label, .payment-simple-check-label { font-size: 0.9rem; }
+.payment-simple-select { min-height: 44px; font-size: 16px; }
+.payment-simple-check-box { padding: 10px 12px; margin-top: 9px; }
+.payment-simple-check-label { gap: 9px; }
+.payment-simple-check-label input { width: 18px; height: 18px; }
+.payment-simple-actions { gap: 10px; margin-top: 14px; }
+.payment-simple-button { min-height: 44px; font-size: 0.95rem; }
+#openBulkPayModalBtn[hidden] { display: none !important; }
+@media (max-width: 350px) {
+  .payment-simple-overlay { padding: 8px; }
+  .payment-simple-body { padding: 10px 12px 12px; }
+  .payment-client-box { padding: 9px; }
+}

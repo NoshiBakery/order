@@ -4,7 +4,7 @@
    REFACTOR RULE: extracted in the SAME parser position.
    No business logic, storage key, or execution order changed.
 ========================================================= */
-let isSortedByOrders = false;
+let monthsSortMode = "original";
 let originalMonthsData = [];
 
 function showSalesStorageError(error) {
@@ -437,8 +437,10 @@ async function loadMonthlySalesStats() {
 
     // تطبيق الترتيب الحالي
     let sortedData = [...monthsData];
-    if (isSortedByOrders) {
-      sortedData.sort((a, b) => b.ordersCount - a.ordersCount);
+    if (monthsSortMode === "orders") {
+      sortedData.sort((a, b) => b.ordersCount - a.ordersCount || b.monthKey.localeCompare(a.monthKey));
+    } else if (monthsSortMode === "amount") {
+      sortedData.sort((a, b) => b.final - a.final || b.monthKey.localeCompare(a.monthKey));
     } else {
       sortedData.sort((a, b) => a.monthKey.localeCompare(b.monthKey));
     }
@@ -477,13 +479,30 @@ document.addEventListener("DOMContentLoaded", function() {
   loadAllTimeStats();
   loadFilteredStats();
   loadMonthlySalesStats();
-// زر ترتيب الجدول
+// يختار المستخدم ترتيب المبيعات حسب المبلغ أو عدد الطلبات.
 const sortBtn = document.getElementById('sortMonthsBtn');
-if (sortBtn) {
+const sortChoices = document.getElementById('sortMonthsChoices');
+if (sortBtn && sortChoices) {
   sortBtn.addEventListener('click', function() {
-    isSortedByOrders = !isSortedByOrders;
-    this.textContent = isSortedByOrders ? '🔼 ترتيب أصلي' : '🔽 ترتيب حسب الأعلى';
-    loadMonthlySalesStats();
+    if (monthsSortMode !== 'original') {
+      monthsSortMode = 'original';
+      sortBtn.textContent = '🔽 ترتيب حسب الأعلى';
+      sortChoices.hidden = true;
+      sortBtn.setAttribute('aria-expanded', 'false');
+      loadMonthlySalesStats();
+      return;
+    }
+    sortChoices.hidden = !sortChoices.hidden;
+    sortBtn.setAttribute('aria-expanded', String(!sortChoices.hidden));
+  });
+  sortChoices.querySelectorAll('[data-sort]').forEach(choice => {
+    choice.addEventListener('click', () => {
+      monthsSortMode = choice.dataset.sort;
+      sortBtn.textContent = '🔼 ترتيب أصلي (' + (monthsSortMode === 'amount' ? 'المبلغ' : 'عدد الطلبات') + ')';
+      sortChoices.hidden = true;
+      sortBtn.setAttribute('aria-expanded', 'false');
+      loadMonthlySalesStats();
+    });
   });
 }
   // تحديث الإحصائيات عند تغيير الفلتر

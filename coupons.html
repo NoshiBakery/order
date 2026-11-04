@@ -583,7 +583,7 @@
       }
       #startDate {
         direction: ltr;
-        text-align: left;
+        text-align: center;
         font-variant-numeric: tabular-nums;
       }
       .action-block {
@@ -1034,7 +1034,7 @@
         }
         .date-block {
           grid-column: 2;
-          text-align: left;
+          text-align: center;
         }
         .date-block b {
           font-size: 11px;
@@ -1357,7 +1357,7 @@
               </div>
               <div class="field">
                 <label for="startDate">تاريخ بداية الصلاحية</label
-                ><input id="startDate" type="date" lang="en-CA" dir="ltr" data-noshi-date-display required />
+                ><input id="startDate" type="date" lang="en-CA" dir="ltr" required />
               </div>
               <div class="field">
                 <label for="duration">مدة الصلاحية</label
@@ -1618,7 +1618,8 @@
               ? Math.max(0, Math.min(100, ((completed + reserved) / max) * 100))
               : 0;
           const discount =
-            (c.discountType === "percent" ? nfmt(c.discountValue) + "%" : "ر.س " + nfmt(c.discountValue));
+            nfmt(c.discountValue) +
+            (c.discountType === "percent" ? "%" : " ر.س");
           return `<article class="coupon-item" data-coupon-id="${id}">
    <div class="code-block"><div class="code-line"><b class="coupon-code" dir="ltr">${code}</b><span class="tag ${status}">${h(statusNames[c.status] || c.status || "غير معروف")}</span></div>
    <div class="coupon-hint">${max === null ? "استخدامات غير محدودة" : "الحد " + nfmt(max) + " استخدام"} · المتاح ${available}</div>
@@ -1692,7 +1693,6 @@
           $("type").value = "percent";
           $("value").value = "";
           $("startDate").value = todayRiyadh();
-          window.NoshiDisplay?.syncDateInputs?.();
           $("duration").value = "7";
           $("usage").value = "unlimited";
           $("maxUses").value = "";
@@ -1748,7 +1748,6 @@
             $("type").value = c.discountType === "fixed" ? "fixed" : "percent";
             $("value").value = c.discountValue ?? "";
             $("startDate").value = c.startDate || todayRiyadh();
-            window.NoshiDisplay?.syncDateInputs?.();
             const d = durationFor(c);
             if (d) $("duration").value = d;
             else {
