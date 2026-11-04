@@ -84,134 +84,70 @@ html[data-theme="dark"][data-auth-state="error"]::before{background:#160f12;colo
     </div>
   </div>
 
-  <h1>المصروفات</h1>
-  <div class="wrap">
-    <!-- شريط تغيير الشهور -->
-    <div class="monthbar card">
-      <button class="btn" id="prevMonth">▶ الشهر السابق</button>
-      <div class="title" id="monthTitle"></div>
-      <button class="btn" id="nextMonth">الشهر التالي ◀ </button>
+  <main class="expenses-page">
+    <div class="page-heading">
+      <div><span class="eyebrow">الإدارة المالية · NOSHI</span><h1>المصروفات</h1><p>تابع مصروفاتك وأرباحك في مكان واحد.</p></div>
+      <div class="heading-mark" aria-hidden="true">◈</div>
     </div>
+    <div class="wrap">
+      <section class="monthbar card" aria-label="التنقل بين الشهور">
+        <button class="btn month-nav" id="prevMonth" type="button">▶ <span>الشهر السابق</span></button>
+        <div class="month-center"><span>الفترة المعروضة</span><div class="title" id="monthTitle"></div></div>
+        <button class="btn month-nav" id="nextMonth" type="button"><span>الشهر التالي</span> ◀</button>
+      </section>
 
-    <div class="card">
-      <h3>➕ إضافة مصروف جديد</h3>
-      <div class="row">
-        <div class="field">
-          <label for="itemSelect">البند</label>
-          <div class="row">
-            <select id="itemSelect" aria-label="اختيار البند"></select>
-			<button type="button" id="openNewItemModal" class="btn">➕ إضافة بند جديد</button>
-			<button type="button" id="openDeleteItemModal" class="btn ghost">🗑 حذف بند</button>
-          </div>
+      <section class="summary-section" aria-label="الملخص المالي">
+        <div class="section-heading"><div><span class="eyebrow">نظرة عامة</span><h2>الملخص المالي للشهر</h2></div></div>
+        <div class="summary-grid">
+          <div class="summary-item sales-kpi"><div class="kpi-icon">↗</div><div class="label">صافي المبيعات</div><div class="value" id="salesSum">0</div></div>
+          <div class="summary-item expense-kpi"><div class="kpi-icon">↘</div><div class="label">إجمالي المصروفات</div><div class="value" id="expensesSum">0</div></div>
+          <div class="summary-item profit-kpi"><div class="kpi-icon">◎</div><div class="label">صافي الربح</div><div class="value" id="netProfit">0</div></div>
         </div>
-        <div class="field">
-          <label for="categorySelect">التصنيف</label>
-          <select id="categorySelect" aria-label="تصنيف المصروف">
-            <option value="مواد خام">مواد خام</option>
-            <option value="تغليف">تغليف</option>
-            <option value="بلاستيكات">بلاستيكات</option>
-            <option value="أخرى">أخرى</option>
-          </select>
+      </section>
+
+      <section class="card create-card" aria-labelledby="createTitle">
+        <div class="section-heading"><div><span class="eyebrow">إدارة المصروفات</span><h2 id="createTitle">إضافة مصروف جديد</h2><p>سجّل المبلغ والتاريخ والتصنيف بسهولة.</p></div><span class="heading-symbol" aria-hidden="true">＋</span></div>
+        <div class="expense-form-grid">
+          <div class="field item-field"><label for="itemSelect">البند</label><select id="itemSelect" aria-label="اختيار البند"></select>
+            <div class="item-tools"><button type="button" id="openNewItemModal" class="btn subtle">＋ إضافة بند</button><button type="button" id="openDeleteItemModal" class="btn subtle danger-text">حذف بند</button></div></div>
+          <div class="field"><label for="categorySelect">التصنيف</label><select id="categorySelect" aria-label="تصنيف المصروف"><option value="مواد خام">مواد خام</option><option value="تغليف">تغليف</option><option value="بلاستيكات">بلاستيكات</option><option value="أخرى">أخرى</option></select></div>
+          <div class="field"><label for="amountInput">المبلغ (ريال)</label><input id="amountInput" type="text" inputmode="decimal" data-numeric placeholder="0.00" aria-label="قيمة المبلغ" /></div>
+          <div class="field"><label for="dateInput">التاريخ</label><div class="noshi-date-control"><span class="noshi-date-visible" id="dateInputVisible" dir="ltr" aria-hidden="true">YYYY/MM/DD</span><span class="noshi-date-icon" aria-hidden="true">▦</span><input id="dateInput" type="date" lang="en-US" dir="ltr" aria-label="تاريخ المصروف" /></div></div>
+          <div class="field note-field"><label for="noteInput">ملاحظة</label><input id="noteInput" placeholder="اختياري" autocomplete="off" /></div>
         </div>
-        <div class="field">
-          <label for="amountInput">المبلغ (ريال)</label>
-<input
-  id="amountInput"
-  type="text"
-  inputmode="decimal"
-  data-numeric
-  placeholder="0.00"
-  aria-label="قيمة المبلغ"
-/>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field">
-          <label for="dateInput">التاريخ</label>
-          <div class="noshi-date-control"><span class="noshi-date-visible" id="dateInputVisible" dir="ltr" aria-hidden="true">YYYY/MM/DD</span><span class="noshi-date-icon" aria-hidden="true">📅</span><input id="dateInput" type="date" lang="en-US" dir="ltr" aria-label="تاريخ المصروف" /></div>
-        </div>
-        <div class="field">
-          <label for="noteInput">ملاحظة</label>
-          <input id="noteInput" placeholder="اختياري" autocomplete="off" />
-        </div>
-      </div>
-      <div class="actions-line">
-        <button class="btn" id="addExpenseBtn">➕ إضافة</button>
-        <button class="btn ghost" id="clearFormBtn">إعادة</button>
-      </div>
+        <div class="actions-line"><button class="btn primary" id="addExpenseBtn" type="button">＋ حفظ المصروف</button><button class="btn ghost" id="clearFormBtn" type="button">مسح الحقول</button></div>
+      </section>
+
+      <section class="card records-card" aria-labelledby="recordsTitle">
+        <div class="section-heading"><div><span class="eyebrow">سجل الشهر</span><h2 id="recordsTitle">المصروفات الشهرية</h2><p>اختر «⋯» لتعديل أو حذف أي مصروف.</p></div><span class="heading-symbol" aria-hidden="true">≡</span></div>
+        <div class="records-table-wrap"><table id="expensesTable"><thead><tr><th>#</th><th>التاريخ</th><th>البند</th><th>التصنيف</th><th>المبلغ</th><th>الملاحظة</th><th>إجراءات</th></tr></thead><tbody></tbody></table></div>
+        <div class="records-total"><span>إجمالي مصروفات الشهر</span><strong id="monthTotal">0</strong></div>
+      </section>
+
+      <section class="charts-section" aria-labelledby="chartsTitle"><div class="section-heading"><div><span class="eyebrow">تحليل المصروفات</span><h2 id="chartsTitle">الرسوم البيانية</h2></div></div><div class="flex-cols">
+        <div class="card chart-card"><h3>نسبة المصروفات حسب البند</h3><div class="chart-area"><canvas id="pieCanvas" height="180"></canvas></div></div>
+        <div class="card chart-card"><h3>إجمالي كل تصنيف</h3><div class="chart-area"><canvas id="barCanvas" height="180"></canvas></div></div>
+        <div class="card chart-card"><h3>مقارنة المصروفات بين الشهور</h3><div class="chart-area"><canvas id="lineCanvas" height="180"></canvas></div></div>
+      </div></section>
     </div>
-
-    <!-- الملخص المالي وصافي الربح من IndexedDB.salesData -->
-    <div class="card">
-      <h3>💼 الملخص المالي للشهر</h3>
-      <div class="summary-grid">
-        <div class="summary-item"><div class="label">💰 صافي المبيعات</div><div class="value" id="salesSum">0</div></div>
-        <div class="summary-item"><div class="label">📉 إجمالي المصروفات</div><div class="value" id="expensesSum">0</div></div>
-        <div class="summary-item"><div class="label">✅ صافي الربح</div><div class="value" id="netProfit">0</div></div>
-      </div>
-    </div>
-
-    <div class="orange-line"></div>
-
-    <!-- جدول المصروفات -->
-    <div class="card">
-      <h3>📅 المصروفات الشهرية</h3>
-      <div style="overflow-x:auto">
-        <table id="expensesTable">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>التاريخ 📅</th>
-              <th>البند 📌</th>
-              <th>التصنيف</th>
-              <th>المبلغ 💵</th>
-              <th>الملاحظة ✏️</th>
-              <th>إجراءات</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <div class="row" style="margin-top:10px">
-        <div class="summary-item" style="flex:1"><div class="label">إجمالي المصروفات لهذا الشهر</div><div class="value" id="monthTotal">0</div></div>
-      </div>
-    </div>
-
-    <div class="orange-line"></div>
-
-    <!-- الرسوم البيانية -->
-    <div class="flex-cols">
-      <div class="card">
-        <h3>📊 نسبة كل بند (Pie)</h3>
-        <canvas id="pieCanvas" height="180"></canvas>
-      </div>
-      <div class="card">
-        <h3>📊 مجموع كل فئة (Bar)</h3>
-        <canvas id="barCanvas" height="180"></canvas>
-      </div>
-      <div class="card">
-        <h3>📈 مقارنة المصروفات بين الشهور (Line)</h3>
-        <canvas id="lineCanvas" height="180"></canvas>
-      </div>
-    </div>
-  </div>
+  </main>
 
   <!-- iOS-style Action Sheet -->
   <div class="sheet-backdrop" id="sheetBg"></div>
   <div class="sheet" id="actionSheet" role="dialog" aria-modal="true">
-    <div class="handle"></div>
+    <div class="handle" aria-hidden="true"></div>
     <div class="group">
-      <div class="cell" id="sheetEdit">✏️ تعديل</div>
-      <div class="cell danger" id="sheetDelete">❌ حذف</div>
+      <button type="button" class="cell" id="sheetEdit">✏️ تعديل المصروف</button>
+      <button type="button" class="cell danger" id="sheetDelete">حذف المصروف</button>
     </div>
     <div class="group">
-      <div class="cell cancel" id="sheetCancel">إلغاء</div>
+      <button type="button" class="cell cancel" id="sheetCancel">إلغاء</button>
     </div>
   </div>
 
   <!-- Edit Modal -->
   <div class="modal-backdrop" id="editBg"></div>
-  <div class="modal" id="editModal" role="dialog" aria-modal="true">
+  <div class="modal" id="editModal" role="dialog" aria-modal="true" aria-label="تعديل المصروف">
     <header>تعديل المصروف</header>
     <div class="row">
       <label>البند</label>
@@ -243,7 +179,7 @@ html[data-theme="dark"][data-auth-state="error"]::before{background:#160f12;colo
   </div>
 <!-- Delete Item Modal -->
 <div class="modal-backdrop" id="deleteItemBg"></div>
-<div class="modal" id="deleteItemModal" role="dialog" aria-modal="true">
+<div class="modal" id="deleteItemModal" role="dialog" aria-modal="true" aria-label="حذف بند">
   <header>حذف بند</header>
   <div class="row">
     <label>اختر البند المراد حذفه</label>
@@ -285,7 +221,7 @@ html[data-theme="dark"][data-auth-state="error"]::before{background:#160f12;colo
 
 <!-- Add New Item Modal -->
 <div class="modal-backdrop" id="newItemBg"></div>
-<div class="modal" id="newItemModal" role="dialog" aria-modal="true">
+<div class="modal" id="newItemModal" role="dialog" aria-modal="true" aria-label="إضافة بند جديد">
   <header>إضافة بند جديد</header>
   <div class="row">
     <label>اسم البند</label>

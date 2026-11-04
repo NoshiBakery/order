@@ -181,27 +181,51 @@
 
 // ====== جدول المصروفات ======
 function renderTable(key){
-  const rows = (expensesData[key]||[]);
-  expensesTableBody.innerHTML = '';
+  const rows = expensesData[key] || [];
+  expensesTableBody.replaceChildren();
   let sum = 0;
-
   rows.forEach((row, idx) => {
-    sum += Number(row.amount) || 0;
+    const amount = Number(row.amount) || 0;
+    sum += amount;
     const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${idx+1}</td>
-      <td>${row.date||'-'}</td>
-      <td>${row.item||'-'}</td>
-      <td>${row.category||'-'}</td>
-      <td>${Number(row.amount).toFixed(2)}</td>
-      <td>${row.note||''}</td>
-      <td class="actions">
-        <button class="btn ghost action-menu" type="button" data-key="${key}" data-idx="${idx}">⋯</button>
-      </td>`;
+    const fields = [
+      ['#', String(idx + 1)],
+      ['التاريخ', /^\d{4}-\d{2}-\d{2}$/.test(row.date || '') ? row.date.replace(/-/g, '/') : (row.date || '-')],
+      ['البند', row.item || '-'],
+      ['التصنيف', row.category || '-'],
+      ['المبلغ', `ر.س ${amount.toFixed(2)}`],
+      ['الملاحظة', row.note || '—']
+    ];
+    fields.forEach(([label, value]) => {
+      const td = document.createElement('td');
+      td.dataset.label = label;
+      td.textContent = value;
+      tr.appendChild(td);
+    });
+    const actions = document.createElement('td');
+    actions.className = 'actions';
+    actions.dataset.label = 'إجراءات';
+    const btn = document.createElement('button');
+    btn.className = 'btn ghost action-menu';
+    btn.type = 'button';
+    btn.dataset.key = key;
+    btn.dataset.idx = String(idx);
+    btn.setAttribute('aria-label', 'خيارات المصروف');
+    btn.textContent = '⋯';
+    actions.appendChild(btn);
+    tr.appendChild(actions);
     expensesTableBody.appendChild(tr);
   });
-
-  monthTotalEl.textContent = sum.toFixed(2) + ' ريال';
+  if (!rows.length) {
+    const tr = document.createElement('tr');
+    tr.className = 'empty-expenses-row';
+    const td = document.createElement('td');
+    td.colSpan = 7;
+    td.textContent = 'لا توجد مصروفات مسجلة لهذا الشهر';
+    tr.appendChild(td);
+    expensesTableBody.appendChild(tr);
+  }
+  monthTotalEl.textContent = `ر.س ${sum.toFixed(2)}`;
 }
 
 // ====== الملخص وصافي الربح (من salesData) ======
@@ -209,9 +233,9 @@ function renderTable(key){
       const expensesSum = sumExpenses(key);
       const salesSum = sumSalesFromIndexedDB(key);
       const net = salesSum - expensesSum;
-      salesSumEl.textContent = salesSum.toFixed(2) + ' ر.س';
-      expensesSumEl.textContent = expensesSum.toFixed(2) + ' ر.س';
-      netProfitEl.textContent = net.toFixed(2) + ' ر.س';
+      salesSumEl.textContent = 'ر.س ' + salesSum.toFixed(2);
+      expensesSumEl.textContent = 'ر.س ' + expensesSum.toFixed(2);
+      netProfitEl.textContent = 'ر.س ' + net.toFixed(2);
     }
 
     function sumExpenses(key){
@@ -454,7 +478,7 @@ sheetDelete.addEventListener('click', () => {
   const amount = Number(row.amount || 0);
 
   deleteExpenseText.textContent =
-    `هل تريد حذف مصروف ${itemName} بمبلغ ${amount.toFixed(2)} ريال؟`;
+    `هل تريد حذف مصروف ${itemName} بمبلغ ر.س ${amount.toFixed(2)}؟`;
 
   closeSheet();
 
