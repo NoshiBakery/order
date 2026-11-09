@@ -35,3 +35,6 @@ html,body{width:100%;max-width:100%;overflow-x:hidden!important}
 .actions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
 .actions button{min-width:0!important;width:100%;padding-inline:6px}
 @media(max-width:420px){.actions{grid-template-columns:1fr 1fr}.actions .reject{grid-column:1/-1}.summary-line{grid-template-columns:82px minmax(0,1fr)!important}.order-side{max-width:38%}}
+
+/* Gift orders awaiting recipient confirmation. */
+.card.gift-order{border:2px solid #e2a6bf;background:#fff5fa}.gift-status{margin:12px 0;padding:12px;background:#ffe4ef;border-radius:12px;line-height:1.8;overflow-wrap:anywhere}.gift-status p{margin:4px 0}.gift-status button{min-height:44px;border:0;border-radius:10px;padding:8px 14px;background:#8a3e5d;color:white;font:inherit}.gift-order button:disabled{opacity:.65;cursor:not-allowed}

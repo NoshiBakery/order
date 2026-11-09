@@ -1896,7 +1896,7 @@
             time = timeLabel(o.deliveryDate || o.date);
           return `<article class="order-card ${own ? "own" : "unassigned"}">
       <div class="order-card-top"><div class="order-identity"><div class="identity-top">
-        <span class="order-number" dir="ltr">#${esc(enNum(id.number))}</span>
+        <span class="order-number" dir="ltr">#${esc(enNum(id.number))}</span>${o.gift?'<span title="طلب هدية">🎁 هدية</span>':''}
         <span class="source-pill ${id.website ? "" : "internal"}">${id.website ? "◉" : "◆"} ${esc(id.label)}</span>
         <span class="assignment-tag ${own ? "own-tag" : "available-tag"}">${own ? "✓ طلبي" : "◌ بدون مندوب"}</span>
       </div><div class="order-sub">رقم الطلب</div></div>
@@ -1904,7 +1904,7 @@
         <span class="clock-label">موعد التوصيل</span>${futureMode ? `<bdi class="clock-date" dir="ltr">${esc(formatDateKey(deliveryKey(o)))}</bdi>` : ""}
       </div></div>
       <div class="order-card-body"><div class="customer-row"><div class="customer-meta">
-        <div class="customer-label">اسم العميل</div><div class="customer-name">${esc(o.client || o.customer || "—")}</div>
+        <div class="customer-label">${o.gift?"مستلمة الهدية":"اسم العميل"}</div><div class="customer-name">${esc(o.gift?.recipientName || o.client || o.customer || "—")}</div>${o.gift?`<div class="driver-name">🎁 المُهدية وصاحبة الطلب: ${esc(o.gift.senderName||o.client||"—")}</div><div class="driver-name">📱 جوال المستلمة: <bdi dir="ltr">${esc(o.gift.recipientPhone||"—")}</bdi></div><div class="driver-name" style="color:#a03b63;font-weight:800">💗 المسؤولة عن سداد الطلب هي المُهدية؛ لا يُطلب المبلغ من المستلمة.</div>`:""}
         <div class="driver-name ${available ? "waiting-driver" : ""}">🚚 ${available ? "بانتظار تعيين مندوب" : esc(assignedName(o))}</div>
       </div><div class="fee"><strong class="number">${money(deliveryAmount(o))}</strong><span class="label">مستحق المندوب · ر.س</span></div></div>
       <div class="items-box"><div class="items-label">محتويات الطلب</div><div class="item-list">

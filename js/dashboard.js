@@ -9,7 +9,7 @@
   let orders=[], clients=[], selected=null;
   const phoneReviewDone=new Set();
   function nearPhoneMatches(order){
-    const incoming=NoshiIncoming.normalizeSaudiPhone(order.phone);
+    const incoming=NoshiIncoming.normalizeSaudiPhone(order.gift?.senderPhone || order.phone);
     if(!incoming.valid) return [];
     return clients.map(c=>{
       const saved=NoshiIncoming.normalizeSaudiPhone(c.phone);
@@ -37,19 +37,20 @@
   async function getClients(){
     clients=await NoshiDB.get('clients',[]); if(!Array.isArray(clients)) clients=[];
   }
-  function match(order){return NoshiIncoming.findClientByPhone(clients,order.phone)}
+  function match(order){return NoshiIncoming.findClientByPhone(clients,order.gift?.senderPhone || order.phone)}
   function deliveryDT(o){return NoshiIncoming.formatDeliveryDateTime12(o)}
   function render(){
     if(!orders.length){list.innerHTML='<div class="state empty">لا توجد طلبات جديدة تحتاج قرارًا حاليًا.</div>';return}
     list.innerHTML=orders.map(o=>{
-      const c=match(o), p=NoshiIncoming.normalizeSaudiPhone(o.phone), pot=potential(o);
+      const c=match(o), p=NoshiIncoming.normalizeSaudiPhone(o.gift?.senderPhone || o.phone), pot=potential(o);
       const items=Array.isArray(o.items)?o.items:[];
       const qty=items.reduce((n,i)=>n+Number(i.qty||i.quantity||1),0);
       const subtotal=items.reduce((n,i)=>n+(Number(i.price||0)*Number(i.qty||i.quantity||1)),0);
       const fee=NoshiIncoming.deliveryFee(o.deliveryArea);
       const grand=Number(o.total||subtotal+fee);
-      return `<article class="card" data-id="${esc(o.id)}">
-        <div class="head"><div class="customer-block"><div class="customer-label">العميلة</div><div class="customer-name ${c?'registered':''}">${c?esc(c.name):'عميلة جديدة'}</div><div class="phone">${esc(p.valid?p.formatted:o.phone)}</div></div><div class="order-side"><div class="orderno">طلب #${esc(o.orderNumber||o.id)}</div><span class="badge ${c?'known':'new'}">${c?'مسجلة':'جديدة'}</span></div></div>
+      return `<article class="card ${o.gift?'gift-order':''}" data-id="${esc(o.id)}">
+        <div class="head"><div class="customer-block"><div class="customer-label">${o.gift?'🎁 المُهدية · صاحبة الطلب':'العميلة'}</div><div class="customer-name ${c?'registered':''}">${o.gift?esc(o.gift.senderName):(c?esc(c.name):'عميلة جديدة')}</div><div class="phone">${esc(p.valid?p.formatted:o.phone)}</div></div><div class="order-side"><div class="orderno">طلب #${esc(o.orderNumber||o.id)}</div><span class="badge ${c?'known':'new'}">${c?'مسجلة':'جديدة'}</span></div></div>
+        ${o.gift?`<div class="gift-status"><b>${o.gift.confirmed?'✅ المستلمة أكدت موعد الاستلام':'🎁 بانتظار تأكيد موعد الاستلام'}</b><p><strong>صاحبة الطلب والدفع:</strong> ${esc(o.gift.senderName)} · ${esc(o.gift.senderPhone)}</p><p><strong>التوصيل إلى المستلمة:</strong> ${esc(o.gift.recipientName)} · ${esc(o.gift.recipientPhone)}</p><p>💌 ${esc(o.gift.message)}</p><p>القالب: ${esc(({rose:'🌸 وردة نوشي',luxury:'✨ هدية فاخرة',joy:'🎉 لحظة فرح'})[o.gift.theme]||o.gift.theme)}</p><p>الموعد المقترح: ${esc(o.gift.proposedDate?deliveryDT({deliveryDate:o.gift.proposedDate,deliveryTime:o.gift.proposedTime}):'تختاره المستلمة')}</p><p>الموعد المؤكد: ${esc(o.gift.confirmed?deliveryDT({deliveryDate:o.gift.confirmedDate,deliveryTime:o.gift.confirmedTime}):'بانتظار المستلمة')}</p><p>رابط الهدية: <a target="_blank" rel="noopener noreferrer" href="${esc(o.gift.link)}">فتح الرابط الخاص</a></p><button type="button" data-action="whatsapp">💬 إرسال الهدية عبر واتساب</button>${!o.gift.confirmed && new Date(o.gift.expiresAt).getTime()<=Date.now()?'<button type="button" data-action="reissue">🔄 إعادة إصدار رابط منتهي</button>':''}</div>`:''}
         <div class="order-summary">
           <div class="summary-line"><span>🕒 موعد التسليم</span><b>${esc(deliveryDT(o))}</b></div>
           <div class="summary-line"><span>🚚 التوصيل</span><b>${NoshiIncoming.deliveryAreaLabel(o.deliveryArea)} · ${money(fee)}</b></div>
@@ -62,12 +63,28 @@ ${Number(o.couponDiscount || 0) > 0 ? `
   </div>
 ` : ""}
 <div class="order-total-chip"><span>إجمالي الطلب</span><b>${money(grand)}</b></div>        ${pot?`<div class="phone-check-alert"><span>!</span><div><b>تحقق من رقم الجوال</b><small>قد تكون العميلة: ${esc(pot.client.name)}</small></div></div>`:''}
-        <div class="actions"><button class="details" data-action="details">🧾 عرض الفاتورة</button>${c?'<button class="accept" data-action="accept">✓ قبول</button>':pot?'<button class="create" data-action="verify-phone">⚠️ التحقق من الجوال</button>':'<button class="create" data-action="create">＋ إنشاء العميلة</button>'}<button class="reject" data-action="reject">رفض</button></div>
+        <div class="actions"><button class="details" data-action="details">🧾 عرض الفاتورة</button>${o.gift&&!o.gift.confirmed?'<button class="accept" disabled title="لا يمكن قبول الهدية قبل تأكيد المستلمة لموعد الاستلام">🔒 بانتظار تأكيد المستلمة</button>':c?'<button class="accept" data-action="accept">✓ قبول</button>':pot?'<button class="create" data-action="verify-phone">⚠️ التحقق من الجوال</button>':'<button class="create" data-action="create">＋ إنشاء العميلة</button>'}<button class="reject" data-action="reject">رفض</button></div>
       </article>`
     }).join('');
   }
-  list.addEventListener('click',async e=>{const b=e.target.closest('button[data-action]');if(!b)return;const card=b.closest('[data-id]');const o=orders.find(x=>String(x.id)===String(card.dataset.id));if(!o)return;selected=o; if(b.dataset.action==='details')showDetails(o); if(b.dataset.action==='create')showCreate(o); if(b.dataset.action==='verify-phone')showPhoneReview(o); if(b.dataset.action==='accept')await acceptOrder(o); if(b.dataset.action==='reject')await rejectOrder(o)});
+  list.addEventListener('click',async e=>{const b=e.target.closest('button[data-action]');if(!b)return;const card=b.closest('[data-id]');const o=orders.find(x=>String(x.id)===String(card.dataset.id));if(!o)return;selected=o; if(b.dataset.action==='whatsapp')sendGiftWhatsApp(o); if(b.dataset.action==='reissue')await reissueGift(o); if(b.dataset.action==='details')showDetails(o); if(b.dataset.action==='create')showCreate(o); if(b.dataset.action==='verify-phone')showPhoneReview(o); if(b.dataset.action==='accept')await acceptOrder(o); if(b.dataset.action==='reject')await rejectOrder(o)});
 
+  async function reissueGift(o){
+    if(!o.gift || o.gift.confirmed)return;
+    const yes=await NoshiUI.confirm('سيُلغى الرابط القديم ويُنشأ رابط جديد. هل تريدين المتابعة؟',{title:'إعادة إصدار رابط الهدية',confirmText:'إصدار الرابط',cancelText:'إلغاء'});
+    if(!yes)return;
+    try{await NoshiAuth.api(`/api/incoming-orders/${encodeURIComponent(o.id)}/gift/reissue`,{method:'POST'});await load();NoshiUI.alert('تم إصدار الرابط. افتحي الطلب وأرسليه للمستلمة يدويًا.',{title:'رابط جديد'});}
+    catch(e){NoshiUI.alert('تعذّرت إعادة إصدار الرابط: '+(e.message||e),{title:'رابط الهدية'});}
+  }
+  function sendGiftWhatsApp(o){
+    if(!o.gift?.link)return;
+    const phone=NoshiIncoming.normalizeSaudiPhone(o.gift.recipientPhone);
+    if(!phone.valid){NoshiUI.alert('رقم المستلمة غير صالح');return;}
+    const msg=`مرحبًا ${o.gift.recipientName} 🌷\nمعك فريق نوشي بيكري 🎁\nلديك هدية جميلة من ${o.gift.senderName} 💗\nجهزنا لك مفاجأة خاصة!\nافتحي هديتك من الرابط التالي:\n${o.gift.link}\nوبعد فتحها تقدرين تؤكدين موعد استلامها أو تختارين موعدًا يناسبك.`;
+    // Opens a prefilled message; the employee must press Send manually.
+    const url=`https://wa.me/${phone.normalized}?text=${encodeURIComponent(msg)}`;
+    window.open(url,'_blank','noopener,noreferrer');
+  }
   function showDetails(o){
     if (!window.NoshiInvoice) {
       NoshiUI.alert('تعذر تحميل الفاتورة الموحدة invoice.js', { title: 'الفاتورة' });
@@ -103,7 +120,7 @@ ${Number(o.couponDiscount || 0) > 0 ? `
     const invoiceOrder = {
       date: o.date || o.createdAt || today(),
       deliveryDate: NoshiIncoming.combineDeliveryDate(o) || '',
-      client: c?.name || 'عميلة جديدة',
+      client: o.gift?.senderName || c?.name || 'عميلة جديدة',
       items: invoiceItems,
       generalDiscount: 0,
       // IMPORTANT: preserve website per-item discount in invoice totals.
@@ -119,7 +136,7 @@ couponDiscount: Number(o.couponDiscount || 0),      notes: ''
   function showPhoneReview(o){
     const pot=potential(o);
     if(!pot){render();return}
-    const incoming=NoshiIncoming.normalizeSaudiPhone(o.phone);
+    const incoming=NoshiIncoming.normalizeSaudiPhone(o.gift?.senderPhone || o.phone);
     reviewCandidate.textContent=pot.client.name;
     reviewIncoming.querySelector('b').textContent=incoming.formatted||o.phone;
     reviewSaved.textContent=pot.saved.formatted||pot.client.phone;
@@ -165,7 +182,7 @@ couponDiscount: Number(o.couponDiscount || 0),      notes: ''
     if(potential(selected)) showPhoneReview(selected); else showCreate(selected);
   });
 
-  function showCreate(o){const p=NoshiIncoming.normalizeSaudiPhone(o.phone);newPhone.value=p.formatted||o.phone;newName.value='';joinDate.value=today();clientMsg.textContent='';openSheet('clientSheet');setTimeout(()=>newName.focus(),80)}
+  function showCreate(o){const p=NoshiIncoming.normalizeSaudiPhone(o.gift?.senderPhone || o.phone);newPhone.value=p.formatted||o.phone;newName.value=o.gift?.senderName||'';joinDate.value=today();clientMsg.textContent='';openSheet('clientSheet');setTimeout(()=>newName.focus(),80)}
 createClientBtn.addEventListener('click', async () => {
   if (!selected) return;
 
@@ -247,6 +264,7 @@ createClientBtn.addEventListener('click', async () => {
 });
    
   async function acceptOrder(o){
+    if(o.gift&&!o.gift.confirmed){NoshiUI.alert('🔒 لا يمكن قبول الهدية قبل تأكيد المستلمة لموعد الاستلام.');return;}
     const pot=potential(o); if(pot){showPhoneReview(o);return}
     const c=match(o); if(!c){showCreate(o);return}
     const orderNo=o.orderNumber||o.id;

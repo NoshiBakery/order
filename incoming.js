@@ -92,10 +92,11 @@
     return {
       externalRequestId:String(order.id || order.orderNumber || ""),
       externalOrderNumber:String(order.orderNumber || order.id || ""),
-      phone:normalizeSaudiPhone(order.phone).formatted,
+      phone:normalizeSaudiPhone(order.gift?.senderPhone || order.phone).formatted,
       clientId:client.id,
       clientName:client.name,
-      deliveryDate:combineDeliveryDate(order),
+      deliveryDate:order.gift?.confirmed ? `${order.gift.confirmedDate} ${order.gift.confirmedTime}` : combineDeliveryDate(order),
+      gift:order.gift ? {senderName:order.gift.senderName,senderPhone:order.gift.senderPhone,recipientName:order.gift.recipientName,recipientPhone:order.gift.recipientPhone,theme:order.gift.theme,message:order.gift.message,payer:"sender"} : null,
       deliveryArea:deliveryAreaLabel(order.deliveryArea),
 
       deliveryFee:fee,

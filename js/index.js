@@ -774,6 +774,7 @@ generalDiscount: Number(order.generalDiscount || 0),
 
 couponCode: String(order.couponCode || ""),
 couponDiscount: Math.max(0, Number(order.couponDiscount || 0)),
+gift: order.gift ? {senderName:String(order.gift.senderName||'').slice(0,80),recipientName:String(order.gift.recipientName||'').slice(0,80)} : null,
 
 totalBefore: Number(order.totalBefore || 0),
 totalAfter: Number(order.totalAfter || 0),
@@ -935,6 +936,7 @@ async function approveOrder() {
       if (editingOrder.order.externalRequestId) orderData.externalRequestId = editingOrder.order.externalRequestId;
       if (editingOrder.order.externalOrderNumber) orderData.externalOrderNumber = editingOrder.order.externalOrderNumber;
       if (editingOrder.order.source) orderData.source = editingOrder.order.source;
+      if (editingOrder.order.gift) orderData.gift = editingOrder.order.gift;
     }
 
     // إذا كان الطلب قادمًا من الموقع الخارجي نحفظ معرفه لمنع التكرار لاحقًا في D1.
@@ -945,6 +947,7 @@ const incomingDraft = !editingOrder
       orderData.externalRequestId = incomingDraft.externalRequestId;
       orderData.externalOrderNumber = incomingDraft.externalOrderNumber || incomingDraft.externalRequestId;
       orderData.source = "website";
+      if(incomingDraft.gift){orderData.gift = incomingDraft.gift;}
     }
 
     let salesData = await NoshiDB.get("salesData", {});
