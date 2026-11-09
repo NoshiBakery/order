@@ -50,7 +50,7 @@
       const grand=Number(o.total||subtotal+fee);
       return `<article class="card ${o.gift?'gift-order':''}" data-id="${esc(o.id)}">
         <div class="head"><div class="customer-block"><div class="customer-label">${o.gift?'🎁 المُهدية · صاحبة الطلب':'العميلة'}</div><div class="customer-name ${c?'registered':''}">${o.gift?esc(o.gift.senderName):(c?esc(c.name):'عميلة جديدة')}</div><div class="phone">${esc(p.valid?p.formatted:o.phone)}</div></div><div class="order-side"><div class="orderno">طلب #${esc(o.orderNumber||o.id)}</div><span class="badge ${c?'known':'new'}">${c?'مسجلة':'جديدة'}</span></div></div>
-        ${o.gift?`<div class="gift-status"><b>${o.gift.confirmed?'✅ المستلمة أكدت موعد الاستلام':'🎁 بانتظار تأكيد موعد الاستلام'}</b><p><strong>صاحبة الطلب والدفع:</strong> ${esc(o.gift.senderName)} · ${esc(o.gift.senderPhone)}</p><p><strong>التوصيل إلى المستلمة:</strong> ${esc(o.gift.recipientName)} · ${esc(o.gift.recipientPhone)}</p><p>💌 ${esc(o.gift.message)}</p><p>القالب: ${esc(({rose:'🌸 ورد',luxury:'✨ فخامة',joy:'🎉 فرح'})[o.gift.theme]||o.gift.theme)}</p><p>الموعد المقترح: ${esc(o.gift.proposedDate?deliveryDT({deliveryDate:o.gift.proposedDate,deliveryTime:o.gift.proposedTime}):'تختاره المستلمة')}</p><p>الموعد المؤكد: ${esc(o.gift.confirmed?deliveryDT({deliveryDate:o.gift.confirmedDate,deliveryTime:o.gift.confirmedTime}):'بانتظار المستلمة')}</p><p>رابط الهدية: <a target="_blank" rel="noopener noreferrer" href="${esc(o.gift.link)}">فتح الرابط الخاص</a></p><button type="button" data-action="whatsapp">💬 إرسال الهدية عبر واتساب</button>${!o.gift.confirmed && new Date(o.gift.expiresAt).getTime()<=Date.now()?'<button type="button" data-action="reissue">🔄 إعادة إصدار رابط منتهي</button>':''}</div>`:''}
+        ${o.gift?`<div class="gift-status"><b>${o.gift.confirmed?'✅ المستلمة أكدت موعد الاستلام':'🎁 بانتظار تأكيد موعد الاستلام'}</b><p><strong>صاحبة الطلب والدفع:</strong> ${esc(o.gift.senderName)} · ${esc(o.gift.senderPhone)}</p><p><strong>التوصيل إلى المستلمة:</strong> ${esc(o.gift.recipientName)} · ${esc(o.gift.recipientPhone)}</p><p>💌 ${esc(o.gift.message)}</p><p>القالب: ${esc(({rose:'🌸 ورد',luxury:'✨ فخامة',joy:'🎉 فرح'})[o.gift.theme]||o.gift.theme)}</p><p>الموعد المقترح: ${esc(o.gift.proposedDate?deliveryDT({deliveryDate:o.gift.proposedDate,deliveryTime:o.gift.proposedTime}):'تختاره المستلمة')}</p><p>الموعد المؤكد: ${esc(o.gift.confirmed?deliveryDT({deliveryDate:o.gift.confirmedDate,deliveryTime:o.gift.confirmedTime}):'بانتظار المستلمة')}</p><p>رابط الهدية: <a target="_blank" rel="noopener noreferrer" href="${esc(o.gift.link)}">فتح الرابط الخاص</a></p><button type="button" data-action="contact-sender">💬 التواصل مع المُهدية</button> <button type="button" data-action="whatsapp">🎁 إرسال للمستلمة</button>${!o.gift.confirmed && new Date(o.gift.expiresAt).getTime()<=Date.now()?'<button type="button" data-action="reissue">🔄 إعادة إصدار رابط منتهي</button>':''}</div>`:''}
         <div class="order-summary">
           <div class="summary-line"><span>🕒 موعد التسليم</span><b>${esc(deliveryDT(o))}</b></div>
           <div class="summary-line"><span>🚚 التوصيل</span><b>${NoshiIncoming.deliveryAreaLabel(o.deliveryArea)} · ${money(fee)}</b></div>
@@ -67,7 +67,7 @@ ${Number(o.couponDiscount || 0) > 0 ? `
       </article>`
     }).join('');
   }
-  list.addEventListener('click',async e=>{const b=e.target.closest('button[data-action]');if(!b)return;const card=b.closest('[data-id]');const o=orders.find(x=>String(x.id)===String(card.dataset.id));if(!o)return;selected=o; if(b.dataset.action==='whatsapp')sendGiftWhatsApp(o); if(b.dataset.action==='reissue')await reissueGift(o); if(b.dataset.action==='details')showDetails(o); if(b.dataset.action==='create')showCreate(o); if(b.dataset.action==='verify-phone')showPhoneReview(o); if(b.dataset.action==='accept')await acceptOrder(o); if(b.dataset.action==='reject')await rejectOrder(o)});
+  list.addEventListener('click',async e=>{const b=e.target.closest('button[data-action]');if(!b)return;const card=b.closest('[data-id]');const o=orders.find(x=>String(x.id)===String(card.dataset.id));if(!o)return;selected=o; if(b.dataset.action==='whatsapp')sendGiftWhatsApp(o); if(b.dataset.action==='contact-sender')contactGiftSender(o); if(b.dataset.action==='reissue')await reissueGift(o); if(b.dataset.action==='details')showDetails(o); if(b.dataset.action==='create')showCreate(o); if(b.dataset.action==='verify-phone')showPhoneReview(o); if(b.dataset.action==='accept')await acceptOrder(o); if(b.dataset.action==='reject')await rejectOrder(o)});
 
   async function reissueGift(o){
     if(!o.gift || o.gift.confirmed)return;
@@ -75,6 +75,15 @@ ${Number(o.couponDiscount || 0) > 0 ? `
     if(!yes)return;
     try{await NoshiAuth.api(`/api/incoming-orders/${encodeURIComponent(o.id)}/gift/reissue`,{method:'POST'});await load();NoshiUI.alert('تم إصدار الرابط. افتحي الطلب وأرسليه للمستلمة يدويًا.',{title:'رابط جديد'});}
     catch(e){NoshiUI.alert('تعذّرت إعادة إصدار الرابط: '+(e.message||e),{title:'رابط الهدية'});}
+  }
+  function contactGiftSender(o){
+    if(!o.gift)return;
+    const phone=NoshiIncoming.normalizeSaudiPhone(o.gift.senderPhone || o.phone);
+    if(!phone.valid){NoshiUI.alert('رقم المُهدية غير صالح');return;}
+    const sender=String(o.gift.senderName||'').replace(/[*_~`]/g,'').trim();
+    const orderNumber=String(o.orderNumber||o.id||'');
+    const msg=`السلام عليكم ورحمة الله وبركاته ..\nيا أهلًا وسهلًا يا *${sender}* 💗\nمعك فريق نوشي بيكري 🙏🏻\n\nنتواصل معك بخصوص طلب الهدية رقم #${orderNumber} 🎁`;
+    window.open(`https://wa.me/${phone.normalized}?text=${encodeURIComponent(msg)}`,'_blank','noopener,noreferrer');
   }
   function sendGiftWhatsApp(o){
     if(!o.gift?.link)return;
