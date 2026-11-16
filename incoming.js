@@ -67,10 +67,12 @@
     const items=(Array.isArray(order.items)?order.items:[]).map(i=>{
       const productId=i.productId || i.id || null;
       const incomingName=String(i.name||i.productName||"منتج").trim();
+      const [namePart,...choiceNotes]=incomingName.split(" | ");
       const isCellProduct=["p18","p19","p20"].includes(String(productId||"").trim());
-      const sizeMatch=isCellProduct ? incomingName.match(/^(.*)\s+—\s+(صغير|وسط)$/) : null;
-      const baseName=sizeMatch ? sizeMatch[1].trim() : incomingName;
-      const sizeNote=sizeMatch ? `الحجم ${sizeMatch[2]}` : "";
+      const sizeMatch=isCellProduct ? namePart.match(/^(.*)\s+—\s+(صغير|وسط)$/) : null;
+      const baseName=sizeMatch ? sizeMatch[1].trim() : namePart;
+      const sizeNote=[sizeMatch ? `الحجم ${sizeMatch[2]}` : "",
+        ...choiceNotes.filter(n=>/^(نوع الدقيق|مستوى السكر): /.test(n))].filter(Boolean).join(" · ");
       return {
         productId,
         name:baseName,

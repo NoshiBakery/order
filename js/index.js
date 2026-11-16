@@ -143,6 +143,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       qty: i.qty,
       discount: i.discount || 0,
       notes: i.notes || "",
+      // Preserve product selections in the item note during invoice edits.
+      notesLocked: /(?:نوع الدقيق|مستوى السكر):/.test(String(i.notes || "")),
       customName: i.customName || "",
       img: i.img || ([...cakes, ...sweets, ...extras].find(p => p.name === (i.originalName || i.name))?.img || "")
     }));
@@ -264,7 +266,9 @@ if (incomingBarText) {
         name: i.name, originalName: i.originalName || i.name,
         price: Number(i.price || 0), originalPrice: Number(i.originalPrice ?? i.price ?? 0),
         qty: Math.max(1, Number(i.qty || 1)), discount: Number(i.discount || 0),
-        notes: i.notes || "", notesLocked: false, customName: i.customName || "",
+        notes: i.notes || "",
+        notesLocked: Boolean(i.notesLocked || /(?:نوع الدقيق|مستوى السكر):/.test(String(i.notes || ""))),
+        customName: i.customName || "",
         img: i.img || ([...cakes, ...sweets, ...extras].find(p => p.name === (i.originalName || i.name))?.img || "")
       }));
 	activeCoupon = incomingDraft.couponCode
@@ -745,9 +749,17 @@ function buildNoshiPrintPayload(order) {
         item.originalName ||
         item.name ||
         ""
-      ).trim(),
+      ).trim() + (
+        /(?:نوع الدقيق|مستوى السكر):/.test(String(item.notes || ""))
+          ? ` | ${String(item.notes).trim().slice(0,75)}` : ""
+      ),
 
-      name: String(item.name || "").trim(),
+      // NOSHI option notes accompany this item's name on both print copies.
+      // Other legacy item notes remain unchanged (no new printing behavior).
+      name: String(item.name || "").trim() + (
+        /(?:نوع الدقيق|مستوى السكر):/.test(String(item.notes || ""))
+          ? ` | ${String(item.notes).trim().slice(0,90)}` : ""
+      ),
       qty: Number(item.qty || 0),
       price: Number(item.price || 0),
       discount: Number(item.discount || 0),

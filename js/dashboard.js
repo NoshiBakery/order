@@ -105,17 +105,19 @@ ${Number(o.couponDiscount || 0) > 0 ? `
     const items = Array.isArray(o.items) ? o.items.map(i => {
       const productId = String(i.productId || i.id || '').trim();
       const incomingName = String(i.name || i.productName || 'منتج').trim();
+      const [namePart,...choiceNotes] = incomingName.split(' | ');
       const sizeMatch = ['p18','p19','p20'].includes(productId)
-        ? incomingName.match(/^(.*)\s+—\s+(صغير|وسط)$/)
+        ? namePart.match(/^(.*)\s+—\s+(صغير|وسط)$/)
         : null;
       return {
         ...i,
-        name: sizeMatch ? sizeMatch[1].trim() : incomingName,
+        name: sizeMatch ? sizeMatch[1].trim() : namePart,
         qty: Number(i.qty || i.quantity || 1),
         price: Number(i.originalUnitPrice ?? i.originalPrice ?? i.original_unit_price ?? i.price ?? i.unitPrice ?? i.unit_price ?? 0),
         originalPrice: Number(i.originalUnitPrice ?? i.originalPrice ?? i.original_unit_price ?? i.price ?? i.unitPrice ?? i.unit_price ?? 0),
         discount: Math.max(0, Math.min(100, Number(i.discountPercent ?? i.discount ?? i.discount_percent ?? 0))),
-        notes: sizeMatch ? `الحجم: ${sizeMatch[2]}` : ''
+        notes: [sizeMatch ? `الحجم: ${sizeMatch[2]}` : '',
+          ...choiceNotes.filter(n=>/^(نوع الدقيق|مستوى السكر): /.test(n))].filter(Boolean).join(' · ')
       };
     }) : [];
     const originalSubtotal = items.reduce((sum, i) => {
