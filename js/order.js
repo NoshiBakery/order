@@ -60,6 +60,53 @@
     await NoshiDB.set("salesData", salesData);
   }
 
+// تعديل حقول الدفع فقط دون إعادة إرسال سجل المبيعات بالكامل.
+// تسلسل الطلبات يمنع سباق النقرات؛ إعادة القراءة تُحدّث revision الخاص بـNoshiDB.
+let orderPaymentWriteQueue = Promise.resolve();
+let pendingOrderPaymentWrites = 0;
+
+function persistOrderPaymentChange(month, index, patch) {
+  const order = salesData[month]?.[index];
+  if (!order) return Promise.reject(new Error("ORDER_NOT_FOUND"));
+  const payload = {
+    sourceMonth: month,
+    sourceIndex: index,
+    orderId: String(order.id || order.orderNumber || order.externalOrderNumber || ""),
+    ...patch
+  };
+  pendingOrderPaymentWrites++;
+  const task = orderPaymentWriteQueue.catch(() => {}).then(async () => {
+    // المحافظة على دعم التخزين المحلي عندما يكون الوضع السحابي معطّلًا.
+    if (window.NOSHI_CONFIG?.CLOUD_ENABLED === false) {
+      await NoshiDB.set("salesData", salesData);
+      return { ok: true };
+    }
+    if (!window.NoshiAuth || typeof NoshiAuth.api !== "function") {
+      throw new Error("خدمة الحفظ غير متاحة");
+    }
+    const result = await NoshiAuth.api("/api/data/salesData/order-payment", {
+      method: "POST", body: JSON.stringify(payload)
+    });
+    // أعاد الخادم نجاح الحفظ. فشل إعادة القراءة اللاحقة لا يعني فشل الحفظ.
+    // ننعش revision في NoshiDB قبل عمليات الحفظ الكامل الأخرى عندما يمكن ذلك.
+    if (pendingOrderPaymentWrites === 1) {
+      try {
+        const latest = await NoshiDB.get("salesData", {});
+        if (pendingOrderPaymentWrites === 1 && latest && typeof latest === "object") {
+          salesData = latest;
+        }
+      } catch (refreshError) {
+        console.warn("تم حفظ الدفع لكن تعذرت مزامنة نسخة الصفحة:", refreshError);
+      }
+    }
+    return result;
+  });
+  orderPaymentWriteQueue = task.catch(() => {}).finally(() => {
+    pendingOrderPaymentWrites--;
+  });
+  return task;
+}
+
 function cloneForBackup(data) {
   return JSON.parse(JSON.stringify(data || {}));
 }
@@ -893,24 +940,37 @@ async function toggleDeliveryStatus(monthKey, index, isDelivered, deliveryIndex 
 
   // تحديث حالة الدفع
 async function updatePaymentStatus(month, index, isChecked, event) {
-  event.preventDefault();
-
   playSound('clickSound');
-
-  const order = salesData[month][index];
-
+  const order = salesData[month]?.[index];
+  if (!order) return;
+  const checkbox = event?.target;
+  if (checkbox) checkbox.disabled = true;
+  const previousPaid = !!order.paidByEmad;
+  const previousCheckbox = order.checkboxStatus;
   order.paidByEmad = isChecked;
   order.checkboxStatus = isChecked;
 
   try {
-    await saveSalesData();
+    await persistOrderPaymentChange(month, index, {
+      mode: "paidByEmad",
+      paidByEmad: isChecked,
+      expectedPaidByEmad: previousPaid
+    });
+    changeMonth(0);
   } catch (error) {
+    order.paidByEmad = previousPaid;
+    order.checkboxStatus = previousCheckbox;
+    if (checkbox) checkbox.checked = previousPaid;
     console.error("فشل حفظ حالة الدفع:", error);
-    showMessage("❌ حدث خطأ أثناء حفظ حالة الدفع");
-    return;
+    try {
+      salesData = await NoshiDB.get("salesData", {});
+      changeMonth(0);
+    } catch (refreshError) {
+      console.error("فشل إعادة تحميل حالة الدفع:", refreshError);
+      if (checkbox) checkbox.disabled = false;
+    }
+    showMessage("❌ تعذر حفظ حالة السداد؛ أُعيدت الحالة السابقة");
   }
-
-  changeMonth(0);
 }
 
   // حذف الطلب
@@ -1245,81 +1305,51 @@ function closePaymentSimpleModal() {
 
   saveButton.addEventListener("click", async function () {
     const newMethod = paymentSelect.value;
-
-    const newTransferred =
-      newMethod === "transfer"
-        ? transferredCheck.checked
-        : false;
-
-    const newDelivered =
-      deliveredCheck.checked;
-
-    /*
-      الاحتفاظ بالقيم القديمة لإعادتها
-      في حال فشل الحفظ في IndexedDB.
-    */
-    const previousMethod =
-      order.paymentMethod;
-
-    const previousTransferred =
-      order.transferred;
-
-    const previousDelivered =
-      order.delivered;
+    const newTransferred = newMethod === "transfer" ? transferredCheck.checked : false;
+    const newDelivered = deliveredCheck.checked;
+    const previousMethod = order.paymentMethod;
+    const previousTransferred = order.transferred;
+    const previousDelivered = order.delivered;
 
     saveButton.disabled = true;
-    saveButton.textContent = "جاري الحفظ...";
-
-    order.paymentMethod =
-      newMethod;
-
-    order.transferred =
-      newTransferred;
-
-    order.delivered =
-      newDelivered;
+    order.paymentMethod = newMethod;
+    order.transferred = newTransferred;
+    order.delivered = newDelivered;
+    // إغلاق النافذة وتحديث العرض فورًا؛ لا نعلن نجاح الحفظ قبل تأكيد الخادم.
+    closePaymentSimpleModal();
+    const upcoming = document.getElementById("upcomingTab")?.classList.contains("active");
+    if (upcoming) loadUpcomingOrders();
+    else changeMonth(0);
+    updateTodayDeliverySummaryUI();
 
     try {
-      await saveSalesData();
-
-      closePaymentSimpleModal();
-
-      if (
-        document
-          .getElementById("upcomingTab")
-          .classList
-          .contains("active")
-      ) {
-        await loadUpcomingOrders();
-      } else {
-        changeMonth(0);
-      }
-
+      await persistOrderPaymentChange(month, index, {
+        mode: "paymentDetails",
+        paymentMethod: newMethod,
+        transferred: newTransferred,
+        delivered: newDelivered,
+        expectedPaymentMethod: previousMethod || "not-set",
+        expectedTransferred: !!previousTransferred,
+        expectedDelivered: !!previousDelivered
+      });
+      if (upcoming) await loadUpcomingOrders();
+      else changeMonth(0);
       updateTodayDeliverySummaryUI();
-
       showMessage("✅ تم حفظ تعديل الدفع");
-
     } catch (error) {
-      order.paymentMethod =
-        previousMethod;
-
-      order.transferred =
-        previousTransferred;
-
-      order.delivered =
-        previousDelivered;
-
-      console.error(
-        "فشل حفظ تعديل الدفع:",
-        error
-      );
-
-      showMessage(
-        "❌ تعذر حفظ التعديل، ولم تتغير بيانات الطلب"
-      );
-
-      saveButton.disabled = false;
-      saveButton.textContent = "حفظ";
+      order.paymentMethod = previousMethod;
+      order.transferred = previousTransferred;
+      order.delivered = previousDelivered;
+      console.error("فشل حفظ تعديل الدفع:", error);
+      try {
+        salesData = await NoshiDB.get("salesData", {});
+      } catch (refreshError) {
+        console.error("فشل إعادة تحميل حالة الدفع:", refreshError);
+      }
+      if (upcoming) await loadUpcomingOrders();
+      else changeMonth(0);
+      updateTodayDeliverySummaryUI();
+      showMessage("❌ تعذر تأكيد حفظ التعديل؛ تحقق من الحالة بعد تحديث الصفحة");
     }
   });
 }
