@@ -459,7 +459,7 @@ async function selectMandoub(name) {
   }
 }
 
-// تغيير حالة الدفع
+// تغيير حالة الدفع — حفظ موجّه لتوصيلة واحدة دون PUT كامل لـ salesData.
 async function togglePayment(month, index, deliveryIndex = -1) {
   if (!salesData[month] || !salesData[month][index]) {
     alert("❌ لم يتم العثور على الطلب المطلوب");
@@ -472,20 +472,43 @@ async function togglePayment(month, index, deliveryIndex = -1) {
     await NoshiUI.alert("يجب تحديد مندوب رسمي أولًا. حالة الطلب الآن: انتظار ⏳", { title: "حالة المندوب" });
     return;
   }
-  if (slot) {
-    slot.deliveryPaid = !slot.deliveryPaid;
-    if (deliveryIndex === 0) parent.deliveryPaid = !!slot.deliveryPaid;
-  } else {
-    parent.deliveryPaid = !parent.deliveryPaid;
-  }
 
-  try {
-    await saveSalesData();
-  } catch (error) {
-    showStorageError(error);
-    return;
+  const previousPaid = slot ? !!slot.deliveryPaid : !!parent.deliveryPaid;
+  const nextPaid = !previousPaid;
+  const orderId = parent.id ?? parent.orderNumber ?? parent.externalOrderNumber ?? "";
+  if (slot) {
+    slot.deliveryPaid = nextPaid;
+    if (deliveryIndex === 0) parent.deliveryPaid = nextPaid;
+  } else {
+    parent.deliveryPaid = nextPaid;
   }
   loadData();
+
+  try {
+    await persistMandoubPayment({
+      orderId,
+      sourceMonth: month,
+      sourceIndex: index,
+      deliveryIndex,
+      expectedMandoub: deliveryPerson,
+      deliveryPaid: nextPaid
+    });
+  } catch (error) {
+    try {
+      await loadStorageState();
+      loadData();
+    } catch (reloadError) {
+      console.error("تعذر إعادة تحميل البيانات بعد فشل تحديث حالة الدفع:", reloadError);
+      if (slot) {
+        slot.deliveryPaid = previousPaid;
+        if (deliveryIndex === 0) parent.deliveryPaid = previousPaid;
+      } else {
+        parent.deliveryPaid = previousPaid;
+      }
+      loadData();
+    }
+    showStorageError(error);
+  }
 }
 
 function payAllMandoubOrders(name) {
@@ -744,8 +767,36 @@ function payAllMandoubOrders(name) {
   };
 
   confirmBtn.onclick = async () => {
-    monthRows.forEach(({order, parentOrder, deliveryIndex}) => {
+    const paidRows = [];
+    const updates = [];
+    monthRows.forEach(({order, parentOrder, sourceMonth, sourceIndex, deliveryIndex}) => {
       if (order.deliveryPerson !== name || order.deliveryPaid === true) return;
+      paidRows.push({ parentOrder, deliveryIndex });
+      updates.push({
+        orderId: parentOrder.id ?? parentOrder.orderNumber ?? parentOrder.externalOrderNumber ?? "",
+        sourceMonth,
+        sourceIndex,
+        deliveryIndex,
+        expectedMandoub: name,
+        deliveryPaid: true
+      });
+    });
+
+    if (!updates.length) return;
+    try {
+      await persistMandoubPayment({ updates });
+    } catch (error) {
+      try {
+        await loadStorageState();
+        loadData();
+      } catch (reloadError) {
+        console.error("تعذر إعادة تحميل البيانات بعد فشل السداد الجماعي:", reloadError);
+      }
+      showStorageError(error);
+      return;
+    }
+
+    paidRows.forEach(({parentOrder, deliveryIndex}) => {
       if (deliveryIndex >= 0 && Array.isArray(parentOrder.deliveries)) {
         const slot = parentOrder.deliveries[deliveryIndex];
         if (slot) {
@@ -756,13 +807,6 @@ function payAllMandoubOrders(name) {
         parentOrder.deliveryPaid = true;
       }
     });
-
-    try {
-      await saveSalesData();
-    } catch (error) {
-      showStorageError(error);
-      return;
-    }
 
     modal.style.display = "none";
 
@@ -1244,11 +1288,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     showStorageError(error);
   }
 });
-// حفظ تغيير المندوب فقط بدل إعادة إرسال salesData كاملة.
-// التسلسل يمنع وصول طلبين من نفس الصفحة بترتيب معكوس، وإعادة المحاولة تعالج تعارض revision.
+// حفظ تغييرات صفحة المناديب عبر عمليات موجّهة بدل إعادة إرسال salesData كاملة.
+// تُسلسل العمليات وتُعاد المحاولة عند تعارض revision لأن Worker يعيد تطبيق الحقل على أحدث نسخة.
 let mandoubSaveQueue = Promise.resolve();
 
-function persistMandoubAssignment(payload) {
+function persistMandoubMutation(path, payload) {
   const run = mandoubSaveQueue.then(async () => {
     let lastError;
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -1256,13 +1300,13 @@ function persistMandoubAssignment(payload) {
         if (!window.NoshiAuth || typeof window.NoshiAuth.api !== "function") {
           throw new Error("تعذر الاتصال بخدمة البيانات");
         }
-        return await window.NoshiAuth.api("/api/data/salesData/mandoub", {
+        return await window.NoshiAuth.api(path, {
           method: "POST",
           body: JSON.stringify(payload)
         });
       } catch (error) {
         lastError = error;
-        if (error?.status !== 409 || attempt === 2) throw error;
+        if (error?.status !== 409 || error?.data?.error !== "REVISION_CONFLICT" || attempt === 2) throw error;
         await new Promise(resolve => setTimeout(resolve, 120 * (attempt + 1)));
       }
     }
@@ -1271,4 +1315,12 @@ function persistMandoubAssignment(payload) {
 
   mandoubSaveQueue = run.catch(() => {});
   return run;
+}
+
+function persistMandoubAssignment(payload) {
+  return persistMandoubMutation("/api/data/salesData/mandoub", payload);
+}
+
+function persistMandoubPayment(payload) {
+  return persistMandoubMutation("/api/data/salesData/mandoub-payment", payload);
 }
