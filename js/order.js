@@ -449,6 +449,20 @@ if (
     }, 50);
   }
 
+  // التاريخ والوقت في الجدول فقط: عرض 12 ساعة، دون تحويل توقيت أو تغيير القيمة المخزنة.
+  function formatOrderTableDate(value) {
+    if (value == null || value === "") return "-";
+    const raw = String(value).trim();
+    const match = raw.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::\d{2})?)?$/);
+    if (!match) return raw;
+    const [, year, month, day, hourText, minuteText] = match;
+    const date = `${year}/${month.padStart(2, '0')}/${day.padStart(2, '0')}`;
+    if (hourText === undefined) return date;
+    const hour = Number(hourText);
+    if (hour > 23 || Number(minuteText) > 59) return raw;
+    return `${date} ${hour >= 12 ? 'م' : 'ص'} ${hour % 12 || 12}:${minuteText}`;
+  }
+
   // عرض الطلبات في الجدول
   function displayOrders(monthKey, originalMonthOrders, monthOrders) {
     let html = `
@@ -469,7 +483,7 @@ if (
 
     monthOrders.forEach((order, reversedIndex) => {
       const originalIndex = originalMonthOrders.length - 1 - reversedIndex;
-      const orderDate = order.date || "-";
+      const orderDate = formatOrderTableDate(order.date);
       const totalAfter = parseFloat(order.totalAfter);
       const paymentMethod = order.paymentMethod || "not-set";
       const paymentClass = paymentMethod === "transfer" ? "payment-transfer" : 
@@ -488,7 +502,7 @@ if (
             >
           </td>
           <td>${originalIndex + 1}</td>
-          <td>${orderDate}</td>
+          <td><bdi dir="ltr">${orderDate}</bdi></td>
           <td class="client-name">${order.client || "—"}</td>
           <td>${totalAfter.toFixed(2)} ريال</td>
           <td>${paymentText}</td>
@@ -1726,7 +1740,7 @@ function resetSummaryDay() {
           <tbody>`;
 
     unpaidOrders.forEach((order, index) => {
-      const orderDate = order.date || "-";
+      const orderDate = formatOrderTableDate(order.date);
       const totalAfter = parseFloat(order.totalAfter);
       const originalIndex = findOriginalIndex(monthKey, order);
       
@@ -1739,7 +1753,7 @@ function resetSummaryDay() {
             >
           </td>
           <td>${index + 1}</td>
-          <td>${orderDate}</td>
+          <td><bdi dir="ltr">${orderDate}</bdi></td>
           <td class="client-name">${order.client || "—"}</td>
           <td>${totalAfter.toFixed(2)} ريال</td>
           <td><span class='unpaid-transfer'>لم يتم التحويل ⚠️</span></td>
