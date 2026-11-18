@@ -64,6 +64,24 @@
 // تسلسل الطلبات يمنع سباق النقرات؛ إعادة القراءة تُحدّث revision الخاص بـNoshiDB.
 let orderPaymentWriteQueue = Promise.resolve();
 let pendingOrderPaymentWrites = 0;
+let orderPaymentBatchHadError = false;
+
+// حالة مستقلة عن العرض المؤقت: لا تعني هذه الرسالة أن الحفظ نجح.
+function showOrderPaymentSaving() {
+  let node = document.getElementById("noshiOrderPaymentSaving");
+  if (!node) {
+    node = document.createElement("div");
+    node.id = "noshiOrderPaymentSaving";
+    node.setAttribute("role", "status");
+    node.setAttribute("aria-live", "polite");
+    node.style.cssText = "position:fixed;bottom:16px;left:16px;z-index:9998;background:#343a40;color:white;padding:8px 12px;border-radius:8px;font-size:13px;box-shadow:0 2px 8px #0003";
+    document.body.appendChild(node);
+  }
+  node.textContent = "⏳ جارٍ حفظ تغييرات الدفع…";
+}
+function hideOrderPaymentSaving() {
+  document.getElementById("noshiOrderPaymentSaving")?.remove();
+}
 
 function persistOrderPaymentChange(month, index, patch) {
   const order = salesData[month]?.[index];
@@ -75,6 +93,7 @@ function persistOrderPaymentChange(month, index, patch) {
     ...patch
   };
   pendingOrderPaymentWrites++;
+  showOrderPaymentSaving();
   const task = orderPaymentWriteQueue.catch(() => {}).then(async () => {
     // المحافظة على دعم التخزين المحلي عندما يكون الوضع السحابي معطّلًا.
     if (window.NOSHI_CONFIG?.CLOUD_ENABLED === false) {
@@ -103,6 +122,7 @@ function persistOrderPaymentChange(month, index, patch) {
   });
   orderPaymentWriteQueue = task.catch(() => {}).finally(() => {
     pendingOrderPaymentWrites--;
+    if (pendingOrderPaymentWrites === 0) hideOrderPaymentSaving();
   });
   return task;
 }
@@ -943,8 +963,7 @@ async function updatePaymentStatus(month, index, isChecked, event) {
   playSound('clickSound');
   const order = salesData[month]?.[index];
   if (!order) return;
-  const checkbox = event?.target;
-  if (checkbox) checkbox.disabled = true;
+  // لا نعطّل مربع الاختيار أثناء الشبكة؛ تُرسل النقرات بترتيبها.
   const previousPaid = !!order.paidByEmad;
   const previousCheckbox = order.checkboxStatus;
   order.paidByEmad = isChecked;
@@ -956,20 +975,37 @@ async function updatePaymentStatus(month, index, isChecked, event) {
       paidByEmad: isChecked,
       expectedPaidByEmad: previousPaid
     });
-    changeMonth(0);
-  } catch (error) {
-    order.paidByEmad = previousPaid;
-    order.checkboxStatus = previousCheckbox;
-    if (checkbox) checkbox.checked = previousPaid;
-    console.error("فشل حفظ حالة الدفع:", error);
-    try {
-      salesData = await NoshiDB.get("salesData", {});
+    // إظهار أحدث حالة مؤكدة فقط؛ لا تعيد رسم الجدول وسط نقرات معلّقة.
+    if (pendingOrderPaymentWrites <= 1) {
       changeMonth(0);
-    } catch (refreshError) {
-      console.error("فشل إعادة تحميل حالة الدفع:", refreshError);
-      if (checkbox) checkbox.disabled = false;
+      if (orderPaymentBatchHadError) {
+        showMessage("⚠️ بعض تغييرات الدفع لم تُحفظ؛ عُرضت حالة الخادم");
+        orderPaymentBatchHadError = false;
+      }
     }
-    showMessage("❌ تعذر حفظ حالة السداد؛ أُعيدت الحالة السابقة");
+  } catch (error) {
+    orderPaymentBatchHadError = true;
+    console.error("فشل حفظ حالة الدفع:", error);
+    // قد يكون هناك تعديل أحدث في طابور الحفظ؛ لا تكتب فوقه بحالة قديمة.
+    if (pendingOrderPaymentWrites <= 1) {
+      try {
+        const latest = await NoshiDB.get("salesData", {});
+        if (pendingOrderPaymentWrites <= 1) {
+          salesData = latest;
+          changeMonth(0);
+        }
+      } catch (refreshError) {
+        console.error("فشل إعادة تحميل حالة الدفع:", refreshError);
+        // عند عدم إمكان معرفة حالة الخادم لا نؤكد الحفظ.
+        if (pendingOrderPaymentWrites <= 1) {
+          order.paidByEmad = previousPaid;
+          order.checkboxStatus = previousCheckbox;
+          changeMonth(0);
+        }
+      }
+      orderPaymentBatchHadError = false;
+      showMessage("❌ تعذر تأكيد الحفظ؛ راجع حالة الطلب بعد تحديث الصفحة");
+    }
   }
 }
 
@@ -1332,24 +1368,38 @@ function closePaymentSimpleModal() {
         expectedTransferred: !!previousTransferred,
         expectedDelivered: !!previousDelivered
       });
-      if (upcoming) await loadUpcomingOrders();
-      else changeMonth(0);
-      updateTodayDeliverySummaryUI();
-      showMessage("✅ تم حفظ تعديل الدفع");
-    } catch (error) {
-      order.paymentMethod = previousMethod;
-      order.transferred = previousTransferred;
-      order.delivered = previousDelivered;
-      console.error("فشل حفظ تعديل الدفع:", error);
-      try {
-        salesData = await NoshiDB.get("salesData", {});
-      } catch (refreshError) {
-        console.error("فشل إعادة تحميل حالة الدفع:", refreshError);
+      if (pendingOrderPaymentWrites <= 1) {
+        if (upcoming) await loadUpcomingOrders();
+        else changeMonth(0);
+        updateTodayDeliverySummaryUI();
+        if (orderPaymentBatchHadError) {
+          showMessage("⚠️ بعض تغييرات الدفع لم تُحفظ؛ عُرضت حالة الخادم");
+          orderPaymentBatchHadError = false;
+        } else {
+          showMessage("✅ تم حفظ تعديل الدفع");
+        }
       }
-      if (upcoming) await loadUpcomingOrders();
-      else changeMonth(0);
-      updateTodayDeliverySummaryUI();
-      showMessage("❌ تعذر تأكيد حفظ التعديل؛ تحقق من الحالة بعد تحديث الصفحة");
+    } catch (error) {
+      orderPaymentBatchHadError = true;
+      console.error("فشل حفظ تعديل الدفع:", error);
+      if (pendingOrderPaymentWrites <= 1) {
+        try {
+          const latest = await NoshiDB.get("salesData", {});
+          if (pendingOrderPaymentWrites <= 1) salesData = latest;
+        } catch (refreshError) {
+          console.error("فشل إعادة تحميل حالة الدفع:", refreshError);
+          if (pendingOrderPaymentWrites <= 1) {
+            order.paymentMethod = previousMethod;
+            order.transferred = previousTransferred;
+            order.delivered = previousDelivered;
+          }
+        }
+        if (upcoming) await loadUpcomingOrders();
+        else changeMonth(0);
+        updateTodayDeliverySummaryUI();
+        orderPaymentBatchHadError = false;
+        showMessage("❌ تعذر تأكيد حفظ التعديل؛ تحقق من الحالة بعد تحديث الصفحة");
+      }
     }
   });
 }
