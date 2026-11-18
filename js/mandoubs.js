@@ -422,6 +422,7 @@ async function selectMandoub(name) {
       return;
     }
     const parent = salesData[month][index];
+    const orderId = parent.id ?? parent.orderNumber ?? parent.externalOrderNumber ?? "";
     const slot = deliveryIndex >= 0 && Array.isArray(parent.deliveries) ? parent.deliveries[deliveryIndex] : null;
     const previousMandoub = slot ? (slot.mandoub || slot.deliveryPerson || null) : (parent.deliveryPerson || null);
     const nextMandoub = name === null ? null : name;
@@ -436,14 +437,25 @@ async function selectMandoub(name) {
       if (!nextMandoub || previousMandoub !== nextMandoub) parent.deliveryPaid = false;
     }
 
-    try {
-      await saveSalesData();
-    } catch (error) {
-      showStorageError(error);
-      return;
-    }
+    // حدّث الواجهة فورًا؛ الحفظ الموجّه يتم في الخلفية ولا يرسل salesData كاملة.
     closeModal();
     loadData();
+
+    persistMandoubAssignment({
+      orderId,
+      sourceMonth: month,
+      sourceIndex: index,
+      deliveryIndex,
+      mandoub: nextMandoub
+    }).catch(async (error) => {
+      try {
+        await loadStorageState();
+        loadData();
+      } catch (reloadError) {
+        console.error("تعذر إعادة تحميل البيانات بعد فشل تغيير المندوب:", reloadError);
+      }
+      showStorageError(error);
+    });
   }
 }
 
@@ -1232,3 +1244,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     showStorageError(error);
   }
 });
+// حفظ تغيير المندوب فقط بدل إعادة إرسال salesData كاملة.
+// التسلسل يمنع وصول طلبين من نفس الصفحة بترتيب معكوس، وإعادة المحاولة تعالج تعارض revision.
+let mandoubSaveQueue = Promise.resolve();
+
+function persistMandoubAssignment(payload) {
+  const run = mandoubSaveQueue.then(async () => {
+    let lastError;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        if (!window.NoshiAuth || typeof window.NoshiAuth.api !== "function") {
+          throw new Error("تعذر الاتصال بخدمة البيانات");
+        }
+        return await window.NoshiAuth.api("/api/data/salesData/mandoub", {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+      } catch (error) {
+        lastError = error;
+        if (error?.status !== 409 || attempt === 2) throw error;
+        await new Promise(resolve => setTimeout(resolve, 120 * (attempt + 1)));
+      }
+    }
+    throw lastError;
+  });
+
+  mandoubSaveQueue = run.catch(() => {});
+  return run;
+}
