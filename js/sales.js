@@ -245,6 +245,7 @@ const PHRASE_STRIP_NAME = "شريط عبارة";
             </div>
           `;
         } else {
+          const clientRows = [];
           clientArray.forEach((client, index) => {
             const rank = index + 1;
             const rankClass = rank <= 3 ? `rank-${rank}` : 'rank-other';
@@ -255,7 +256,7 @@ const PHRASE_STRIP_NAME = "شريط عبارة";
                 <span>أول طلب: ${formatDate(client.firstOrderDate)}</span>
               </div>` : '';
             
-            clientsList.innerHTML += `
+            clientRows.push(`
               <div class="client-item ${rankClass}">
                 <div class="client-rank-badge">#${rank}</div>
                 <div class="client-info">
@@ -273,13 +274,13 @@ const PHRASE_STRIP_NAME = "شريط عبارة";
                   ${client.totalQuantity} قطعة
                 </div>
               </div>
-            `;
+            `);
           });
           
           const totalClients = clientArray.length;
           const totalQuantity = clientArray.reduce((sum, client) => sum + client.totalQuantity, 0);
           
-          clientsList.innerHTML += `
+          clientRows.push(`
             <div class="summary-section">
               <div class="summary-title">📊 ملخص إجمالي</div>
               <div class="stats-grid">
@@ -297,7 +298,8 @@ const PHRASE_STRIP_NAME = "شريط عبارة";
                 </div>
               </div>
             </div>
-          `;
+          `);
+          clientsList.innerHTML = clientRows.join("");
         }
         
         clientsModal.style.display = 'flex';
@@ -453,6 +455,7 @@ if (products.includes("صحن تقديم")) {
   );
 }
 
+        const productRows = [];
         productsToDisplay.forEach((product, displayIndex) => {
 const isServingDish =
   product === "صحن تقديم";
@@ -517,7 +520,7 @@ if (!isPhraseStrip) {
     'border-left:4px solid #4CAF50;';
 }
 
-          salesTableBody.innerHTML += `
+          productRows.push(`
             <tr style="${rowStyle}">
               <td>
                 ${medal}${rankText} ${product}
@@ -532,8 +535,9 @@ if (!isPhraseStrip) {
                 </button>
               </td>
             </tr>
-          `;
+          `);
         });
+        salesTableBody.innerHTML = productRows.join("");
 
         salesTableFooter.innerHTML = `
           <tr class="total-row" style="border-top:5px solid #e67e22;font-weight:bold;background:#fff8f0;">

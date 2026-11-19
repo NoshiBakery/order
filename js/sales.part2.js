@@ -446,9 +446,9 @@ async function loadMonthlySalesStats() {
     }
 
     // عرض البيانات
-    body.innerHTML = "";
+    const monthlyRows = [];
     sortedData.forEach(month => {
-      body.innerHTML += `
+      monthlyRows.push(`
         <tr>
           <td class="monthly-month-name">${month.monthName}</td>
           <td class="monthly-orders">${month.ordersCount} طلب</td>
@@ -457,8 +457,9 @@ async function loadMonthlySalesStats() {
           <td class="monthly-discount">${month.discount.toFixed(2)} ريال</td>
           <td class="monthly-final">${month.final.toFixed(2)} ريال</td>
         </tr>
-      `;
+      `);
     });
+    body.innerHTML = monthlyRows.join("");
 
     footer.innerHTML = `
       <tr class="month-total-row">
