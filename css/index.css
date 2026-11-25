@@ -844,3 +844,11 @@ body > *{
     overflow-x:hidden !important;
   }
 }
+
+.noshi-edit-print-dialog { direction:rtl; margin:auto; width:min(390px,calc(100% - 32px)); box-sizing:border-box; border:1px solid #e8d8c9; border-radius:22px; background:#fffaf4; color:#38271c; padding:22px; font:inherit; text-align:center; }
+.noshi-edit-print-dialog::backdrop { background:#25170e80; backdrop-filter:blur(3px); }
+.noshi-edit-print-dialog h2 { margin:0 0 10px; font-size:1.2rem; }
+.noshi-edit-print-dialog button { display:block; width:100%; min-height:46px; margin:9px 0 0; border:1px solid #e8d8c9; border-radius:12px; background:#fff; color:#38271c; font:inherit; cursor:pointer; }
+.noshi-edit-print-dialog [data-target="both"] { background:#9b4919; color:#fff; }
+html[data-theme="dark"] .noshi-edit-print-dialog { background:#18212c; color:#f5f0eb; border-color:#405064; }
+html[data-theme="dark"] .noshi-edit-print-dialog button:not([data-target="both"]) { background:#222e3c; color:#f5f0eb; border-color:#405064; }

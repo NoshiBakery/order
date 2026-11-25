@@ -965,3 +965,16 @@ html[data-theme="dark"] .noshi-delete-actions #cancelBtn{background:#344255;colo
 .order-quick-actions button { flex: 1; }
 .order-quick-status { margin: 0; color: var(--quick-muted); font-size: .85rem; }
 .order-quick-status:empty { display: none; }
+
+/* NOSHI quick actions: warm brand header, clear action hierarchy. */
+.order-quick-dialog { border-radius: 24px; width: min(500px, calc(100% - 24px)); }
+.order-quick-dialog::backdrop { backdrop-filter: blur(3px); }
+.order-quick-header { background: var(--quick-accent); color: #fff; padding: 20px; border-radius: 23px 23px 0 0; }
+.order-quick-header span { color: #fff; opacity: .92; }
+.order-quick-header h2 { color: #fff; margin: 8px 0; }
+.order-quick-body { gap: 12px; padding: 16px; }
+.order-quick-overview { background: var(--quick-panel); border: 1px solid var(--quick-border); border-radius: 15px; padding: 12px; }
+.order-quick-section { border-radius: 15px; padding: 14px; }
+.order-quick-dialog button { border-radius: 12px; min-height: 44px; }
+.order-quick-dialog [data-quick="rename"] { text-align: right; }
+.order-quick-danger { border-style: dashed; }

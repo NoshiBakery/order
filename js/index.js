@@ -793,12 +793,13 @@ totalAfter: Number(order.totalAfter || 0),
   };
 }
 
-async function sendApprovedOrderToNoshiPrint(order) {
+async function sendApprovedOrderToNoshiPrint(order, target) {
   if (!window.NoshiAuth || !NoshiAuth.enabled()) {
     throw new Error("PRINT_REQUIRES_CLOUD_CONNECTION");
   }
 
   const payload = buildNoshiPrintPayload(order);
+  if (target) payload.printTarget = target;
 
   if (!payload.internalId || !payload.invoiceNumber) {
     throw new Error("PRINT_ORDER_ID_MISSING");
@@ -811,6 +812,25 @@ async function sendApprovedOrderToNoshiPrint(order) {
   return await NoshiAuth.api("/api/print/order", {
     method: "POST",
     body: JSON.stringify(payload)
+  });
+}
+
+// Only edits ask; new orders keep the existing automatic two-copy path.
+function chooseEditedOrderPrint() {
+  return new Promise(resolve => {
+    const dialog = document.createElement("dialog");
+    dialog.className = "noshi-edit-print-dialog";
+    dialog.setAttribute("aria-labelledby", "noshiEditPrintTitle");
+    dialog.innerHTML = `<h2 id="noshiEditPrintTitle">🧾 تم حفظ التعديل</h2><p>تبغى تطبع أي فاتورة؟</p>
+      <button type="button" data-target="customer">👤 فاتورة العميلة</button>
+      <button type="button" data-target="kitchen">👩‍🍳 فاتورة المطبخ</button>
+      <button type="button" data-target="both">🖨️ الفاتورتين</button>
+      <button type="button" data-target="none" autofocus>حفظ بدون طباعة</button>`;
+    const finish = target => { dialog.close(); dialog.remove(); resolve(target); };
+    dialog.addEventListener("click", e => { const button = e.target.closest("button[data-target]"); if (button) finish(button.dataset.target); });
+    dialog.addEventListener("cancel", e => { e.preventDefault(); finish("none"); });
+    document.body.appendChild(dialog);
+    dialog.showModal();
   });
 }
 
@@ -1053,21 +1073,23 @@ const incomingDraft = !editingOrder
     // =====================================================
 
     try {
+      const printTarget = editingOrder ? await chooseEditedOrderPrint() : undefined;
+      if (printTarget !== "none") {
+        const printResult =
+          await sendApprovedOrderToNoshiPrint(orderData, printTarget);
 
-      const printResult =
-        await sendApprovedOrderToNoshiPrint(orderData);
+        if (printResult.ok && printResult.print?.changed === false) {
+          console.log(
+            "NOSHI PRINT: لا توجد تغييرات تستدعي الطباعة"
+          );
+        } else {
+          console.log(
+            "NOSHI PRINT: تم إرسال مهمة الطباعة",
+            printResult
+          );
+        }
 
-      if (printResult.ok && printResult.print?.changed === false) {
-        console.log(
-          "NOSHI PRINT: لا توجد تغييرات تستدعي الطباعة"
-        );
-      } else {
-        console.log(
-          "NOSHI PRINT: تم إرسال مهمة الطباعة",
-          printResult
-        );
       }
-
     } catch (printError) {
 
       // مهم: الطلب محفوظ مسبقًا، لذلك لا نعيد حفظه

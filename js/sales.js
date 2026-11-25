@@ -68,7 +68,7 @@ const PHRASE_STRIP_NAME = "شريط عبارة";
               clients: await NoshiDB.get("clients", []),
               salesTableFontSize: await NoshiDB.get("salesTableFontSize", DEFAULT_FONT_SIZE)
             };
-        salesData = live.salesData && typeof live.salesData === "object" && !Array.isArray(live.salesData) ? live.salesData : {};
+        salesData = groupSalesByDisplayMonth(live.salesData);
         clients = Array.isArray(live.clients) ? live.clients : [];
         currentFontSize = parseInt(live.salesTableFontSize, 10) || DEFAULT_FONT_SIZE;
       }

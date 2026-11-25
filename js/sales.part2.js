@@ -17,9 +17,7 @@ async function readSalesDataFromDB() {
   }
 
   const savedSalesData = await NoshiDB.get("salesData", {});
-  return savedSalesData && typeof savedSalesData === "object" && !Array.isArray(savedSalesData)
-    ? savedSalesData
-    : {};
+  return groupSalesByDisplayMonth(savedSalesData);
 }
 /* ===============================
    👥 إحصائيات العملاء (تصميم جديد) - V3
