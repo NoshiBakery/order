@@ -246,6 +246,20 @@
     }
   }
 
+  async function saveQuickOrder(payload) {
+    const result = await cloudApi("/api/data/salesData/quick-order", {
+      method: "POST", body: JSON.stringify(payload)
+    });
+    if (!result?.ok || !result.salesData || typeof result.salesData !== "object" ||
+        Array.isArray(result.salesData) || !Number.isSafeInteger(result.revision)) throw new Error("INVALID_QUICK_ORDER_RESPONSE");
+    revisions.set("salesData", result.revision);
+    rememberSalesSnapshot("salesData", result.salesData, result.revision);
+    if (Array.isArray(result.clients) && Number.isSafeInteger(result.clientsRevision)) {
+      revisions.set("clients", result.clientsRevision);
+    }
+    return result;
+  }
+
   async function set(key, value) {
     if (!key || typeof key !== "string") throw new Error("مفتاح التخزين غير صحيح");
     if (LOCAL_ONLY_KEYS.has(key) || !isCloudKey(key)) return localSet(key, value);
@@ -536,6 +550,7 @@
     set,
     get,
     getMany,
+    saveQuickOrder,
     getSalesMonth,
     setSalesMonth,
     migrateSalesDataToMonthly,

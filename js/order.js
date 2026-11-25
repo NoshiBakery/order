@@ -1143,7 +1143,7 @@ function renameQuickClient(data, customerRows, current, name) {
   return {changed};
 }
 
-function openQuickOrder(sourceMonth, index, savedMessage = "") {
+function openQuickOrder(sourceMonth, index) {
   if (document.getElementById("orderQuickDialog")) return;
   if (pendingOrderPaymentWrites) return showMessage("انتظر اكتمال حفظ الدفع ثم أعد المحاولة");
   const order = salesData[sourceMonth]?.[index];
@@ -1165,7 +1165,7 @@ function openQuickOrder(sourceMonth, index, savedMessage = "") {
       <button type="button" data-quick="close" class="order-quick-close" aria-label="إغلاق">×</button>
     </header>
     <div class="order-quick-body">
-      <div class="order-quick-overview"><strong dir="ltr">ر.س ${esc(Number(order.totalAfter || 0).toFixed(2))}</strong><button type="button" data-quick="invoice">🧾 الفاتورة</button></div>
+      <div class="order-quick-overview"><div><small>إجمالي الطلب</small><strong class="order-quick-price" dir="ltr" data-noshi-display-skip><span>ر.س</span><span>${esc(Number(order.totalAfter || 0).toFixed(2))}</span></strong></div><button type="button" data-quick="invoice">🧾 الفاتورة</button></div>
       <section class="order-quick-section">
         <button type="button" data-quick="rename">👤 تعديل اسم العميلة</button>
         <div data-quick-name-box hidden>
@@ -1177,8 +1177,8 @@ function openQuickOrder(sourceMonth, index, savedMessage = "") {
       </section>
       <section class="order-quick-section">
         <h3>💳 الدفع</h3>
-        <label for="orderQuickPayment">طريقة الدفع</label>
-        <select id="orderQuickPayment"><option value="cash">كاش</option><option value="transfer">تحويل</option><option value="not-set">غير محدد</option></select>
+        <div class="order-quick-payment-row"><label for="orderQuickPayment">طريقة الدفع</label>
+        <select id="orderQuickPayment"><option value="cash">كاش</option><option value="transfer">تحويل</option><option value="not-set">غير محدد</option></select></div>
         <label class="order-quick-check" data-quick-transfer><input id="orderQuickTransferred" type="checkbox" ${order.transferred ? "checked" : ""}> تم التحويل من العميلة</label>
         <button type="button" data-quick="save-payment">حفظ الدفع</button>
       </section>
@@ -1196,7 +1196,6 @@ function openQuickOrder(sourceMonth, index, savedMessage = "") {
   const payment = dialog.querySelector("#orderQuickPayment");
   const transferred = dialog.querySelector("#orderQuickTransferred");
   const status = dialog.querySelector(".order-quick-status");
-  status.textContent = savedMessage;
   const nameInput = dialog.querySelector("#orderQuickName");
   const confirmBox = dialog.querySelector("[data-quick-confirm]");
   payment.value = method;
@@ -1229,39 +1228,49 @@ function openQuickOrder(sourceMonth, index, savedMessage = "") {
     status.textContent = "جارٍ الحفظ…";
     let latest, target, saved = false;
     try {
-      // نسخة حديثة مرتبطة بمراجعتها في db.js؛ لا نرسل نسخة العرض أو نعيد الحفظ تلقائيًا عند التعارض.
-      latest = await NoshiDB.get("salesData", {});
-      target = findQuickOrder(latest, sourceMonth, baseline);
-      if (!target || JSON.stringify(target.order) !== JSON.stringify(baseline)) throw new Error("ORDER_CHANGED");
-      const current = target.order;
-      if (action === "save-name") {
-        const latestClients = await NoshiDB.get("clients", []);
-        const owner = renameQuickClient(latest, latestClients, current, name);
-        if (owner.changed) {
-          // Same storage contract as client.js; these are separate cloud writes.
-          await NoshiDB.set("clients", latestClients);
-          clients = latestClients;
+      if (window.NOSHI_CONFIG?.CLOUD_ENABLED === true) {
+        const result = await NoshiDB.saveQuickOrder({ sourceMonth, baseline, action,
+          ...(action === "save-name" ? { name } : {}),
+          ...(action === "save-payment" ? { paymentMethod: newMethod, transferred: newTransferred } : {}),
+          ...(action === "delivery" ? { slotIndex } : {}) });
+        salesData = result.salesData;
+        if (result.clients) clients = result.clients;
+        saved = true;
+      } else {
+        // نسخة حديثة مرتبطة بمراجعتها في db.js؛ لا نرسل نسخة العرض أو نعيد الحفظ تلقائيًا عند التعارض.
+        latest = await NoshiDB.get("salesData", {});
+        target = findQuickOrder(latest, sourceMonth, baseline);
+        if (!target || JSON.stringify(target.order) !== JSON.stringify(baseline)) throw new Error("ORDER_CHANGED");
+        const current = target.order;
+        if (action === "save-name") {
+          const latestClients = await NoshiDB.get("clients", []);
+          const owner = renameQuickClient(latest, latestClients, current, name);
+          if (owner.changed) {
+            // المسار المحلي يحافظ على آلية الحفظ السابقة.
+            await NoshiDB.set("clients", latestClients);
+            clients = latestClients;
+          }
+        } else if (action === "save-payment") {
+          current.paymentMethod = newMethod;
+          current.transferred = newTransferred;
+        } else if (action === "delivery") {
+          if (slotIndex >= 0) {
+            const slot = current.deliveries[slotIndex];
+            slot.delivered = !slot.delivered;
+            if (slotIndex === 0) current.delivered = slot.delivered;
+          } else current.delivered = !current.delivered;
+        } else if (action === "confirm-delete") {
+          latest[sourceMonth].splice(target.index, 1);
+          if (!latest[sourceMonth].length) delete latest[sourceMonth];
         }
-      } else if (action === "save-payment") {
-        current.paymentMethod = newMethod;
-        current.transferred = newTransferred;
-      } else if (action === "delivery") {
-        if (slotIndex >= 0) {
-          const slot = current.deliveries[slotIndex];
-          slot.delivered = !slot.delivered;
-          if (slotIndex === 0) current.delivered = slot.delivered;
-        } else current.delivered = !current.delivered;
-      } else if (action === "confirm-delete") {
-        latest[sourceMonth].splice(target.index, 1);
-        if (!latest[sourceMonth].length) delete latest[sourceMonth];
+        await NoshiDB.set("salesData", latest);
+        saved = true;
+        salesData = latest;
       }
-      await NoshiDB.set("salesData", latest);
-      saved = true;
-      salesData = latest;
     } catch (error) {
       console.error("تعذر حفظ إجراءات الطلب:", error);
       needsRefresh = true;
-      status.textContent = error.message === "CLIENT_RENAME_AMBIGUOUS" ? "تعذر تحديد العميلة أو الاسم مستخدم؛ راجعي صفحة العملاء." : "لم يتأكد الحفظ الكامل. راجعي الطلب وصفحة العملاء بعد التحديث.";
+      status.textContent = (error.message === "CLIENT_RENAME_AMBIGUOUS" || error.data?.error === "CLIENT_RENAME_AMBIGUOUS") ? "تعذر تحديد العميلة أو الاسم مستخدم؛ راجعي صفحة العملاء." : "لم يتأكد الحفظ الكامل. راجعي الطلب وصفحة العملاء بعد التحديث.";
       try { salesData = await NoshiDB.get("salesData", {}); clients = await NoshiDB.get("clients", []); redraw(); } catch (refreshError) { console.error(refreshError); }
     } finally {
       busy = false;
@@ -1273,7 +1282,7 @@ function openQuickOrder(sourceMonth, index, savedMessage = "") {
       try {
         redraw();
         if (action === "confirm-delete") showMessage("تم حذف الطلب");
-        else openQuickOrder(sourceMonth, target.index, "تم الحفظ بنجاح");
+        else showMessage("تم الحفظ بنجاح");
       } catch (displayError) {
         console.error("تم الحفظ لكن تعذر تحديث العرض:", displayError);
         showMessage("تم الحفظ؛ حدّث الصفحة لإظهار النتيجة");

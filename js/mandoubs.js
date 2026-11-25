@@ -156,7 +156,13 @@ function loadData() {
 
 function getOrderMonthRef(order, sourceMonth) {
   // صفحة المناديب محاسبيًا وتشغيليًا تتبع شهر التسليم الفعلي/المجدول.
-  // تاريخ إنشاء الطلب لا يتغير، لكنه ليس مرجع شهر المندوب.
+  // استثناء دفعة قديمة تحمل موعدًا متطابقًا (57 طلبًا في يوليو وأغسطس 2025).
+  // لا نغيّر تاريخ التسليم المخزن ولا قاعدة الأشهر للطلبات الأخرى.
+  if ((sourceMonth === "2025-07" || sourceMonth === "2025-08") &&
+      String(order?.date || "").startsWith(sourceMonth + "-") &&
+      order?.deliveryDate === "2025-09-27T21:35" && !Array.isArray(order?.deliveries)) {
+    return sourceMonth;
+  }
   const raw = String(order?.deliveryDate || order?.date || "").trim().split(/[ T]/)[0];
   const m = raw.match(/^(\d{4})[-\/](\d{1,2})/);
   if (m) return `${m[1]}-${String(m[2]).padStart(2,"0")}`;

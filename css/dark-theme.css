@@ -629,5 +629,5 @@ html[data-theme="dark"] .order-sales-summary-card.tone-purple .order-sales-summa
 }
 
 /* Order quick actions */
-html[data-theme="dark"] .order-quick-dialog { --quick-bg:#18212c; --quick-panel:#222e3c; --quick-text:#f5f0eb; --quick-muted:#c8b7a6; --quick-border:#405064; --quick-accent:#a75325; }
-html[data-theme="dark"] .order-quick-dialog [data-quick="delete"] { color: #ffb0b0; }
+html[data-theme="dark"] .order-quick-dialog { --quick-bg:#141c25; --quick-panel:#19232e; --quick-text:#f4f0eb; --quick-muted:#c0b5aa; --quick-border:#36434e; --quick-accent:#805338; --quick-soft:#292724; --quick-danger:#e2a1a1; }
+html[data-theme="dark"] .order-quick-dialog [data-quick="confirm-delete"] { background:#8d4347; border-color:#8d4347; }
