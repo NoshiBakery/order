@@ -366,6 +366,30 @@ function sendWhatsAppToClient(clientName, monthKey, orderIndex) {
     }
   }
 
+  // الشهر المرئي حسب تاريخ الإنشاء؛ لا ننقل أي سجل بين مفاتيح التخزين.
+  function getOrderDisplayMonth(order, sourceMonth) {
+    const match = String(order?.date ?? "").trim().match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?=$|[ T])/);
+    if (!match) return sourceMonth;
+    const [, y, m, d] = match;
+    const year = Number(y), month = Number(m), day = Number(d);
+    const check = new Date(Date.UTC(year, month - 1, day));
+    if (check.getUTCFullYear() !== year || check.getUTCMonth() + 1 !== month || check.getUTCDate() !== day) return sourceMonth;
+    return `${y}-${m.padStart(2, "0")}`;
+  }
+
+  function getMonthlyOrderEntries(monthKey, data = salesData) {
+    const entries = [];
+    for (const [sourceMonth, orders] of Object.entries(data)) {
+      if (!Array.isArray(orders)) continue;
+      orders.forEach((order, index) => {
+        if (order && getOrderDisplayMonth(order, sourceMonth) === monthKey) {
+          entries.push({ order, sourceMonth, index });
+        }
+      });
+    }
+    return entries;
+  }
+
   function loadData() {
     // مسح محتوى الطلبات فقط (لا تمسح عناصر التحكم)
     container.innerHTML = '';
@@ -379,8 +403,8 @@ function sendWhatsAppToClient(clientName, monthKey, orderIndex) {
     }
 
     const monthKey = `${currentDisplayYear}-${currentDisplayMonth.toString().padStart(2, '0')}`;
-    const originalMonthOrders = salesData[monthKey] || [];
-    const monthOrders = [...originalMonthOrders].reverse();
+    const monthEntries = getMonthlyOrderEntries(monthKey);
+    const originalMonthOrders = monthEntries.map(entry => entry.order);
 
     // إعادة تعيين الإحصائيات
     totalOrders = 0;
@@ -440,7 +464,7 @@ if (
       noOrdersMessage.style.display = "none";
     }
 
-    displayOrders(monthKey, originalMonthOrders, monthOrders);
+    displayOrders(monthEntries);
 	updateTodayDeliverySummaryUI();
     
     // تطبيق حجم الخط بعد تحميل البيانات
@@ -464,7 +488,7 @@ if (
   }
 
   // عرض الطلبات في الجدول
-  function displayOrders(monthKey, originalMonthOrders, monthOrders) {
+  function displayOrders(monthEntries) {
     let html = `
       <div class="table-container">
         <table>
@@ -481,8 +505,8 @@ if (
           </thead>
           <tbody>`;
 
-    monthOrders.forEach((order, reversedIndex) => {
-      const originalIndex = originalMonthOrders.length - 1 - reversedIndex;
+    [...monthEntries].reverse().forEach(({ order, sourceMonth: monthKey, index: originalIndex }, reversedIndex) => {
+      const displayIndex = monthEntries.length - 1 - reversedIndex;
       const orderDate = formatOrderTableDate(order.date);
       const totalAfter = parseFloat(order.totalAfter);
       const paymentMethod = order.paymentMethod || "not-set";
@@ -494,16 +518,16 @@ if (
                        paymentMethod === "cash" ? "كاش 💵" : "غير محدد ❗";
 
       html += `
-        <tr id="order-${originalIndex}" class="${paymentClass}">
+        <tr id="order-${displayIndex}" class="${paymentClass} order-quick-row" data-order-month="${escapePaymentHtml(monthKey)}" data-order-index="${originalIndex}" tabindex="0">
           <td>
             <input type="checkbox" class="checkbox" 
               ${order.paidByEmad ? 'checked' : ''}
               onchange="updatePaymentStatus('${monthKey}', ${originalIndex}, this.checked, event)"
             >
           </td>
-          <td>${originalIndex + 1}</td>
-          <td><bdi dir="ltr">${orderDate}</bdi></td>
-          <td class="client-name">${order.client || "—"}</td>
+          <td>${displayIndex + 1}</td>
+          <td><bdi dir="ltr">${escapePaymentHtml(orderDate)}</bdi></td>
+          <td class="client-name">${escapePaymentHtml(order.client || "—")}</td>
           <td>${totalAfter.toFixed(2)} ريال</td>
           <td>${paymentText}</td>
           <td>
@@ -1093,6 +1117,190 @@ document.getElementById('confirmBtn').addEventListener('click', function() {
     .replaceAll("'", "&#039;");
 }
 
+// نافذة إجراءات الصف: لا تتداخل مع أزرار الجدول الحالية.
+function quickOrderIdentity(order) {
+  return String(order?.id || order?.orderNumber || order?.externalOrderNumber || "");
+}
+
+function findQuickOrder(data, sourceMonth, original) {
+  const rows = data[sourceMonth] || [];
+  const id = quickOrderIdentity(original);
+  const matches = rows.map((order, index) => ({ order, index })).filter(({ order }) =>
+    id ? quickOrderIdentity(order) === id : JSON.stringify(order) === JSON.stringify(original));
+  return matches.length === 1 ? matches[0] : null;
+}
+
+function openQuickOrder(sourceMonth, index, savedMessage = "") {
+  if (document.getElementById("orderQuickDialog")) return;
+  if (pendingOrderPaymentWrites) return showMessage("انتظر اكتمال حفظ الدفع ثم أعد المحاولة");
+  const order = salesData[sourceMonth]?.[index];
+  if (!order) return showMessage("لم يتم العثور على الطلب؛ حدّث الصفحة");
+  const baseline = JSON.parse(JSON.stringify(order));
+  const esc = escapePaymentHtml;
+  const number = order.externalOrderNumber ? String(order.externalOrderNumber).padStart(4, "0") : (order.id || order.orderNumber || "غير متوفر");
+  const method = ["cash", "transfer", "not-set"].includes(order.paymentMethod) ? order.paymentMethod : "not-set";
+  const slots = Array.isArray(order.deliveries) ? order.deliveries : [];
+  const dialog = document.createElement("dialog");
+  dialog.id = "orderQuickDialog";
+  dialog.className = "order-quick-dialog";
+  dialog.setAttribute("aria-labelledby", "orderQuickTitle");
+  dialog.innerHTML = `
+    <header class="order-quick-header">
+      <div><span class="order-quick-kicker">الطلب <bdi dir="ltr">#${esc(number)}</bdi></span>
+      <h2 id="orderQuickTitle">${esc(order.client || "عميلة غير محددة")}</h2>
+      <span><bdi dir="ltr">${esc(formatOrderTableDate(order.date))}</bdi></span></div>
+      <button type="button" data-quick="close" class="order-quick-close" aria-label="إغلاق">×</button>
+    </header>
+    <div class="order-quick-body">
+      <div class="order-quick-overview"><strong dir="ltr">ر.س ${esc(Number(order.totalAfter || 0).toFixed(2))}</strong><button type="button" data-quick="invoice">الفاتورة</button></div>
+      <section class="order-quick-section">
+        <button type="button" data-quick="rename">تغيير اسم العميلة</button>
+        <div data-quick-name-box hidden>
+          <label for="orderQuickName">الاسم في هذا الطلب فقط</label>
+          <input id="orderQuickName" type="text" value="${esc(order.client || "")}" list="orderQuickClients">
+          <datalist id="orderQuickClients">${clients.map(c => `<option value="${esc(c.name)}"></option>`).join("")}</datalist>
+          <small>يُربط الاسم بعميلة موجودة عند التطابق؛ وإلا يُحفظ في الطلب فقط دون إنشاء عميلة.</small>
+          <button type="button" data-quick="save-name">حفظ الاسم</button>
+        </div>
+      </section>
+      <section class="order-quick-section">
+        <h3>الدفع</h3>
+        <label for="orderQuickPayment">طريقة الدفع</label>
+        <select id="orderQuickPayment"><option value="cash">كاش</option><option value="transfer">تحويل</option><option value="not-set">غير محدد</option></select>
+        <label class="order-quick-check" data-quick-transfer><input id="orderQuickTransferred" type="checkbox" ${order.transferred ? "checked" : ""}> تم التحويل من العميلة</label>
+        <button type="button" data-quick="save-payment">حفظ الدفع</button>
+      </section>
+      <section class="order-quick-section">
+        <h3>التسليم</h3>
+        ${(slots.length ? slots : [order]).map((slot, i) => `<div class="order-quick-delivery"><span>${slots.length > 1 ? `التسليم ${i + 1} · ` : ""}${slot.delivered ? "تم التسليم" : "لم يتم التسليم"}<small><bdi dir="ltr">${esc(formatOrderTableDate(slot.deliveryDate))}</bdi></small></span><button type="button" data-quick="delivery" data-slot="${slots.length ? i : -1}">${slot.delivered ? "إلغاء التسليم" : "تسليم الطلب"}</button></div>`).join("")}
+      </section>
+      <div class="order-quick-section order-quick-danger">
+        <button type="button" data-quick="delete">حذف الطلب</button>
+        <div data-quick-confirm hidden><p>تأكيد حذف طلب ${esc(order.client || "العميلة")}؟ لا يمكن التراجع.</p><div class="order-quick-actions"><button type="button" data-quick="cancel-delete">إلغاء</button><button type="button" data-quick="confirm-delete">تأكيد الحذف</button></div></div>
+      </div>
+      <p class="order-quick-status" role="status" aria-live="polite"></p>
+    </div>`;
+  document.body.appendChild(dialog);
+  const payment = dialog.querySelector("#orderQuickPayment");
+  const transferred = dialog.querySelector("#orderQuickTransferred");
+  const status = dialog.querySelector(".order-quick-status");
+  status.textContent = savedMessage;
+  const nameInput = dialog.querySelector("#orderQuickName");
+  const confirmBox = dialog.querySelector("[data-quick-confirm]");
+  payment.value = method;
+  function showTransfer() {
+    dialog.querySelector("[data-quick-transfer]").hidden = payment.value !== "transfer";
+  }
+  showTransfer();
+  payment.addEventListener("change", showTransfer);
+  let busy = false;
+  let needsRefresh = false;
+  function close() { if (!busy) dialog.close(); }
+  dialog.addEventListener("close", () => dialog.remove());
+  dialog.addEventListener("cancel", e => { if (busy) e.preventDefault(); });
+  dialog.addEventListener("click", e => { if (e.target === dialog) close(); });
+  function redraw() {
+    // إبقاء فلتر غير المحولة إن كان نشطًا، مع إعادة حساب الشهر والعدادات.
+    if (showingOnlyUnpaidMonthly) {
+      showingOnlyUnpaidMonthly = false;
+      filterUnpaidMonthlyOrders();
+    } else loadData();
+  }
+  async function save(action, slotIndex) {
+    if (busy || needsRefresh || pendingOrderPaymentWrites) return;
+    const name = nameInput.value.trim();
+    const newMethod = payment.value;
+    const newTransferred = newMethod === "transfer" && transferred.checked;
+    if (action === "save-name" && !name) { status.textContent = "اكتب اسم العميلة أولًا"; return; }
+    const matchingClients = clients.filter(c => c.name === name);
+    if (action === "save-name" && name !== baseline.client && matchingClients.length > 1) {
+      status.textContent = "يوجد أكثر من عميلة بهذا الاسم؛ لا يمكن تحديد الربط بأمان"; return;
+    }
+    busy = true;
+    dialog.querySelectorAll("button,input,select").forEach(el => el.disabled = true);
+    status.textContent = "جارٍ الحفظ…";
+    let latest, target, saved = false;
+    try {
+      // نسخة حديثة مرتبطة بمراجعتها في db.js؛ لا نرسل نسخة العرض أو نعيد الحفظ تلقائيًا عند التعارض.
+      latest = await NoshiDB.get("salesData", {});
+      target = findQuickOrder(latest, sourceMonth, baseline);
+      if (!target || JSON.stringify(target.order) !== JSON.stringify(baseline)) throw new Error("ORDER_CHANGED");
+      const current = target.order;
+      if (action === "save-name") {
+        if (name !== current.client) {
+          current.client = name;
+          current.clientId = matchingClients[0]?.id ?? null;
+        }
+      } else if (action === "save-payment") {
+        current.paymentMethod = newMethod;
+        current.transferred = newTransferred;
+      } else if (action === "delivery") {
+        if (slotIndex >= 0) {
+          const slot = current.deliveries[slotIndex];
+          slot.delivered = !slot.delivered;
+          if (slotIndex === 0) current.delivered = slot.delivered;
+        } else current.delivered = !current.delivered;
+      } else if (action === "confirm-delete") {
+        latest[sourceMonth].splice(target.index, 1);
+        if (!latest[sourceMonth].length) delete latest[sourceMonth];
+      }
+      await NoshiDB.set("salesData", latest);
+      saved = true;
+      salesData = latest;
+    } catch (error) {
+      console.error("تعذر حفظ إجراءات الطلب:", error);
+      needsRefresh = true;
+      status.textContent = "لم يتأكد الحفظ. أغلقي النافذة وحدّثي الصفحة قبل المحاولة.";
+      try { salesData = await NoshiDB.get("salesData", {}); redraw(); } catch (refreshError) { console.error(refreshError); }
+    } finally {
+      busy = false;
+      dialog.querySelectorAll("button,input,select").forEach(el => el.disabled = needsRefresh && el.dataset.quick !== "close");
+    }
+    if (saved) {
+      dialog.close();
+      dialog.remove();
+      try {
+        redraw();
+        if (action === "confirm-delete") showMessage("تم حذف الطلب");
+        else openQuickOrder(sourceMonth, target.index, "تم الحفظ بنجاح");
+      } catch (displayError) {
+        console.error("تم الحفظ لكن تعذر تحديث العرض:", displayError);
+        showMessage("تم الحفظ؛ حدّث الصفحة لإظهار النتيجة");
+      }
+    }
+  }
+  dialog.addEventListener("click", event => {
+    const button = event.target.closest("button[data-quick]");
+    if (!button || busy) return;
+    const action = button.dataset.quick;
+    if (action === "close") return close();
+    if (needsRefresh) return;
+    if (action === "invoice") {
+      const target = findQuickOrder(salesData, sourceMonth, baseline);
+      if (!target) { status.textContent = "تعذر تحديد الطلب؛ حدّثي الصفحة"; return; }
+      close();
+      return showDetails(sourceMonth, target.index, event);
+    }
+    if (action === "rename") { dialog.querySelector("[data-quick-name-box]").hidden = false; nameInput.focus(); return; }
+    if (action === "delete") { confirmBox.hidden = false; confirmBox.querySelector('[data-quick="cancel-delete"]').focus(); return; }
+    if (action === "cancel-delete") { confirmBox.hidden = true; return; }
+    if (["save-name", "save-payment", "delivery", "confirm-delete"].includes(action)) save(action, Number(button.dataset.slot));
+  });
+  dialog.showModal();
+}
+
+function handleQuickOrderRow(event) {
+  const row = event.target.closest("tr.order-quick-row");
+  if (!row || event.target.closest("button,input,select,textarea,a,label")) return;
+  if (event.type === "keydown") {
+    if (event.target !== row || !["Enter", " "].includes(event.key)) return;
+    event.preventDefault();
+  }
+  openQuickOrder(row.dataset.orderMonth, Number(row.dataset.orderIndex));
+}
+container.addEventListener("click", handleQuickOrderRow);
+container.addEventListener("keydown", handleQuickOrderRow);
+
 // تعديل طريقة الدفع بتصميم بسيط ومرتب
 function editPaymentMethod(month, index, event) {
   if (event) {
@@ -1669,7 +1877,7 @@ function resetSummaryDay() {
   // دالة لحساب وتحديث عدد الطلبات غير المحولة
   function updateUnpaidOrdersCount() {
     const monthKey = `${currentDisplayYear}-${currentDisplayMonth.toString().padStart(2, '0')}`;
-    const monthOrders = salesData[monthKey] || [];
+    const monthOrders = getMonthlyOrderEntries(monthKey).map(entry => entry.order);
     
     const unpaidCount = monthOrders.filter(
       order => order.paymentMethod === "transfer" && !order.transferred
@@ -1686,13 +1894,9 @@ function resetSummaryDay() {
     const container = document.getElementById("ordersContainer");
 
     if (!showingOnlyUnpaidMonthly) {
-      cachedMonthOrders = JSON.parse(JSON.stringify(salesData));
-
       const monthKey = `${currentDisplayYear}-${currentDisplayMonth.toString().padStart(2, '0')}`;
-      const monthOrders = cachedMonthOrders[monthKey] || [];
-
-      const unpaidOrders = monthOrders.filter(
-        o => o.paymentMethod === "transfer" && !o.transferred
+      const unpaidOrders = getMonthlyOrderEntries(monthKey).filter(
+        ({ order }) => order.paymentMethod === "transfer" && !order.transferred
       );
 
       if (unpaidOrders.length === 0) {
@@ -1702,7 +1906,7 @@ function resetSummaryDay() {
           </div>
         `;
       } else {
-        displayUnpaidOrders(monthKey, unpaidOrders);
+        displayUnpaidOrders(unpaidOrders);
       }
 
       btn.innerHTML = "↩️ عرض جميع الطلبات";
@@ -1722,7 +1926,7 @@ function resetSummaryDay() {
   }
 
   // دالة خاصة لعرض الطلبات غير المحولة (معدلة بإضافة زر واتساب)
-  function displayUnpaidOrders(monthKey, unpaidOrders) {
+  function displayUnpaidOrders(unpaidOrders) {
     let html = `
       <div class="table-container">
         <table>
@@ -1739,13 +1943,12 @@ function resetSummaryDay() {
           </thead>
           <tbody>`;
 
-    unpaidOrders.forEach((order, index) => {
+    unpaidOrders.forEach(({ order, sourceMonth: monthKey, index: originalIndex }, index) => {
       const orderDate = formatOrderTableDate(order.date);
       const totalAfter = parseFloat(order.totalAfter);
-      const originalIndex = findOriginalIndex(monthKey, order);
       
       html += `
-        <tr class="payment-not-set">
+        <tr class="payment-not-set order-quick-row" data-order-month="${escapePaymentHtml(monthKey)}" data-order-index="${originalIndex}" tabindex="0">
           <td>
             <input type="checkbox" class="checkbox" 
               ${order.paidByEmad ? 'checked' : ''}
@@ -1753,8 +1956,8 @@ function resetSummaryDay() {
             >
           </td>
           <td>${index + 1}</td>
-          <td><bdi dir="ltr">${orderDate}</bdi></td>
-          <td class="client-name">${order.client || "—"}</td>
+          <td><bdi dir="ltr">${escapePaymentHtml(orderDate)}</bdi></td>
+          <td class="client-name">${escapePaymentHtml(order.client || "—")}</td>
           <td>${totalAfter.toFixed(2)} ريال</td>
           <td><span class='unpaid-transfer'>لم يتم التحويل ⚠️</span></td>
           <td>
@@ -1765,7 +1968,7 @@ function resetSummaryDay() {
               <button class="action-btn edit-btn" onclick="editPaymentMethod('${monthKey}', ${originalIndex}, event)">
                 تعديل الدفع
               </button>
-              <button class="action-btn whatsapp-btn" onclick="sendWhatsAppToClient('${order.client}', '${monthKey}', ${originalIndex})">
+              <button class="action-btn whatsapp-btn" onclick="sendWhatsAppToClient(${escapePaymentHtml(JSON.stringify(String(order.client || "")))}, '${monthKey}', ${originalIndex})">
                 📱 واتساب
               </button>
               <button class="action-btn delete-btn" onclick="playSound('deleteSound'); deleteOrder('${monthKey}', ${originalIndex}, event)">
@@ -1778,7 +1981,7 @@ function resetSummaryDay() {
 
     html += `</tbody> </table> </div>`;
     
-    const totalUnpaidAmount = unpaidOrders.reduce((sum, order) => {
+    const totalUnpaidAmount = unpaidOrders.reduce((sum, { order }) => {
       return sum + parseFloat(order.totalAfter);
     }, 0);
     
@@ -1806,15 +2009,6 @@ function resetSummaryDay() {
     }, 50);
   }
 
-  // دالة للعثور على الفهرس الأصلي للطلب
-  function findOriginalIndex(monthKey, targetOrder) {
-    const originalOrders = salesData[monthKey] || [];
-    return originalOrders.findIndex(order => 
-      order.date === targetOrder.date &&
-      order.client === targetOrder.client &&
-      order.totalAfter === targetOrder.totalAfter
-    );
-  }
 
   // تهيئة التطبيق عند تحميل الصفحة
   document.addEventListener("DOMContentLoaded", async () => {
@@ -2285,13 +2479,16 @@ function confirmUI(content, onYes, useHtml = false) {
     return `${currentDisplayYear}-${currentDisplayMonth.toString().padStart(2, "0")}`;
   }
 
+function bulkOrderIdentity(order) {
+  const { paidByEmad, checkboxStatus, ...rest } = order || {};
+  return JSON.stringify(rest);
+}
+
 function getBulkPayCandidates(mode) {
   const monthKey = getCurrentMonthKey();
-  const monthOrders = salesData[monthKey] || [];
   const candidates = [];
 
-  for (let i = 0; i < monthOrders.length; i++) {
-    const order = monthOrders[i];
+  for (const { order, sourceMonth, index } of getMonthlyOrderEntries(monthKey)) {
 
     /*
       يمنع سداد الطلب وخصم شريطه مرتين.
@@ -2315,7 +2512,8 @@ function getBulkPayCandidates(mode) {
     }
 
     candidates.push({
-      index: i,
+      index,
+      sourceMonth,
       order
     });
   }
@@ -2596,16 +2794,19 @@ async function bulkPay(mode) {
   const afterSales = cloneForBackup(snapshot);
   const changes = [];
 
-  summary.candidates.forEach(({ index, order }) => {
+  summary.candidates.forEach(({ index, sourceMonth, order }) => {
     // نخزن هوية الطلب الثابتة مع الشهر. index يبقى فقط لدعم السجلات القديمة.
     changes.push({
       orderId: String(order.id ?? ""),
+      sourceMonth,
       index,
+      // Legacy orders without IDs are matched by their unchanged non-payment fields.
+      ...(order.id == null || order.id === "" ? { orderIdentity: bulkOrderIdentity(order) } : {}),
       prevPaidByEmad: !!order.paidByEmad,
       prevCheckboxStatus: !!order.checkboxStatus
     });
-    afterSales[monthKey][index].paidByEmad = true;
-    afterSales[monthKey][index].checkboxStatus = true;
+    afterSales[sourceMonth][index].paidByEmad = true;
+    afterSales[sourceMonth][index].checkboxStatus = true;
   });
 
   const now = Date.now();
@@ -2706,16 +2907,26 @@ async function undoBulkPayCore() {
     return;
   }
 
-  const monthOrders = salesData[monthKey] || [];
-
-  (entry.changes || []).forEach((ch) => {
-    // عزل كامل داخل الشهر: لا نبحث أبدًا في شهر آخر.
-    // الهوية الثابتة تمنع رجوع السداد على طلب مختلف إذا تغيّر ترتيب الصفوف.
-    let target = null;
-    if (ch.orderId) {
-      target = monthOrders.find(o => String(o?.id ?? "") === String(ch.orderId));
+  const targets = (entry.changes || []).map(ch => {
+    const rows = salesData[ch.sourceMonth || monthKey] || [];
+    if (ch.sourceMonth) {
+      // السجلات الجديدة تحفظ الشهر الفعلي؛ لا نستخدم فهرسًا قديمًا عند غياب الهوية.
+      const matches = rows.filter(order => ch.orderId
+        ? String(order?.id ?? "") === ch.orderId
+        : ch.orderIdentity && bulkOrderIdentity(order) === ch.orderIdentity);
+      return matches.length === 1 ? matches[0] : null;
     }
-    if (!target && Number.isInteger(ch.index)) target = monthOrders[ch.index] || null;
+    // توافق سجل التراجع القديم الذي كان يستعمل مفتاح الشهر المخزن.
+    let target = ch.orderId ? rows.find(o => String(o?.id ?? "") === String(ch.orderId)) : null;
+    if (!target && Number.isInteger(ch.index)) target = rows[ch.index] || null;
+    return target;
+  });
+  if (targets.some((target, i) => !target && entry.changes[i].sourceMonth)) {
+    toast("تعذر تحديد أحد الطلبات الأصلية للسداد؛ لم يتم التراجع");
+    return;
+  }
+  (entry.changes || []).forEach((ch, i) => {
+    const target = targets[i];
     if (!target) return;
     target.paidByEmad = !!ch.prevPaidByEmad;
     target.checkboxStatus = !!ch.prevCheckboxStatus;

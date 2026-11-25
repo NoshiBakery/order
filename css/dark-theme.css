@@ -627,3 +627,7 @@ html[data-theme="dark"] .order-sales-summary-card.tone-purple{
 html[data-theme="dark"] .order-sales-summary-card.tone-purple .order-sales-summary-value{
   color:#d5a4ee!important;
 }
+
+/* Order quick actions */
+html[data-theme="dark"] .order-quick-dialog { --quick-bg:#18212c; --quick-panel:#222e3c; --quick-text:#f5f0eb; --quick-muted:#c8b7a6; --quick-border:#405064; --quick-accent:#a75325; }
+html[data-theme="dark"] .order-quick-dialog [data-quick="delete"] { color: #ffb0b0; }
