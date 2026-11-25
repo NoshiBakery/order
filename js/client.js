@@ -726,6 +726,12 @@ async function saveClientEdit() {
   } catch (error) {
     clients = previousClients;
     salesData = previousSalesData;
+    try {
+      await initStorageData();
+      renderClients(searchInput.value);
+    } catch (refreshError) {
+      console.error("تعذرت إعادة قراءة البيانات بعد فشل الحفظ:", refreshError);
+    }
     showStorageError(error);
   }
 }

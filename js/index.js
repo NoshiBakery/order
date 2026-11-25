@@ -1103,7 +1103,11 @@ const incomingDraft = !editingOrder
     console.error("فشل حفظ الطلب في IndexedDB:", error);
     approveOrderInFlight = false;
     if (approveButton) approveButton.disabled = false;
-    alert("❌ حدث خطأ أثناء حفظ الطلب. لم يتم إنشاء نسخة جديدة من الطلب.");
+    if (error.code === "REVISION_CONFLICT") {
+      alert("تم تعديل الطلبات من جهاز آخر. لم يُحفظ هذا الطلب؛ اضغط الحفظ مرة أخرى لإعادة قراءة البيانات.");
+    } else {
+      alert("❌ حدث خطأ أثناء حفظ الطلب. لم يتم إنشاء نسخة جديدة من الطلب.");
+    }
   }
 }
 

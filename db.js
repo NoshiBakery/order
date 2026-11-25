@@ -47,6 +47,15 @@
 
   const KNOWN_KEYS = CLOUD_KEYS.slice();
   const revisions = new Map();
+  // A salesData revision belongs to the actual object read, not the latest
+  // request in this tab (backup exports and background reads are independent).
+  const salesSnapshots = new WeakMap();
+  function rememberSalesSnapshot(key, value, revision) {
+    if (key === "salesData" && value && typeof value === "object") {
+      salesSnapshots.set(value, revision);
+    }
+    return value;
+  }
   let dbPromise = null;
 
   function cloudEnabled() {
@@ -205,13 +214,17 @@
   async function cloudGet(key, defaultValue = null) {
     const result = await readWithRetry(() => cloudApi(`/api/data/${encodeURIComponent(key)}`));
     revisions.set(key, Number(result.revision || 0));
-    return result.exists ? result.value : defaultValue;
+    return rememberSalesSnapshot(key, result.exists ? result.value : defaultValue, Number(result.revision || 0));
   }
 
   async function cloudSet(key, value, options = {}) {
     const payload = { value };
+    if (key === "salesData") payload.salesSnapshotVersion = 1;
     if (options.expectedRevision !== undefined) {
       payload.expectedRevision = Number(options.expectedRevision);
+    } else if (key === "salesData") {
+      if (!salesSnapshots.has(value)) throw conflictError(key);
+      payload.expectedRevision = salesSnapshots.get(value);
     } else if (revisions.has(key)) {
       payload.expectedRevision = Number(revisions.get(key));
     }
@@ -221,10 +234,12 @@
         body: JSON.stringify(payload)
       });
       revisions.set(key, Number(result.revision || 0));
+      rememberSalesSnapshot(key, value, Number(result.revision || 0));
       return true;
     } catch (error) {
       if (error && (error.status === 409 || error.data?.error === "REVISION_CONFLICT")) {
         revisions.delete(key);
+        if (key === "salesData" && value && typeof value === "object") salesSnapshots.delete(value);
         throw conflictError(key);
       }
       throw error;
@@ -254,10 +269,10 @@
       const fallback = Object.prototype.hasOwnProperty.call(defaults, key) ? defaults[key] : null;
       if (row && row.exists) {
         revisions.set(key, Number(row.revision || 0));
-        output[key] = row.value;
+        output[key] = rememberSalesSnapshot(key, row.value, Number(row.revision || 0));
       } else {
         revisions.set(key, Number(row?.revision || 0));
-        if (options.includeMissing !== false) output[key] = fallback;
+        if (options.includeMissing !== false) output[key] = rememberSalesSnapshot(key, fallback, Number(row?.revision || 0));
       }
     });
     return output;
@@ -432,7 +447,12 @@
           skippedKeys.push(key);
           continue;
         }
-        await cloudSet(key, dataObject[key], options.initialOnly ? { expectedRevision: 0 } : {});
+        let writeOptions = options.initialOnly ? { expectedRevision: 0 } : {};
+        if (key === "salesData" && options.explicitImport && !options.initialOnly) {
+          const current = await cloudGet(key, {});
+          writeOptions = { expectedRevision: salesSnapshots.get(current) };
+        }
+        await cloudSet(key, dataObject[key], writeOptions);
         importedKeys.push(key);
       } else {
         await localSet(key, dataObject[key]);
@@ -449,7 +469,7 @@
   }
 
   async function importAll(dataObject, options = {}) {
-    const result = await setMany(dataObject, options);
+    const result = await setMany(dataObject, { ...options, explicitImport: true });
     if (cloudEnabled() && dataObject.salesData && typeof dataObject.salesData === "object" && !Array.isArray(dataObject.salesData)) {
       for (const monthKey of Object.keys(dataObject.salesData).filter(k => /^\d{4}-\d{2}$/.test(k))) {
         const rows = Array.isArray(dataObject.salesData[monthKey]) ? dataObject.salesData[monthKey] : [];

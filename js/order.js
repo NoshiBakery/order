@@ -131,11 +131,11 @@ function cloneForBackup(data) {
   return JSON.parse(JSON.stringify(data || {}));
 }
 
-function createBackupFile(label, baseData = backupBaseData) {
+function createBackupFile(label, baseData = backupBaseData, salesSnapshot = salesData) {
   const allData = cloneForBackup(baseData);
 
   // نضمن أن النسخة تستخدم آخر بيانات موجودة في الذاكرة بعد التحميل
-  allData.salesData = cloneForBackup(salesData);
+  allData.salesData = cloneForBackup(salesSnapshot);
   allData.clients = cloneForBackup(clients);
 
   const now = new Date();
@@ -2565,6 +2565,8 @@ function buildBulkPayMessage(mode, summary) {
 }
 
 async function bulkPay(mode) {
+  const snapshot = salesData;
+  const snapshotText = JSON.stringify(snapshot);
   const monthKey = getCurrentMonthKey();
   const summary = getBulkPaySummary(mode);
 
@@ -2586,7 +2588,12 @@ async function bulkPay(mode) {
     return;
   }
 
-  const beforeFile = createBackupFile("نسخة_قبل_السداد", liveBackupBase);
+  if (salesData !== snapshot || JSON.stringify(snapshot) !== snapshotText || pendingOrderPaymentWrites > 0) {
+    toast("تغيرت بيانات الطلبات؛ راجع السداد وحاول مرة أخرى");
+    return;
+  }
+  const beforeFile = createBackupFile("نسخة_قبل_السداد", liveBackupBase, snapshot);
+  const afterSales = cloneForBackup(snapshot);
   const changes = [];
 
   summary.candidates.forEach(({ index, order }) => {
@@ -2597,12 +2604,12 @@ async function bulkPay(mode) {
       prevPaidByEmad: !!order.paidByEmad,
       prevCheckboxStatus: !!order.checkboxStatus
     });
-    order.paidByEmad = true;
-    order.checkboxStatus = true;
+    afterSales[monthKey][index].paidByEmad = true;
+    afterSales[monthKey][index].checkboxStatus = true;
   });
 
   const now = Date.now();
-  const afterFile = createBackupFile("نسخة_بعد_السداد", liveBackupBase);
+  const afterFile = createBackupFile("نسخة_بعد_السداد", liveBackupBase, afterSales);
 
   /*
     لم نغيّر آلية المشاركة أو تنزيل النسخ.
@@ -2631,7 +2638,20 @@ async function bulkPay(mode) {
     );
   }
 
+  let salesSaved = false;
   try {
+    if (salesData !== snapshot || JSON.stringify(snapshot) !== snapshotText || pendingOrderPaymentWrites > 0) {
+      const error = new Error("REVISION_CONFLICT");
+      error.code = "REVISION_CONFLICT";
+      throw error;
+    }
+    summary.candidates.forEach(({ order }) => {
+      order.paidByEmad = true;
+      order.checkboxStatus = true;
+    });
+    await NoshiDB.set("salesData", snapshot);
+    salesSaved = true;
+    // A rejected sales write must not leave a new undo entry behind.
     await upsertEntry({
       monthKey,
       atMs: now,
@@ -2639,8 +2659,6 @@ async function bulkPay(mode) {
       mode,
       changes
     });
-
-    await saveSalesData();
 
     backupBaseData.salesData =
       cloneForBackup(salesData);
@@ -2659,9 +2677,15 @@ async function bulkPay(mode) {
       error
     );
 
-    toast(
-      "❌ تمت المشاركة، لكن حدث خطأ أثناء حفظ السداد"
-    );
+    try {
+      salesData = await NoshiDB.get("salesData", {});
+      changeMonth(0);
+    } catch (refreshError) {
+      console.error("تعذرت إعادة قراءة الطلبات:", refreshError);
+    }
+    toast(salesSaved
+      ? "تم حفظ السداد، لكن تعذر حفظ سجل التراجع"
+      : "❌ لم يتأكد حفظ السداد؛ حدّث الصفحة وراجع الطلبات قبل المحاولة");
   }
 }
 
@@ -2697,9 +2721,11 @@ async function undoBulkPayCore() {
     target.checkboxStatus = !!ch.prevCheckboxStatus;
   });
 
+  let salesSaved = false;
   try {
-    await removeEntry(monthKey);
     await saveSalesData();
+    salesSaved = true;
+    await removeEntry(monthKey);
 
     backupBaseData.salesData = cloneForBackup(salesData);
     backupBaseData.clients = cloneForBackup(clients);
@@ -2710,7 +2736,15 @@ async function undoBulkPayCore() {
 
   } catch (error) {
     console.error("فشل التراجع عن السداد:", error);
-    toast("❌ حدث خطأ أثناء التراجع");
+    try {
+      salesData = await NoshiDB.get("salesData", {});
+      changeMonth(0);
+    } catch (refreshError) {
+      console.error("تعذرت إعادة قراءة الطلبات:", refreshError);
+    }
+    toast(salesSaved
+      ? "تم حفظ التراجع لكن تعذر تحديث سجله؛ لا تكرره قبل المراجعة"
+      : "❌ لم يتأكد التراجع؛ حدّث الصفحة وراجع الطلبات");
   }
 }
 
